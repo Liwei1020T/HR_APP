@@ -70,7 +70,16 @@ export async function GET(request: NextRequest) {
       },
     }));
 
-    return corsResponse(formatted, { request, status: 200 });
+    const total = await db.announcement.count({ where });
+    const pinned_count = await db.announcement.count({ 
+      where: { isPinned: true, isActive: true } 
+    });
+
+    return corsResponse({ 
+      announcements: formatted, 
+      total, 
+      pinned_count 
+    }, { request, status: 200 });
   } catch (error) {
     return handleApiError(error);
   }

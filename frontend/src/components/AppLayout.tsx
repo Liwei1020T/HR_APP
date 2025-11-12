@@ -60,38 +60,51 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <div
         className={`fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 transition-transform duration-300 ease-in-out`}
+        } lg:translate-x-0 transition-transform duration-300 ease-in-out border-r border-gray-200`}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center justify-between h-16 px-6 bg-blue-600">
-            <Link to="/" className="text-xl font-bold text-white">
+          <div className="flex items-center justify-between h-16 px-6 bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg">
+            <Link to="/" className="text-xl font-bold text-white flex items-center">
+              <span className="mr-2">🏢</span>
               HR Portal
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden text-white hover:text-gray-200"
+              className="lg:hidden text-white hover:text-gray-200 transition-colors"
             >
               ✕
             </button>
           </div>
 
+          {/* Navigation Header */}
+          <div className="px-4 pt-6 pb-2">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Navigation
+            </p>
+          </div>
+
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+          <nav className="flex-1 px-4 pb-6 space-y-2 overflow-y-auto">
             {filteredNavigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
-                className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group ${
                   isActive(item.href)
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-50'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
                 }`}
               >
-                <span className="mr-3 text-xl">{item.icon}</span>
+                <span className="mr-3 text-xl group-hover:scale-110 transition-transform">{item.icon}</span>
                 <span className="flex-1">{item.name}</span>
                 {item.badge && item.badge > 0 && (
-                  <span className="ml-2 px-2 py-0.5 text-xs font-semibold text-white bg-red-500 rounded-full">
+                  <span className={`ml-2 px-2 py-0.5 text-xs font-semibold rounded-full ${
+                    isActive(item.href) 
+                      ? 'bg-white text-blue-600' 
+                      : 'bg-red-500 text-white'
+                  }`}>
                     {item.badge > 99 ? '99+' : item.badge}
                   </span>
                 )}
@@ -127,10 +140,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top bar */}
-        <div className="sticky top-0 z-10 flex items-center h-16 bg-white border-b border-gray-200 px-4 lg:px-8">
+        <div className="sticky top-0 z-10 flex items-center h-16 bg-white border-b border-gray-200 px-4 lg:px-8 shadow-sm">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden mr-4 text-gray-500 hover:text-gray-700"
+            className="lg:hidden mr-4 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Open sidebar"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -143,7 +157,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
           <div className="flex items-center space-x-4">
             <span className="text-sm text-gray-600 hidden sm:inline">
-              Welcome, <span className="font-medium">{user?.full_name}</span>
+              Welcome, <span className="font-medium text-gray-900">{user?.full_name}</span>
             </span>
           </div>
         </div>

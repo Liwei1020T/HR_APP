@@ -46,7 +46,15 @@ export async function GET(request: NextRequest) {
       } : null,
     }));
 
-    return corsResponse(formatted, { request, status: 200 });
+    const total = await db.auditLog.count();
+    const page = Math.floor(skip / limit) + 1;
+
+    return corsResponse({ 
+      logs: formatted, 
+      total, 
+      page, 
+      page_size: limit 
+    }, { request, status: 200 });
   } catch (error) {
     return handleApiError(error);
   }

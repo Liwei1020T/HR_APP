@@ -69,7 +69,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const hasRole = (roles: string[]) => {
     if (!user) return false;
-    return roles.includes(user.role);
+    // Convert both to lowercase for case-insensitive comparison
+    const userRole = user.role.toLowerCase();
+    return roles.some(role => role.toLowerCase() === userRole);
   };
 
   return (

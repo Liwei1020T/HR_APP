@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { formatDate, getPaginationParams } from '@/lib/utils';
+import { formatDate } from '@/lib/utils';
 import { handleApiError } from '@/lib/errors';
 import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
 
@@ -9,16 +9,20 @@ export async function OPTIONS(request: NextRequest) {
   return handleCorsPreflightRequest(request);
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { type: string; id: string } }
+) {
   try {
-    const authUser = await requireAuth(request);
-    const { searchParams } = new URL(request.url);
-    const { skip, limit } = getPaginationParams(searchParams);
+    await requireAuth(request);
+    const entityType = params.type;
+    const entityId = parseInt(params.id);
 
     const files = await db.file.findMany({
-      where: { uploadedBy: authUser.id },
-      skip,
-      take: limit,
+      where: {
+        entityType: entityType,
+        entityId: entityId,
+      },
       include: {
         uploader: {
           select: {
@@ -48,7 +52,7 @@ export async function GET(request: NextRequest) {
       },
     }));
 
-    const total = await db.file.count({ where: { uploadedBy: authUser.id } });
+    const total = files.length;
 
     return corsResponse({ files: formatted, total }, { request, status: 200 });
   } catch (error) {

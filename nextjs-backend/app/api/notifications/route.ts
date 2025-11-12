@@ -38,7 +38,16 @@ export async function GET(request: NextRequest) {
       created_at: formatDate(n.createdAt),
     }));
 
-    return corsResponse(formatted, { request, status: 200 });
+    const total = await db.notification.count({ where: { userId: authUser.id } });
+    const unread_count = await db.notification.count({ 
+      where: { userId: authUser.id, isRead: false } 
+    });
+
+    return corsResponse({ 
+      notifications: formatted, 
+      total, 
+      unread_count 
+    }, { request, status: 200 });
   } catch (error) {
     return handleApiError(error);
   }

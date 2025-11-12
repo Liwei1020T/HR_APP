@@ -16,16 +16,18 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const { skip, limit } = getPaginationParams(searchParams);
 
+    const where = {
+      OR: [
+        { isPrivate: false },
+        { createdBy: authUser.id },
+        { members: { some: { userId: authUser.id } } },
+      ],
+    };
+
     const channels = await db.channel.findMany({
       skip,
       take: limit,
-      where: {
-        OR: [
-          { isPrivate: false },
-          { createdBy: authUser.id },
-          { members: { some: { userId: authUser.id } } },
-        ],
-      },
+      where,
       include: {
         creator: {
           select: {
@@ -58,7 +60,9 @@ export async function GET(request: NextRequest) {
       },
     }));
 
-    return corsResponse(formatted, { request, status: 200 });
+    const total = await db.channel.count({ where });
+
+    return corsResponse({ channels: formatted, total }, { request, status: 200 });
   } catch (error) {
     return handleApiError(error);
   }

@@ -19,25 +19,49 @@ async function main() {
 
   console.log('✅ Cleared existing data');
 
-  // Hash password for all users
-  const hashedPassword = await bcrypt.hash('password123', 10);
+  // Hash passwords
+  const demoPassword = await bcrypt.hash('P@ssw0rd!', 10);
+  const defaultPassword = await bcrypt.hash('password123', 10);
 
-  // Create users
-  const superadmin = await prisma.user.create({
+  // Create demo users (new credentials)
+  const superAdmin = await prisma.user.create({
     data: {
-      email: 'superadmin@company.com',
-      password: hashedPassword,
-      fullName: 'Super Admin',
+      email: 'sa@demo.local',
+      password: demoPassword,
+      fullName: 'Super Administrator',
       role: 'SUPERADMIN',
+      department: 'Executive',
+      isActive: true,
+    },
+  });
+
+  const demoAdmin = await prisma.user.create({
+    data: {
+      email: 'admin@demo.local',
+      password: demoPassword,
+      fullName: 'Demo Admin',
+      role: 'ADMIN',
       department: 'IT',
       isActive: true,
     },
   });
 
+  const demoUser = await prisma.user.create({
+    data: {
+      email: 'user@demo.local',
+      password: demoPassword,
+      fullName: 'Demo Employee',
+      role: 'EMPLOYEE',
+      department: 'Sales',
+      isActive: true,
+    },
+  });
+
+  // Create existing users (keep backward compatibility)
   const admin = await prisma.user.create({
     data: {
       email: 'admin@company.com',
-      password: hashedPassword,
+      password: defaultPassword,
       fullName: 'Admin User',
       role: 'ADMIN',
       department: 'IT',
@@ -48,7 +72,7 @@ async function main() {
   const hrManager = await prisma.user.create({
     data: {
       email: 'hr@company.com',
-      password: hashedPassword,
+      password: defaultPassword,
       fullName: 'HR Manager',
       role: 'HR',
       department: 'Human Resources',
@@ -59,7 +83,7 @@ async function main() {
   const employee1 = await prisma.user.create({
     data: {
       email: 'john.doe@company.com',
-      password: hashedPassword,
+      password: defaultPassword,
       fullName: 'John Doe',
       role: 'EMPLOYEE',
       department: 'Engineering',
@@ -70,7 +94,7 @@ async function main() {
   const employee2 = await prisma.user.create({
     data: {
       email: 'jane.smith@company.com',
-      password: hashedPassword,
+      password: defaultPassword,
       fullName: 'Jane Smith',
       role: 'EMPLOYEE',
       department: 'Marketing',
@@ -81,7 +105,7 @@ async function main() {
   const employee3 = await prisma.user.create({
     data: {
       email: 'bob.johnson@company.com',
-      password: hashedPassword,
+      password: defaultPassword,
       fullName: 'Bob Johnson',
       role: 'EMPLOYEE',
       department: 'Sales',
@@ -92,7 +116,7 @@ async function main() {
   const employee4 = await prisma.user.create({
     data: {
       email: 'alice.williams@company.com',
-      password: hashedPassword,
+      password: defaultPassword,
       fullName: 'Alice Williams',
       role: 'EMPLOYEE',
       department: 'Engineering',
@@ -325,8 +349,12 @@ async function main() {
   console.log('');
   console.log('🎉 Database seeded successfully!');
   console.log('');
-  console.log('📧 Test Users:');
-  console.log('  SUPERADMIN: superadmin@company.com / password123');
+  console.log('📧 Demo Accounts (P@ssw0rd!):');
+  console.log('  SUPERADMIN: sa@demo.local / P@ssw0rd!');
+  console.log('  ADMIN:      admin@demo.local / P@ssw0rd!');
+  console.log('  EMPLOYEE:   user@demo.local / P@ssw0rd!');
+  console.log('');
+  console.log('📧 Alternative Accounts (password123):');
   console.log('  ADMIN:      admin@company.com / password123');
   console.log('  HR:         hr@company.com / password123');
   console.log('  EMPLOYEE:   john.doe@company.com / password123');

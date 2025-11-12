@@ -22,7 +22,12 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
     });
 
-    return corsResponse(users.map(formatUserResponse), { request, status: 200 });
+    const total = await db.user.count();
+
+    return corsResponse({ 
+      users: users.map(formatUserResponse), 
+      total 
+    }, { request, status: 200 });
   } catch (error) {
     return handleApiError(error);
   }

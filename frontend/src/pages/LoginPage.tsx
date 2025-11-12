@@ -117,40 +117,63 @@ export default function LoginPage() {
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
-                onClick={() => quickLogin('employee@company.com', 'Employee123!')}
+                onClick={() => quickLogin('user@demo.local', 'P@ssw0rd!')}
                 disabled={loading}
-                className="flex flex-col items-center px-4 py-3 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none disabled:opacity-50"
+                className="flex flex-col items-center px-4 py-3 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none disabled:opacity-50 transition-colors"
               >
                 <span className="text-lg mb-1">👤</span>
                 <span>Employee</span>
               </button>
 
               <button
-                onClick={() => quickLogin('hr@company.com', 'Hr123!')}
+                onClick={() => quickLogin('hr@company.com', 'password123')}
                 disabled={loading}
-                className="flex flex-col items-center px-4 py-3 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none disabled:opacity-50"
+                className="flex flex-col items-center px-4 py-3 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none disabled:opacity-50 transition-colors"
               >
                 <span className="text-lg mb-1">💼</span>
                 <span>HR</span>
               </button>
 
               <button
-                onClick={() => quickLogin('admin@company.com', 'Admin123!')}
+                onClick={() => quickLogin('admin@demo.local', 'P@ssw0rd!')}
                 disabled={loading}
-                className="flex flex-col items-center px-4 py-3 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none disabled:opacity-50"
+                className="flex flex-col items-center px-4 py-3 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none disabled:opacity-50 transition-colors"
               >
                 <span className="text-lg mb-1">⚙️</span>
                 <span>Admin</span>
               </button>
 
               <button
-                onClick={() => quickLogin('superadmin@company.com', 'Admin123!')}
+                onClick={() => quickLogin('sa@demo.local', 'P@ssw0rd!')}
                 disabled={loading}
-                className="flex flex-col items-center px-4 py-3 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none disabled:opacity-50"
+                className="flex flex-col items-center px-4 py-3 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none disabled:opacity-50 transition-colors"
               >
                 <span className="text-lg mb-1">👑</span>
                 <span>Superadmin</span>
               </button>
+            </div>
+
+            {/* Credentials Info */}
+            <div className="mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
+              <p className="text-xs text-blue-800 font-medium mb-2">Quick Login Credentials:</p>
+              <div className="text-xs text-blue-700 space-y-1">
+                <div className="flex justify-between">
+                  <span className="font-medium">Employee:</span>
+                  <span className="font-mono">user@demo.local / P@ssw0rd!</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">HR:</span>
+                  <span className="font-mono">hr@company.com / password123</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Admin:</span>
+                  <span className="font-mono">admin@demo.local / P@ssw0rd!</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Superadmin:</span>
+                  <span className="font-mono">sa@demo.local / P@ssw0rd!</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

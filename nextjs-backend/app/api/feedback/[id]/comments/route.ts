@@ -63,7 +63,9 @@ export async function GET(
       },
     }));
 
-    return corsResponse(formatted, { request, status: 200 });
+    const total = comments.length;
+
+    return corsResponse({ comments: formatted, total }, { request, status: 200 });
   } catch (error) {
     return handleApiError(error);
   }
