@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { hashPassword, verifyPassword, createAccessToken, createRefreshToken, verifyToken } from '@/lib/auth';
-import { UserRole } from '@prisma/client';
+import { hashPassword, verifyPassword, createAccessToken, createRefreshToken, verifyToken, UserRole } from '@/lib/auth';
 
 describe('Authentication Utilities', () => {
   describe('Password Hashing', () => {
@@ -33,7 +32,7 @@ describe('Authentication Utilities', () => {
     const mockUser = {
       id: 1,
       email: 'test@example.com',
-      role: UserRole.EMPLOYEE,
+      role: 'EMPLOYEE' as UserRole,
     };
 
     it('should create access token', () => {
@@ -86,7 +85,7 @@ describe('Authentication Utilities', () => {
       const mockUser = {
         id: 1,
         email: 'test@example.com',
-        role: UserRole.EMPLOYEE,
+        role: 'EMPLOYEE' as UserRole,
       };
       
       const token = createAccessToken(mockUser);
@@ -103,7 +102,7 @@ describe('Authentication Utilities', () => {
       const mockUser = {
         id: 1,
         email: 'test@example.com',
-        role: UserRole.EMPLOYEE,
+        role: 'EMPLOYEE' as UserRole,
       };
       
       const token = createRefreshToken(mockUser);

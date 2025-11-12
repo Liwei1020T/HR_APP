@@ -1,15 +1,10 @@
-import type { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   // API-only mode - no pages
   experimental: {
     serverActions: {
       bodySizeLimit: '10mb',
     },
-  },
-  // Use Node.js runtime for full compatibility
-  serverRuntimeConfig: {
-    runtime: 'nodejs',
   },
   // Disable image optimization (not needed for API)
   images: {

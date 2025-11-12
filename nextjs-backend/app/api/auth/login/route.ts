@@ -12,6 +12,8 @@ export async function OPTIONS(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('Login attempt:', { email: body.email });
+    
     const validated = loginSchema.parse(body);
 
     // Find user by email
@@ -20,17 +22,24 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
+      console.log('User not found:', validated.email);
       return createErrorResponse('Invalid credentials', 401);
     }
 
+    console.log('User found:', { id: user.id, email: user.email, role: user.role });
+
     // Verify password
     const isValidPassword = await verifyPassword(validated.password, user.password);
+    console.log('Password valid:', isValidPassword);
+    
     if (!isValidPassword) {
+      console.log('Password verification failed');
       return createErrorResponse('Invalid credentials', 401);
     }
 
     // Check if user is active
     if (!user.isActive) {
+      console.log('User inactive:', user.email);
       return createErrorResponse('Account is inactive', 403);
     }
 
@@ -44,8 +53,10 @@ export async function POST(request: NextRequest) {
       token_type: 'bearer',
     };
 
+    console.log('Login successful:', user.email);
     return corsResponse(response, { request, status: 200 });
   } catch (error) {
+    console.error('Login error:', error);
     return handleApiError(error);
   }
 }

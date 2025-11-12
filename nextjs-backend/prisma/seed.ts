@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole, FeedbackStatus, FeedbackCategory, AnnouncementCategory } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -28,7 +28,7 @@ async function main() {
       email: 'superadmin@company.com',
       password: hashedPassword,
       fullName: 'Super Admin',
-      role: UserRole.SUPERADMIN,
+      role: 'SUPERADMIN',
       department: 'IT',
       isActive: true,
     },
@@ -39,7 +39,7 @@ async function main() {
       email: 'admin@company.com',
       password: hashedPassword,
       fullName: 'Admin User',
-      role: UserRole.ADMIN,
+      role: 'ADMIN',
       department: 'IT',
       isActive: true,
     },
@@ -50,7 +50,7 @@ async function main() {
       email: 'hr@company.com',
       password: hashedPassword,
       fullName: 'HR Manager',
-      role: UserRole.HR,
+      role: 'HR',
       department: 'Human Resources',
       isActive: true,
     },
@@ -61,7 +61,7 @@ async function main() {
       email: 'john.doe@company.com',
       password: hashedPassword,
       fullName: 'John Doe',
-      role: UserRole.EMPLOYEE,
+      role: 'EMPLOYEE',
       department: 'Engineering',
       isActive: true,
     },
@@ -72,7 +72,7 @@ async function main() {
       email: 'jane.smith@company.com',
       password: hashedPassword,
       fullName: 'Jane Smith',
-      role: UserRole.EMPLOYEE,
+      role: 'EMPLOYEE',
       department: 'Marketing',
       isActive: true,
     },
@@ -83,7 +83,7 @@ async function main() {
       email: 'bob.johnson@company.com',
       password: hashedPassword,
       fullName: 'Bob Johnson',
-      role: UserRole.EMPLOYEE,
+      role: 'EMPLOYEE',
       department: 'Sales',
       isActive: true,
     },
@@ -94,7 +94,7 @@ async function main() {
       email: 'alice.williams@company.com',
       password: hashedPassword,
       fullName: 'Alice Williams',
-      role: UserRole.EMPLOYEE,
+      role: 'EMPLOYEE',
       department: 'Engineering',
       isActive: true,
     },
@@ -157,8 +157,8 @@ async function main() {
     data: {
       title: 'Improve office ergonomics',
       description: 'The current desk chairs are causing back pain. We need better ergonomic furniture.',
-      category: FeedbackCategory.WORKPLACE,
-      status: FeedbackStatus.SUBMITTED,
+      category: 'WORKPLACE',
+      status: 'SUBMITTED',
       isAnonymous: false,
       submittedBy: employee1.id,
     },
@@ -168,8 +168,8 @@ async function main() {
     data: {
       title: 'Request for remote work policy',
       description: 'Would like to see a more flexible remote work policy implemented.',
-      category: FeedbackCategory.MANAGEMENT,
-      status: FeedbackStatus.UNDER_REVIEW,
+      category: 'MANAGEMENT',
+      status: 'UNDER_REVIEW',
       isAnonymous: false,
       submittedBy: employee2.id,
       assignedTo: hrManager.id,
@@ -180,8 +180,8 @@ async function main() {
     data: {
       title: 'Health insurance concerns',
       description: 'The current health insurance plan has limited coverage. Would like better options.',
-      category: FeedbackCategory.BENEFITS,
-      status: FeedbackStatus.IN_PROGRESS,
+      category: 'BENEFITS',
+      status: 'IN_PROGRESS',
       isAnonymous: true,
       submittedBy: employee3.id,
       assignedTo: hrManager.id,
@@ -192,8 +192,8 @@ async function main() {
     data: {
       title: 'Positive team culture',
       description: 'Really enjoying the collaborative culture in the engineering team!',
-      category: FeedbackCategory.CULTURE,
-      status: FeedbackStatus.RESOLVED,
+      category: 'CULTURE',
+      status: 'RESOLVED',
       isAnonymous: false,
       submittedBy: employee4.id,
       assignedTo: hrManager.id,
@@ -228,7 +228,7 @@ async function main() {
       {
         title: 'Welcome to the HR Portal',
         content: 'We are excited to launch our new HR feedback portal. Please share your thoughts!',
-        category: AnnouncementCategory.COMPANY_NEWS,
+        category: 'COMPANY_NEWS',
         isPinned: true,
         isActive: true,
         createdBy: admin.id,
@@ -236,7 +236,7 @@ async function main() {
       {
         title: 'New Health Benefits',
         content: 'We are adding dental and vision coverage to our health insurance plans starting next month.',
-        category: AnnouncementCategory.BENEFIT,
+        category: 'BENEFIT',
         isPinned: false,
         isActive: true,
         createdBy: hrManager.id,
@@ -244,7 +244,7 @@ async function main() {
       {
         title: 'Annual Performance Reviews',
         content: 'Performance review season is here. Please schedule your 1-on-1 with your manager.',
-        category: AnnouncementCategory.HR_POLICY,
+        category: 'HR_POLICY',
         isPinned: false,
         isActive: true,
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
@@ -253,7 +253,7 @@ async function main() {
       {
         title: 'Company Holiday Party',
         content: 'Join us for our annual holiday party on December 15th! RSVP by December 1st.',
-        category: AnnouncementCategory.EVENT,
+        category: 'EVENT',
         isPinned: true,
         isActive: true,
         createdBy: admin.id,
