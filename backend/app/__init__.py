@@ -1,3 +1,0 @@
-"""
-HR App Backend Application
-"""

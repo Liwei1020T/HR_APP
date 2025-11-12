@@ -1,0 +1,45 @@
+import { NextRequest } from 'next/server';
+import { requireAuth } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { formatDate, getPaginationParams, parseQueryBoolean } from '@/lib/utils';
+import { handleApiError } from '@/lib/errors';
+import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
+
+export async function OPTIONS(request: NextRequest) {
+  return handleCorsPreflightRequest(request);
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const authUser = await requireAuth(request);
+    const { searchParams } = new URL(request.url);
+    const { skip, limit } = getPaginationParams(searchParams);
+    const unreadOnly = parseQueryBoolean(searchParams.get('unread_only'));
+
+    const notifications = await db.notification.findMany({
+      where: {
+        userId: authUser.id,
+        ...(unreadOnly && { isRead: false }),
+      },
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const formatted = notifications.map((n) => ({
+      id: n.id,
+      user_id: n.userId,
+      type: n.type,
+      title: n.title,
+      message: n.message,
+      is_read: n.isRead,
+      related_entity_type: n.relatedEntityType,
+      related_entity_id: n.relatedEntityId,
+      created_at: formatDate(n.createdAt),
+    }));
+
+    return corsResponse(formatted, { request, status: 200 });
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
