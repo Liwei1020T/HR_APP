@@ -87,7 +87,9 @@ export async function PATCH(
       status: updated.status,
       is_anonymous: updated.isAnonymous,
       submitted_by: updated.submittedBy,
+      submitted_by_name: feedback.isAnonymous ? undefined : feedback.submitter.fullName,
       assigned_to: updated.assignedTo,
+      assigned_to_name: updated.assignedTo ? (await db.user.findUnique({ where: { id: updated.assignedTo } }))?.fullName : undefined,
       created_at: formatDate(updated.createdAt),
       updated_at: formatDate(updated.updatedAt),
     };

@@ -55,7 +55,9 @@ export async function GET(
       status: feedback.status,
       is_anonymous: feedback.isAnonymous,
       submitted_by: feedback.submittedBy,
+      submitted_by_name: feedback.isAnonymous && authUser.id !== feedback.submittedBy ? undefined : feedback.submitter.fullName,
       assigned_to: feedback.assignedTo,
+      assigned_to_name: feedback.assignee ? feedback.assignee.fullName : undefined,
       created_at: formatDate(feedback.createdAt),
       updated_at: formatDate(feedback.updatedAt),
       submitter: feedback.isAnonymous && authUser.id !== feedback.submittedBy ? null : {

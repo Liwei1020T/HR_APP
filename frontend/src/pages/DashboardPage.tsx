@@ -104,7 +104,7 @@ export default function DashboardPage() {
                             {announcement.content}
                           </p>
                           <p className="mt-1 text-xs text-gray-500">
-                            by {announcement.creator_name} • {new Date(announcement.created_at).toLocaleDateString()}
+                            by {announcement.creator_name || announcement.creator?.full_name || 'HR Team'} • {new Date(announcement.created_at).toLocaleDateString()}
                           </p>
                         </div>
                       </div>

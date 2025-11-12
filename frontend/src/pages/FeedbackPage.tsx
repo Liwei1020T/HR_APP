@@ -5,11 +5,32 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { feedbackApi } from '../lib/api-client';
 import type { FeedbackItem, FeedbackCreate } from '../lib/types';
 
+const STATUS_OPTIONS = ['all', 'SUBMITTED', 'UNDER_REVIEW', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const;
+
+const formatStatusLabel = (status: string) =>
+  status === 'all' ? 'ALL' : status.replace(/_/g, ' ').toUpperCase();
+
+const getStatusBadgeClasses = (status: string) => {
+  switch (status) {
+    case 'RESOLVED':
+      return 'bg-green-100 text-green-800';
+    case 'IN_PROGRESS':
+      return 'bg-blue-100 text-blue-800';
+    case 'UNDER_REVIEW':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'CLOSED':
+      return 'bg-gray-200 text-gray-800';
+    case 'SUBMITTED':
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+};
+
 export default function FeedbackPage() {
   const { user, hasRole } = useAuth();
   const queryClient = useQueryClient();
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<typeof STATUS_OPTIONS[number]>('all');
   const [selectedFeedback, setSelectedFeedback] = useState<FeedbackItem | null>(null);
 
   // Form state
@@ -23,7 +44,8 @@ export default function FeedbackPage() {
   // Fetch feedback
   const { data: feedbackData, isLoading } = useQuery({
     queryKey: ['feedback', selectedStatus],
-    queryFn: () => feedbackApi.getAll(selectedStatus !== 'all' ? { status: selectedStatus } : {}),
+    queryFn: () =>
+      feedbackApi.getAll(selectedStatus !== 'all' ? { status: selectedStatus } : undefined),
   });
 
   // Create feedback mutation
@@ -48,7 +70,10 @@ export default function FeedbackPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createMutation.mutate(formData);
+    createMutation.mutate({
+      ...formData,
+      category: formData.category.toUpperCase(),
+    });
   };
 
   const filteredFeedback = feedbackData?.feedback || [];
@@ -161,7 +186,7 @@ export default function FeedbackPage() {
         {/* Filters */}
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex space-x-2">
-            {['all', 'submitted', 'under_review', 'in_progress', 'resolved', 'closed'].map((status) => (
+            {STATUS_OPTIONS.map((status) => (
               <button
                 key={status}
                 onClick={() => setSelectedStatus(status)}
@@ -171,7 +196,7 @@ export default function FeedbackPage() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                {status.replace('_', ' ').toUpperCase()}
+                {formatStatusLabel(status)}
               </button>
             ))}
           </div>
@@ -192,17 +217,11 @@ export default function FeedbackPage() {
                       <div className="flex items-center space-x-3 mb-2">
                         <h3 className="text-lg font-semibold text-gray-900">{feedback.title}</h3>
                         <span
-                          className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            feedback.status === 'resolved'
-                              ? 'bg-green-100 text-green-800'
-                              : feedback.status === 'in_progress'
-                              ? 'bg-blue-100 text-blue-800'
-                              : feedback.status === 'under_review'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeClasses(
+                            feedback.status
+                          )}`}
                         >
-                          {feedback.status.replace('_', ' ')}
+                          {formatStatusLabel(feedback.status)}
                         </span>
                         <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
                           {feedback.category}
@@ -245,7 +264,7 @@ export default function FeedbackPage() {
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Update Status</h3>
               <p className="text-sm text-gray-600 mb-4">{selectedFeedback.title}</p>
               <div className="space-y-2">
-                {['submitted', 'under_review', 'in_progress', 'resolved', 'closed'].map((status) => (
+                {STATUS_OPTIONS.filter((status) => status !== 'all').map((status) => (
                   <button
                     key={status}
                     onClick={() =>
@@ -254,7 +273,7 @@ export default function FeedbackPage() {
                     disabled={updateStatusMutation.isPending}
                     className="w-full px-4 py-2 text-left border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
                   >
-                    {status.replace('_', ' ').toUpperCase()}
+                    {formatStatusLabel(status)}
                   </button>
                 ))}
               </div>

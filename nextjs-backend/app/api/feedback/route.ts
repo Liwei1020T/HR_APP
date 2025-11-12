@@ -70,7 +70,9 @@ export async function GET(request: NextRequest) {
       status: f.status,
       is_anonymous: f.isAnonymous,
       submitted_by: f.submittedBy,
+      submitted_by_name: f.isAnonymous ? undefined : f.submitter.fullName,
       assigned_to: f.assignedTo,
+      assigned_to_name: f.assignee ? f.assignee.fullName : undefined,
       created_at: formatDate(f.createdAt),
       updated_at: formatDate(f.updatedAt),
       submitter: f.isAnonymous ? null : {
@@ -85,7 +87,9 @@ export async function GET(request: NextRequest) {
       } : null,
     }));
 
-    return corsResponse(formatted, { request, status: 200 });
+    const total = await db.feedback.count({ where });
+
+    return corsResponse({ feedback: formatted, total }, { request, status: 200 });
   } catch (error) {
     return handleApiError(error);
   }
@@ -146,7 +150,9 @@ export async function POST(request: NextRequest) {
       status: feedback.status,
       is_anonymous: feedback.isAnonymous,
       submitted_by: feedback.submittedBy,
+      submitted_by_name: feedback.isAnonymous ? undefined : feedback.submitter.fullName,
       assigned_to: feedback.assignedTo,
+      assigned_to_name: null,
       created_at: formatDate(feedback.createdAt),
       updated_at: formatDate(feedback.updatedAt),
       submitter: feedback.isAnonymous ? null : {
