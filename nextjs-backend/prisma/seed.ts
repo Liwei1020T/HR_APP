@@ -31,6 +31,7 @@ async function main() {
       fullName: 'Super Administrator',
       role: 'SUPERADMIN',
       department: 'Executive',
+      dateOfBirth: new Date('1980-01-15'),
       isActive: true,
     },
   });
@@ -42,6 +43,7 @@ async function main() {
       fullName: 'Demo Admin',
       role: 'ADMIN',
       department: 'IT',
+      dateOfBirth: new Date('1985-03-03'),
       isActive: true,
     },
   });
@@ -53,6 +55,7 @@ async function main() {
       fullName: 'Demo Employee',
       role: 'EMPLOYEE',
       department: 'Sales',
+      dateOfBirth: new Date('1990-05-20'),
       isActive: true,
     },
   });
@@ -65,6 +68,7 @@ async function main() {
       fullName: 'Admin User',
       role: 'ADMIN',
       department: 'IT',
+      dateOfBirth: new Date('1988-02-10'),
       isActive: true,
     },
   });
@@ -76,6 +80,7 @@ async function main() {
       fullName: 'HR Manager',
       role: 'HR',
       department: 'Human Resources',
+      dateOfBirth: new Date('1987-04-05'),
       isActive: true,
     },
   });
@@ -87,6 +92,7 @@ async function main() {
       fullName: 'John Doe',
       role: 'EMPLOYEE',
       department: 'Engineering',
+      dateOfBirth: new Date('1992-08-12'),
       isActive: true,
     },
   });
@@ -98,6 +104,7 @@ async function main() {
       fullName: 'Jane Smith',
       role: 'EMPLOYEE',
       department: 'Marketing',
+      dateOfBirth: new Date('1991-09-23'),
       isActive: true,
     },
   });
@@ -109,6 +116,7 @@ async function main() {
       fullName: 'Bob Johnson',
       role: 'EMPLOYEE',
       department: 'Sales',
+      dateOfBirth: new Date('1993-11-30'),
       isActive: true,
     },
   });
@@ -120,6 +128,7 @@ async function main() {
       fullName: 'Alice Williams',
       role: 'EMPLOYEE',
       department: 'Engineering',
+      dateOfBirth: new Date('1994-12-08'),
       isActive: true,
     },
   });
@@ -321,6 +330,47 @@ async function main() {
   });
 
   console.log('✅ Created notifications');
+
+
+  // Create sample birthday event for August
+  const seedYear = new Date().getUTCFullYear();
+  const birthdayEventMonth = 8;
+  const birthdayEvent = await prisma.birthdayEvent.create({
+    data: {
+      year: seedYear,
+      month: birthdayEventMonth,
+      eventDate: new Date(Date.UTC(seedYear, birthdayEventMonth - 1, 25, 15, 0, 0)),
+      title: 'August Birthday Celebration',
+      description: 'Celebrate all August birthdays with cake and games!',
+      location: 'Main Town Hall',
+      createdById: hrManager.id,
+    },
+  });
+
+  const augustBirthdayUsers = await prisma.user.findMany({
+    where: {
+      dateOfBirth: { not: null },
+      isActive: true,
+    },
+  });
+
+  const eligibleAugust = augustBirthdayUsers.filter(
+    (user) => user.dateOfBirth && user.dateOfBirth.getUTCMonth() + 1 === birthdayEventMonth
+  );
+
+  for (const [index, user] of eligibleAugust.entries()) {
+    await prisma.birthdayRegistration.create({
+      data: {
+        eventId: birthdayEvent.id,
+        userId: user.id,
+        rsvpStatus: index % 2 === 0 ? 'going' : 'pending',
+        rsvpAt: index % 2 === 0 ? new Date() : null,
+      },
+    });
+  }
+
+  console.log('?? Created sample birthday event and registrations');
+
 
   // Create audit log entries
   await prisma.auditLog.createMany({

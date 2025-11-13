@@ -22,6 +22,7 @@ export interface User {
   is_active: boolean;
   created_at: string;
   department?: string;
+  date_of_birth?: string | null;
 }
 
 // ===== Channel Types =====
@@ -114,6 +115,53 @@ export interface Notification {
   created_at: string;
   related_entity_type?: string;
   related_entity_id?: number;
+  metadata?: {
+    type: string;
+    eventId?: number;
+  };
+}
+
+// ===== Birthday Types =====
+export interface BirthdayEventSummary {
+  total_registrations: number;
+  going_count: number;
+  pending_count: number;
+  not_going_count: number;
+}
+
+export interface BirthdayRegistration {
+  id: number;
+  event_id: number;
+  user_id: number;
+  rsvp_status: 'pending' | 'going' | 'not_going';
+  rsvp_at?: string | null;
+  created_at: string;
+  user?: {
+    id: number;
+    full_name: string;
+    email: string;
+    department?: string | null;
+    date_of_birth?: string | null;
+  };
+}
+
+export interface BirthdayEvent {
+  id: number;
+  year: number;
+  month: number;
+  event_date: string;
+  title: string;
+  description?: string | null;
+  location?: string | null;
+  created_by: {
+    id: number;
+    full_name: string;
+    email: string;
+  };
+  created_at: string;
+  updated_at: string;
+  summary: BirthdayEventSummary;
+  viewer_registration?: BirthdayRegistration | null;
 }
 
 // ===== Announcement Types =====

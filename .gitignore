@@ -76,8 +76,5 @@ docker-compose.override.yml
 uploads/
 *.uploaded
 
-# PostgreSQL data directory
-postgres18/
-
 # OS
 Thumbs.db

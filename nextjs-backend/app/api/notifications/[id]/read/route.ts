@@ -42,6 +42,10 @@ export async function PATCH(
       is_read: updated.isRead,
       related_entity_type: updated.relatedEntityType,
       related_entity_id: updated.relatedEntityId,
+      metadata:
+        updated.type === 'birthday_invite' && updated.relatedEntityId
+          ? { type: 'birthday_invite', eventId: updated.relatedEntityId }
+          : undefined,
       created_at: formatDate(updated.createdAt),
     };
 

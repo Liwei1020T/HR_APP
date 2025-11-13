@@ -26,17 +26,25 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
     });
 
-    const formatted = notifications.map((n) => ({
-      id: n.id,
-      user_id: n.userId,
-      type: n.type,
-      title: n.title,
-      message: n.message,
-      is_read: n.isRead,
-      related_entity_type: n.relatedEntityType,
-      related_entity_id: n.relatedEntityId,
-      created_at: formatDate(n.createdAt),
-    }));
+    const formatted = notifications.map((n) => {
+      const metadata =
+        n.type === 'birthday_invite' && n.relatedEntityId
+          ? { type: 'birthday_invite', eventId: n.relatedEntityId }
+          : null;
+
+      return {
+        id: n.id,
+        user_id: n.userId,
+        type: n.type,
+        title: n.title,
+        message: n.message,
+        is_read: n.isRead,
+        related_entity_type: n.relatedEntityType,
+        related_entity_id: n.relatedEntityId,
+        metadata: metadata ?? undefined,
+        created_at: formatDate(n.createdAt),
+      };
+    });
 
     const total = await db.notification.count({ where: { userId: authUser.id } });
     const unread_count = await db.notification.count({ 

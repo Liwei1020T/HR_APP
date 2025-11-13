@@ -12,6 +12,9 @@ import ChannelsPage from './pages/ChannelsPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import AdminPage from './pages/AdminPage';
+import BirthdayAdminPage from './pages/BirthdayAdminPage';
+import BirthdayEventDetailPage from './pages/BirthdayEventDetailPage';
+import BirthdayRsvpPage from './pages/BirthdayRsvpPage';
 
 function App() {
   return (
@@ -31,11 +34,14 @@ function App() {
               <Route path="/channels" element={<ChannelsPage />} />
               <Route path="/announcements" element={<AnnouncementsPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/birthday/:eventId" element={<BirthdayRsvpPage />} />
             </Route>
 
             {/* Admin-only routes */}
             <Route element={<RoleProtectedRoute roles={['hr', 'admin', 'superadmin']} />}>
               <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin/birthdays" element={<BirthdayAdminPage />} />
+              <Route path="/admin/birthdays/:eventId" element={<BirthdayEventDetailPage />} />
             </Route>
 
             {/* Catch all */}

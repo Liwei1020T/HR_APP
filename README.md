@@ -1,6 +1,6 @@
 # HR Web Application
 
-A production-ready HR web application built with React (TypeScript) frontend and Next.js API Routes backend, powered by PostgreSQL and Prisma ORM.
+A production-ready HR web application built as a modular monolith with React (TypeScript) frontend and FastAPI backend.
 
 ## 🎯 Overview
 
@@ -56,41 +56,40 @@ This is a comprehensive HR management system featuring employee feedback, commun
 
 ## 🏗️ Architecture
 
-### Backend (Next.js API Routes)
+### Backend (FastAPI)
 ```
-nextjs-backend/
+backend/
 ├── app/
-│   └── api/                # API Routes
-│       ├── auth/           # Authentication endpoints
-│       ├── users/          # User management
-│       ├── channels/       # Communication channels
-│       ├── memberships/    # Channel memberships
-│       ├── feedback/       # Feedback system
-│       ├── notifications/  # Notifications
-│       ├── announcements/  # Announcements
-│       ├── files/          # File management
-│       ├── admin/          # Admin operations
-│       └── health/         # Health check endpoint
-├── lib/                    # Shared utilities
-│   ├── auth.ts             # JWT and auth utilities
-│   ├── db.ts               # Prisma client
-│   ├── cors.ts             # CORS middleware
-│   ├── errors.ts           # Error handling
-│   ├── mail.ts             # Email utilities
-│   ├── storage.ts          # File storage
-│   └── validators/         # Request validation schemas
-├── prisma/                 # Database schema & migrations
-│   ├── schema.prisma       # Database schema
-│   ├── seed.ts             # Database seeding
-│   └── migrations/         # Migration history
-├── tests/                  # Test files
-└── package.json            # Dependencies
+│   ├── core/               # Core utilities
+│   │   ├── config.py       # Settings and configuration
+│   │   ├── dependencies.py # Dependency injection (auth, RBAC)
+│   │   └── security.py     # JWT and password utilities
+│   ├── db/                 # Database setup
+│   │   ├── session.py      # SQLAlchemy session
+│   │   └── seed.py         # Database seeding script
+│   ├── modules/            # Feature modules
+│   │   ├── auth/           # Authentication
+│   │   ├── users/          # User management
+│   │   ├── channels/       # Communication channels
+│   │   ├── memberships/    # Channel memberships
+│   │   ├── feedback/       # Feedback system
+│   │   ├── notifications/  # Notifications
+│   │   ├── announcements/  # Announcements
+│   │   ├── files/          # File management
+│   │   └── admin/          # Admin operations
+│   ├── utils/              # Utilities
+│   │   ├── events.py       # Event bus (pub/sub)
+│   │   └── storage.py      # File storage
+│   └── main.py             # FastAPI application
+├── alembic/                # Database migrations
+├── test_*.py               # Test scripts
+└── requirements.txt        # Python dependencies
 ```
 
 **Design Patterns:**
-- **API Routes Pattern**: Next.js serverless functions for each endpoint
-- **Prisma ORM**: Type-safe database access with auto-generated client
-- **Zod Validation**: Runtime type checking and validation
+- **Repository-Service-Router Pattern**: Clean separation of concerns
+- **Event-Driven Architecture**: In-process pub/sub for notifications
+- **Dependency Injection**: FastAPI's built-in DI for auth and database
 
 ### Frontend (React + TypeScript)
 ```
@@ -131,13 +130,12 @@ frontend/
 ## 📦 Tech Stack
 
 ### Backend
-- **Framework**: Next.js 14.2.18 (API Routes)
-- **Runtime**: Node.js 18+
-- **ORM**: Prisma 5.22.0
-- **Database**: PostgreSQL 18
-- **Authentication**: jsonwebtoken, bcrypt
-- **Validation**: Zod 3.23.8
-- **Logging**: Pino 9.4.0
+- **Framework**: FastAPI 0.104.1
+- **ORM**: SQLAlchemy 2.0.36
+- **Migrations**: Alembic 1.14.0
+- **Database**: SQLite (dev) / PostgreSQL (production-ready)
+- **Authentication**: python-jose (JWT), bcrypt
+- **Validation**: Pydantic v2
 
 ### Frontend
 - **UI Library**: React 18.2.0
@@ -152,60 +150,57 @@ frontend/
 ## 🚀 Getting Started
 
 ### Prerequisites
+- Python 3.11+
 - Node.js 18+
 - npm or yarn
-- PostgreSQL 18 (or Docker)
 
 ### Backend Setup
 
 1. **Navigate to backend directory:**
    ```bash
-   cd nextjs-backend
+   cd backend
    ```
 
-2. **Install dependencies:**
+2. **Create and activate virtual environment:**
    ```bash
-   npm install
+   python -m venv venv
+   
+   # Windows
+   venv\Scripts\activate
+   
+   # macOS/Linux
+   source venv/bin/activate
    ```
 
-3. **Set up PostgreSQL:**
-   - Install PostgreSQL 18 or use Docker
-   - Create a database: `CREATE DATABASE hr_app;`
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 4. **Set up environment variables:**
    ```bash
-   # Copy example env file (if exists) or create .env
-   # Edit .env with your PostgreSQL connection
-   ```
+   # Copy example env file
+   cp .env.example .env
    
-   Example `.env`:
-   ```env
-   DATABASE_URL="postgresql://postgres:password@localhost:5432/hr_app?schema=public"
-   JWT_SECRET="your-secret-key"
-   JWT_EXPIRE_MIN="30"
-   JWT_REFRESH_EXPIRE_DAYS="7"
-   CORS_ORIGINS="http://localhost:5173,http://localhost:3000"
+   # Edit .env with your settings (defaults work for development)
    ```
 
 5. **Initialize database:**
    ```bash
-   # Generate Prisma client
-   npm run prisma:generate
-   
-   # Run migrations (creates tables)
-   npm run prisma:migrate
+   # Run migrations
+   alembic upgrade head
    
    # Seed database with demo data
-   npm run prisma:seed
+   python -m app.db.seed
    ```
 
 6. **Start the server:**
    ```bash
-   npm run dev
+   uvicorn app.main:app --reload
    ```
 
    Backend will be available at: **http://localhost:8000**  
-   API base path: **http://localhost:8000/api/**
+   API docs at: **http://localhost:8000/docs**
 
 ### Frontend Setup
 
@@ -249,10 +244,10 @@ The seed script creates the following demo accounts for testing:
 
 ## 📊 API Documentation
 
-The backend provides API endpoints via Next.js API Routes:
+The backend provides comprehensive API documentation via FastAPI's built-in Swagger UI and ReDoc:
 
-- **Base URL**: http://localhost:8000/api/
-- **Health Check**: http://localhost:8000/api/health
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
 
 ### API Endpoints Summary
 
@@ -373,32 +368,25 @@ The backend provides API endpoints via Next.js API Routes:
 ### Backend Environment Variables (.env)
 
 ```env
-# Database - PostgreSQL
-DATABASE_URL="postgresql://postgres:your_password@localhost:5432/hr_app?schema=public"
+# Application
+APP_NAME=HR Management System
+DEBUG=True
+
+# Database
+DATABASE_URL=sqlite:///./hr_app.db
 
 # JWT Settings
-JWT_SECRET="dev-secret-change-in-production-12345"
-JWT_ALGORITHM="HS256"
-JWT_EXPIRE_MIN="30"
-JWT_REFRESH_EXPIRE_DAYS="7"
-
-# CORS
-CORS_ORIGINS="http://localhost:5173,http://localhost:3000"
+JWT_SECRET=your-super-secret-jwt-key-change-in-production
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MIN=30
+JWT_REFRESH_EXPIRE_DAYS=7
 
 # File Upload
-MAX_FILE_SIZE="10485760"
-ALLOWED_FILE_TYPES=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-STORAGE_TYPE="local"
-STORAGE_PATH="./uploads"
+MAX_FILE_SIZE=10485760  # 10MB in bytes
+ALLOWED_FILE_TYPES=.pdf,.doc,.docx,.txt,.jpg,.jpeg,.png
 
-# Email (Console mode for development)
-EMAIL_PROVIDER="console"
-SMTP_FROM="noreply@hrapp.com"
-
-# App
-APP_NAME="HR Management System"
-NODE_ENV="development"
-PORT="8000"
+# CORS
+ALLOWED_ORIGINS=http://localhost:5173
 ```
 
 ### Frontend Environment Variables (.env)
@@ -412,32 +400,26 @@ VITE_API_URL=http://localhost:8000
 
 ### Backend Tests
 
-Test scripts are provided for quick API validation:
+Test scripts are provided for each module:
 
 ```bash
-cd nextjs-backend
+# Run individual module tests
+python test_auth.py
+python test_users.py
+python test_channels.py
+python test_memberships.py
+python test_feedback.py
+python test_notifications.py
+python test_announcements.py
+python test_files.py
+python test_admin.py
 
-# Test authentication
-node test-login.js
-
-# Test demo account login
-node test-demo-login.js
-
-# Test user endpoints
-node test-users.js
-```
-
-### Database Management
-
-```bash
-# View database in Prisma Studio
-npm run prisma:studio
-
-# Create new migration after schema changes
-npm run prisma:migrate
-
-# Reset database (WARNING: deletes all data)
-npm run prisma:reset
+# All tests validate:
+# - API endpoint functionality
+# - Authentication and authorization
+# - Role-based access control
+# - Data validation
+# - Error handling
 ```
 
 ## 🎨 UI Features
@@ -507,12 +489,12 @@ npm run prisma:reset
 
 ### Adding a New Module
 
-Backend (Next.js):
-1. Create API route in `app/api/your-module/route.ts`
-2. Add validation schema in `lib/validators/your-module.ts`
-3. Update Prisma schema if new tables needed: `prisma/schema.prisma`
-4. Create migration: `npm run prisma:migrate`
-5. Add business logic in route handlers
+Backend:
+1. Create module directory in `app/modules/your_module/`
+2. Add `models.py`, `schemas.py`, `service.py`, `router.py`
+3. Register router in `app/main.py`
+4. Create migration: `alembic revision --autogenerate -m "add your_module"`
+5. Apply migration: `alembic upgrade head`
 
 Frontend:
 1. Add types to `src/lib/types.ts`
@@ -538,14 +520,13 @@ All events automatically create notifications for relevant users.
 ## 🚀 Deployment Considerations
 
 ### Backend
-- PostgreSQL database (already configured)
-- Set strong JWT_SECRET in production
+- Use PostgreSQL for production
+- Set strong JWT_SECRET
 - Enable HTTPS
 - Configure CORS for your domain
-- Set NODE_ENV=production
-- Use environment variables for secrets
+- Set DEBUG=False
+- Use environment-specific settings
 - Set up logging and monitoring
-- Consider Vercel for easy deployment
 
 ### Frontend
 - Build for production: `npm run build`
@@ -591,4 +572,4 @@ For issues or questions:
 
 ---
 
-**Built with ❤️ using Next.js, React, PostgreSQL, and Prisma**
+**Built with ❤️ using FastAPI and React**

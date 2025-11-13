@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationsApi } from '../lib/api-client';
@@ -6,6 +7,7 @@ import { notificationsApi } from '../lib/api-client';
 export default function NotificationsPage() {
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
+  const navigate = useNavigate();
 
   // Fetch notifications
   const { data: notificationsData, isLoading } = useQuery({
@@ -51,8 +53,22 @@ export default function NotificationsPage() {
         return '💬';
       case 'system':
         return '⚙️';
+      case 'birthday_invite':
+        return '🎂';
       default:
         return '🔔';
+    }
+  };
+
+  const handleNotificationClick = (notification: (typeof notifications)[number]) => {
+    if (notification.type === 'birthday_invite') {
+      const eventId = notification.metadata?.eventId || notification.related_entity_id;
+      if (eventId) {
+        if (!notification.is_read) {
+          markAsReadMutation.mutate(notification.id);
+        }
+        navigate(`/birthday/${eventId}`);
+      }
     }
   };
 
@@ -120,7 +136,15 @@ export default function NotificationsPage() {
                 key={notification.id}
                 className={`p-6 hover:bg-gray-50 transition-colors ${
                   !notification.is_read ? 'bg-blue-50' : ''
-                }`}
+                } cursor-pointer`}
+                role="button"
+                tabIndex={0}
+                onClick={() => handleNotificationClick(notification)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    handleNotificationClick(notification);
+                  }
+                }}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-4 flex-1">
@@ -146,7 +170,10 @@ export default function NotificationsPage() {
                   <div className="flex flex-col space-y-2 ml-4">
                     {!notification.is_read && (
                       <button
-                        onClick={() => markAsReadMutation.mutate(notification.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAsReadMutation.mutate(notification.id);
+                        }}
                         disabled={markAsReadMutation.isPending}
                         className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50"
                       >
@@ -154,7 +181,10 @@ export default function NotificationsPage() {
                       </button>
                     )}
                     <button
-                      onClick={() => deleteMutation.mutate(notification.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteMutation.mutate(notification.id);
+                      }}
                       disabled={deleteMutation.isPending}
                       className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 disabled:opacity-50"
                     >

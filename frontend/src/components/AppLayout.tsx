@@ -33,6 +33,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { name: 'Feedback', href: '/feedback', icon: '📝', roles: ['employee', 'hr', 'admin', 'superadmin'] },
     { name: 'Channels', href: '/channels', icon: '💬', roles: ['employee', 'hr', 'admin', 'superadmin'] },
     { name: 'Announcements', href: '/announcements', icon: '📢', roles: ['employee', 'hr', 'admin', 'superadmin'] },
+    { name: 'Birthdays', href: '/admin/birthdays', icon: '🎂', roles: ['hr', 'admin', 'superadmin'] },
     { name: 'Notifications', href: '/notifications', icon: '🔔', roles: ['employee', 'hr', 'admin', 'superadmin'], badge: unreadCount },
     { name: 'Admin', href: '/admin', icon: '⚙️', roles: ['hr', 'admin', 'superadmin'] },
   ];
