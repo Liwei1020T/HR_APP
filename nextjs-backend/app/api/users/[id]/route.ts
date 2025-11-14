@@ -41,14 +41,15 @@ export async function PATCH(
     const body = await request.json();
     const validated = updateUserByAdminSchema.parse(body);
 
+    const updateData: any = {};
+    if (validated.full_name) updateData.fullName = validated.full_name;
+    if (validated.department !== undefined) updateData.department = validated.department;
+    if (validated.role) updateData.role = validated.role;
+    if (validated.is_active !== undefined) updateData.isActive = validated.is_active;
+
     const updated = await db.user.update({
       where: { id: parseInt(params.id) },
-      data: {
-        ...(validated.full_name && { fullName: validated.full_name }),
-        ...(validated.department !== undefined && { department: validated.department }),
-        ...(validated.role && { role: validated.role }),
-        ...(validated.is_active !== undefined && { isActive: validated.is_active }),
-      },
+      data: updateData,
     });
 
     return corsResponse(formatUserResponse(updated), { request, status: 200 });

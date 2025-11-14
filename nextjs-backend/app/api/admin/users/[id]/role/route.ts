@@ -31,7 +31,7 @@ export async function PATCH(
     const updated = await db.user.update({
       where: { id: userId },
       data: {
-        role: validated.role,
+        role: validated.role as any,
       },
     });
 

@@ -39,7 +39,7 @@ export async function GET(
     }
 
     // Local storage: return file buffer
-    return new NextResponse(fileContent, {
+    return new NextResponse(fileContent as any, {
       headers: {
         'Content-Type': file.fileType,
         'Content-Disposition': `attachment; filename="${file.filename}"`,
