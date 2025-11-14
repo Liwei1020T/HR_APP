@@ -96,7 +96,7 @@ export default function ChannelDetailPage() {
                 {messagesQuery.isLoading ? (
                   <p className="text-gray-500">Loading messages...</p>
                 ) : messagesQuery.data?.messages.length ? (
-                  messagesQuery.data.messages.map((msg) => (
+                  messagesQuery.data.messages.map((msg: any) => (
                     <div
                       key={msg.id}
                       className={`flex flex-col rounded-lg p-3 ${

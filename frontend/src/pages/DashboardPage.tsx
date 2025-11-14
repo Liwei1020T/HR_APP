@@ -25,7 +25,7 @@ export default function DashboardPage() {
   const stats = [
     {
       name: 'My Feedback',
-      value: feedbackData?.feedback?.filter(f => f.submitted_by === user?.id).length || 0,
+      value: feedbackData?.feedback?.filter((f: any) => f.submitted_by === user?.id).length || 0,
       icon: '📝',
       color: 'bg-blue-500',
     },
@@ -92,7 +92,7 @@ export default function DashboardPage() {
             <div className="p-6">
               {recentAnnouncements.length > 0 ? (
                 <div className="space-y-4">
-                  {recentAnnouncements.map((announcement) => (
+                  {recentAnnouncements.map((announcement: any) => (
                     <div key={announcement.id} className="border-l-4 border-blue-500 pl-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -125,7 +125,7 @@ export default function DashboardPage() {
             <div className="p-6">
               {recentNotifications.length > 0 ? (
                 <div className="space-y-4">
-                  {recentNotifications.map((notification) => (
+                  {recentNotifications.map((notification: any) => (
                     <div key={notification.id} className="flex items-start">
                       <div className="flex-shrink-0 w-2 h-2 mt-2 bg-blue-500 rounded-full"></div>
                       <div className="ml-3 flex-1">

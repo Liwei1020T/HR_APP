@@ -129,7 +129,7 @@ export default function AdminPage() {
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                          {usersData?.users?.map((user) => (
+                          {usersData?.users?.map((user: any) => (
                             <tr key={user.id}>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                 {user.full_name}

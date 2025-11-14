@@ -41,14 +41,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   const filteredNavigation = navigation.filter(item => hasRole(item.roles));
 
-  const isActive = (item: typeof navigation[number]) => {
-    if (item.href === '/') {
+  const isActive = (href: string) => {
+    if (href === '/') {
       return location.pathname === '/';
     }
-    if (item.attribute) {
-      return location.pathname === item.href;
-    }
-    return location.pathname.startsWith(item.href);
+    return location.pathname.startsWith(href);
   };
 
   return (
@@ -97,7 +94,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 to={item.href}
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group ${
-                  isActive(item)
+                  isActive(item.href)
                     ? 'bg-blue-600 text-white shadow-md'
                     : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
                 }`}
@@ -106,7 +103,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <span className="flex-1">{item.name}</span>
                 {item.badge && item.badge > 0 && (
                   <span className={`ml-2 px-2 py-0.5 text-xs font-semibold rounded-full ${
-                    isActive(item) 
+                    isActive(item.href) 
                       ? 'bg-white text-blue-600' 
                       : 'bg-red-500 text-white'
                   }`}>

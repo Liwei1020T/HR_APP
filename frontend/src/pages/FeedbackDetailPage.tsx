@@ -92,7 +92,7 @@ export default function FeedbackDetailPage() {
                 <div>
                   <p className="text-sm text-gray-500 uppercase tracking-wide">Feedback</p>
                   <h1 className="text-3xl font-bold text-gray-900">{feedback.title}</h1>
-                  <p className="text-gray-600 mt-2">{feedback.description}</p>
+                  <p className="text-gray-600 mt-2">{(feedback as any).description}</p>
                 </div>
                 <div className="flex flex-col items-start md:items-end gap-2">
                   <span
@@ -122,7 +122,7 @@ export default function FeedbackDetailPage() {
                 <div className="rounded-lg border border-gray-200 p-4">
                   <p className="text-sm text-gray-500">Assigned to</p>
                   <p className="text-base font-medium text-gray-900">
-                    {feedback.assigned_to_name || 'Not assigned'}
+                    {(feedback as any).assigned_to_name || 'Not assigned'}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">Status: {formatStatus(feedback.status)}</p>
                 </div>
@@ -150,7 +150,7 @@ export default function FeedbackDetailPage() {
                 <p className="text-gray-500">No replies yet. You’ll receive a notification when HR responds.</p>
               ) : (
                 <div className="space-y-4">
-                  {comments.map((entry) => (
+                  {comments.map((entry: any) => (
                     <div key={entry.id} className="border border-gray-200 rounded-lg p-4">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <div>

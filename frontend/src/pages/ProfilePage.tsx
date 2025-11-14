@@ -60,7 +60,7 @@ export default function ProfilePage() {
     setProfileMessage('');
     updateProfileMutation.mutate({
       ...profileForm,
-      date_of_birth: profileForm.date_of_birth || null,
+      date_of_birth: profileForm.date_of_birth || '',
     });
   };
 

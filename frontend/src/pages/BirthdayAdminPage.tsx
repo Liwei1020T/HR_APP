@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import { birthdayApi } from '../lib/api-client';
-import type { BirthdayEvent } from '../lib/types';
 
 const monthNames = [
   'January',
@@ -62,7 +61,7 @@ export default function BirthdayAdminPage() {
   const events = useMemo(() => data?.events ?? [], [data]);
 
   const selectedEvent = events.find(
-    (event) => event.year === selectedYear && event.month === selectedMonth
+    (event: any) => event.year === selectedYear && event.month === selectedMonth
   );
 
   useEffect(() => {

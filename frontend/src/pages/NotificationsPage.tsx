@@ -133,7 +133,7 @@ export default function NotificationsPage() {
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow divide-y divide-gray-200">
-            {notifications.map((notification) => (
+            {notifications.map((notification: any) => (
               <div
                 key={notification.id}
                 className={`p-6 hover:bg-gray-50 transition-colors ${

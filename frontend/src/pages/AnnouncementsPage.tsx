@@ -47,8 +47,8 @@ export default function AnnouncementsPage() {
   });
 
   const announcements = announcementsData?.announcements || [];
-  const pinnedAnnouncements = announcements.filter((a) => a.is_pinned);
-  const regularAnnouncements = announcements.filter((a) => !a.is_pinned);
+  const pinnedAnnouncements = announcements.filter((a: any) => a.is_pinned);
+  const regularAnnouncements = announcements.filter((a: any) => !a.is_pinned);
 
   const createAnnouncement = useMutation({
     mutationFn: (data: AnnouncementCreate) => announcementsApi.create(data),
@@ -173,7 +173,7 @@ export default function AnnouncementsPage() {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">📌 Pinned Announcements</h3>
                 <div className="space-y-4">
-                  {pinnedAnnouncements.map((announcement) => (
+                  {pinnedAnnouncements.map((announcement: any) => (
                     <AnnouncementCard key={announcement.id} announcement={announcement} highlighted />
                   ))}
                 </div>
@@ -185,7 +185,7 @@ export default function AnnouncementsPage() {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Recent Announcements</h3>
                 <div className="space-y-4">
-                  {regularAnnouncements.map((announcement) => (
+                  {regularAnnouncements.map((announcement: any) => (
                     <AnnouncementCard key={announcement.id} announcement={announcement} />
                   ))}
                 </div>

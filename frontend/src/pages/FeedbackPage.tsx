@@ -28,7 +28,7 @@ const getStatusBadgeClasses = (status: string) => {
 };
 
 export default function FeedbackPage() {
-  const { user, hasRole } = useAuth();
+  const { hasRole } = useAuth();
   const queryClient = useQueryClient();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<typeof STATUS_OPTIONS[number]>('all');
@@ -211,7 +211,7 @@ export default function FeedbackPage() {
             <div className="p-8 text-center text-gray-500">No feedback found.</div>
           ) : (
             <div className="divide-y divide-gray-200">
-              {filteredFeedback.map((feedback) => (
+              {filteredFeedback.map((feedback: any) => (
                 <div key={feedback.id} className="p-6 hover:bg-gray-50 transition-colors">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">

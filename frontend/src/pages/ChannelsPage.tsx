@@ -7,7 +7,7 @@ import { channelsApi, membershipsApi } from '../lib/api-client';
 import type { ChannelCreate } from '../lib/types';
 
 export default function ChannelsPage() {
-  const { user, hasRole } = useAuth();
+  const { hasRole } = useAuth();
   const queryClient = useQueryClient();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState<ChannelCreate>({
@@ -224,7 +224,7 @@ export default function ChannelsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {channels.map((channel) => {
+            {channels.map((channel: any) => {
               const isMember = userChannelIds.has(channel.id);
               return (
                 <div key={channel.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
