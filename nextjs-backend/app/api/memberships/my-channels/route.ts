@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       },
     }));
 
-    return corsResponse(formatted, { request, status: 200 });
+    return corsResponse({ channels: formatted, total: formatted.length }, { request, status: 200 });
   } catch (error) {
     return handleApiError(error);
   }

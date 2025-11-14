@@ -18,7 +18,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const { data: notificationsData } = useQuery({
     queryKey: ['notifications', 'unread'],
     queryFn: () => notificationsApi.getAll({ is_read: false }),
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 
   const unreadCount = notificationsData?.unread_count || 0;

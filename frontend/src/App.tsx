@@ -8,7 +8,9 @@ import { ProtectedRoute, PublicRoute, RoleProtectedRoute } from './components/Pr
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import FeedbackPage from './pages/FeedbackPage';
+import FeedbackDetailPage from './pages/FeedbackDetailPage';
 import ChannelsPage from './pages/ChannelsPage';
+import ChannelDetailPage from './pages/ChannelDetailPage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import AdminPage from './pages/AdminPage';
@@ -31,7 +33,9 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/feedback" element={<FeedbackPage />} />
+              <Route path="/feedback/:id" element={<FeedbackDetailPage />} />
               <Route path="/channels" element={<ChannelsPage />} />
+              <Route path="/channels/:id" element={<ChannelDetailPage />} />
               <Route path="/announcements" element={<AnnouncementsPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/birthday/:eventId" element={<BirthdayRsvpPage />} />

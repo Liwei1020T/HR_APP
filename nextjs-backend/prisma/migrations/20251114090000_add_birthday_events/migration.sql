@@ -1,5 +1,5 @@
--- Add date_of_birth column to users
-ALTER TABLE "users" ADD COLUMN "date_of_birth" TIMESTAMP(3);
+-- Add date_of_birth column to users (only if missing, for shadow DB safety)
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "date_of_birth" TIMESTAMP(3);
 
 -- Create birthday_events table
 CREATE TABLE "birthday_events" (

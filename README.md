@@ -21,12 +21,20 @@ This is a comprehensive HR management system featuring employee feedback, commun
 - HR/Admin assignment and management
 - Comments system for feedback discussions
 
-### 💬 Communication Channels
+### 💬 Communication Channels & Chat
 - Multiple channel types: General, Department, Project, Social
-- Public and private channels
-- Join/leave functionality
-- Member management
-- Channel creation (HR/Admin only)
+- Public and private channels with join/leave workflow
+- In-channel chat feed (polling) for every channel
+- HR/Admin members can post **channel announcements** that instantly notify all members
+- Messages can be **pinned/unpinned** to highlight important updates
+- Member management and channel creation (HR/Admin only)
+
+### 🎉 Birthday Celebrations
+- `date_of_birth` tracking on users
+- HR/Admin can create monthly birthday events with titles, descriptions, date, and location
+- Eligible employees automatically receive invitations and RSVP records
+- In-app notifications deep-link invitees directly to the RSVP panel
+- RSVP dashboard for admins to review going/pending/not going counts
 
 ### 📢 Announcements
 - Company-wide announcements with categories

@@ -56,6 +56,21 @@ export interface ChannelMember {
   user_email: string;
 }
 
+export interface ChannelMessage {
+  id: number;
+  channel_id: number;
+  user_id: number;
+  content: string;
+  created_at: string;
+  is_announcement?: boolean;
+  is_pinned?: boolean;
+  user: {
+    id: number;
+    full_name: string;
+    email: string;
+  };
+}
+
 // ===== Feedback Types =====
 export interface FeedbackItem {
   id: number;
@@ -93,8 +108,13 @@ export interface FeedbackComment {
   feedback_id: number;
   user_id: number;
   comment: string;
+  is_internal: boolean;
   created_at: string;
-  user_name: string;
+  user?: {
+    id: number;
+    email: string;
+    full_name: string;
+  };
 }
 
 export interface FeedbackCreate {

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import { useAuth } from '../contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -15,6 +16,24 @@ export default function ChannelsPage() {
     channel_type: 'general',
     is_private: false,
   });
+  const [banner, setBanner] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const bannerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showBanner = (type: 'success' | 'error', text: string) => {
+    if (bannerTimeoutRef.current) {
+      clearTimeout(bannerTimeoutRef.current);
+    }
+    setBanner({ type, text });
+    bannerTimeoutRef.current = setTimeout(() => setBanner(null), 3000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (bannerTimeoutRef.current) {
+        clearTimeout(bannerTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Fetch all channels
   const { data: channelsData, isLoading } = useQuery({
@@ -40,20 +59,24 @@ export default function ChannelsPage() {
 
   // Join channel mutation
   const joinMutation = useMutation({
-    mutationFn: (channelId: number) => membershipsApi.join(channelId),
-    onSuccess: () => {
+    mutationFn: ({ id }: { id: number; name: string }) => membershipsApi.join(id),
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['channels'] });
-      queryClient.invalidateQueries({ queryKey: ['memberships'] });
+      queryClient.invalidateQueries({ queryKey: ['my-channels'] });
+      showBanner('success', `Joined ${variables.name} channel`);
     },
+    onError: () => showBanner('error', 'Unable to join channel. Please try again.'),
   });
 
   // Leave channel mutation
   const leaveMutation = useMutation({
-    mutationFn: (channelId: number) => membershipsApi.leave(channelId),
-    onSuccess: () => {
+    mutationFn: ({ id }: { id: number; name: string }) => membershipsApi.leave(id),
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['channels'] });
-      queryClient.invalidateQueries({ queryKey: ['memberships'] });
+      queryClient.invalidateQueries({ queryKey: ['my-channels'] });
+      showBanner('success', `Left ${variables.name} channel`);
     },
+    onError: () => showBanner('error', 'Unable to leave channel. Please try again.'),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -62,11 +85,33 @@ export default function ChannelsPage() {
   };
 
   const channels = channelsData?.channels || [];
-  const userChannelIds = new Set(myChannelsData?.channels?.map((c) => c.id) || []);
+  const myMemberships = Array.isArray(myChannelsData)
+    ? myChannelsData
+    : myChannelsData?.channels || [];
+  const userChannelIds = new Set(
+    myMemberships.map(
+      (membership: any) =>
+        membership.channel_id ??
+        membership.channel?.id ??
+        membership.channelId ??
+        membership.channel?.channel_id
+    )
+  );
   const canCreateChannel = hasRole(['hr', 'admin', 'superadmin']);
 
   return (
     <AppLayout>
+      {banner && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pointer-events-none">
+          <div
+            className={`mt-6 px-4 py-2 rounded-lg shadow ${
+              banner.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+            }`}
+          >
+            {banner.text}
+          </div>
+        </div>
+      )}
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -79,7 +124,7 @@ export default function ChannelsPage() {
               onClick={() => setShowCreateForm(true)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              ➕ Create Channel
+              Create Channel
             </button>
           )}
         </div>
@@ -188,17 +233,17 @@ export default function ChannelsPage() {
                       <div className="flex items-center space-x-2">
                         <span className="text-2xl">
                           {channel.channel_type === 'general'
-                            ? '💬'
+                            ? '??'
                             : channel.channel_type === 'department'
-                            ? '🏢'
+                            ? '??'
                             : channel.channel_type === 'project'
-                            ? '📁'
-                            : '🎉'}
+                            ? '??'
+                            : '??'}
                         </span>
                         <h3 className="text-lg font-semibold text-gray-900">{channel.name}</h3>
                       </div>
                       {channel.is_private && (
-                        <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">🔒 Private</span>
+                        <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded"> Private</span>
                       )}
                     </div>
 
@@ -212,20 +257,28 @@ export default function ChannelsPage() {
                     </div>
 
                     {isMember ? (
-                      <button
-                        onClick={() => leaveMutation.mutate(channel.id)}
-                        disabled={leaveMutation.isPending}
-                        className="w-full px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50"
-                      >
-                        {leaveMutation.isPending ? 'Leaving...' : '✓ Leave Channel'}
-                      </button>
+                      <div className="space-y-3">
+                        <Link
+                          to={`/channels/${channel.id}`}
+                          className="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          Open Channel
+                        </Link>
+                        <button
+                          onClick={() => leaveMutation.mutate({ id: channel.id, name: channel.name })}
+                          disabled={leaveMutation.isPending}
+                          className="w-full px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50"
+                        >
+                          {leaveMutation.isPending ? 'Leaving...' : ' Leave Channel'}
+                        </button>
+                      </div>
                     ) : (
                       <button
-                        onClick={() => joinMutation.mutate(channel.id)}
+                        onClick={() => joinMutation.mutate({ id: channel.id, name: channel.name })}
                         disabled={joinMutation.isPending}
                         className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
                       >
-                        {joinMutation.isPending ? 'Joining...' : '➕ Join Channel'}
+                        {joinMutation.isPending ? 'Joining...' : ' Join Channel'}
                       </button>
                     )}
                   </div>
@@ -238,3 +291,5 @@ export default function ChannelsPage() {
     </AppLayout>
   );
 }
+
+

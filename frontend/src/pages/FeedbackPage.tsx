@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import { useAuth } from '../contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -111,7 +112,7 @@ export default function FeedbackPage() {
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
@@ -124,7 +125,7 @@ export default function FeedbackPage() {
                     rows={4}
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
@@ -135,7 +136,7 @@ export default function FeedbackPage() {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="general">General</option>
                     <option value="workplace">Workplace</option>
@@ -240,6 +241,14 @@ export default function FeedbackPage() {
                             <span>Assigned to: {feedback.assigned_to_name}</span>
                           </>
                         )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-3 mt-4">
+                        <Link
+                          to={`/feedback/${feedback.id}`}
+                          className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                        >
+                          View conversation →
+                        </Link>
                       </div>
                     </div>
                     {canManage && (

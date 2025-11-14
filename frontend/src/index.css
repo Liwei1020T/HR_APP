@@ -22,6 +22,12 @@ body {
   min-height: 100vh;
 }
 
+input,
+textarea,
+select {
+  color: #111827; /* Tailwind gray-900 */
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

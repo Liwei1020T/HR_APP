@@ -14,6 +14,8 @@ export default function NotificationsPage() {
     queryKey: ['notifications', filter],
     queryFn: () =>
       notificationsApi.getAll(filter === 'unread' ? { is_read: false } : {}),
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 
   // Mark as read mutation
