@@ -34,18 +34,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { name: 'Feedback', href: '/feedback', icon: '📝', roles: ['employee', 'hr', 'admin', 'superadmin'] },
     { name: 'Channels', href: '/channels', icon: '💬', roles: ['employee', 'hr', 'admin', 'superadmin'] },
     { name: 'Announcements', href: '/announcements', icon: '📢', roles: ['employee', 'hr', 'admin', 'superadmin'] },
-    { name: 'Birthdays', href: '/admin/birthdays', icon: '🎂', roles: ['hr', 'admin', 'superadmin'] },
     { name: 'Notifications', href: '/notifications', icon: '🔔', roles: ['employee', 'hr', 'admin', 'superadmin'], badge: unreadCount },
-    { name: 'Admin', href: '/admin', icon: '⚙️', roles: ['hr', 'admin', 'superadmin'] },
+    { name: 'Admin', href: '/admin', icon: '⚙️', roles: ['hr', 'admin', 'superadmin'], attribute: true },
+    { name: 'Birthdays', href: '/admin/birthdays', icon: '🎂', roles: ['hr', 'admin', 'superadmin'], attribute: true },
   ];
 
   const filteredNavigation = navigation.filter(item => hasRole(item.roles));
 
-  const isActive = (path: string) => {
-    if (path === '/') {
+  const isActive = (item: typeof navigation[number]) => {
+    if (item.href === '/') {
       return location.pathname === '/';
     }
-    return location.pathname.startsWith(path);
+    if (item.attribute) {
+      return location.pathname === item.href;
+    }
+    return location.pathname.startsWith(item.href);
   };
 
   return (
@@ -94,7 +97,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 to={item.href}
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group ${
-                  isActive(item.href)
+                  isActive(item)
                     ? 'bg-blue-600 text-white shadow-md'
                     : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
                 }`}
@@ -103,7 +106,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <span className="flex-1">{item.name}</span>
                 {item.badge && item.badge > 0 && (
                   <span className={`ml-2 px-2 py-0.5 text-xs font-semibold rounded-full ${
-                    isActive(item.href) 
+                    isActive(item) 
                       ? 'bg-white text-blue-600' 
                       : 'bg-red-500 text-white'
                   }`}>
@@ -116,7 +119,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
           {/* User section */}
           <div className="p-4 border-t border-gray-200">
-            <div className="flex items-center mb-4">
+            <button
+              onClick={() => navigate('/profile')}
+              className="flex items-center mb-4 w-full text-left hover:bg-gray-50 rounded-lg p-2 transition-colors"
+            >
               <div className="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
                 {user?.full_name?.charAt(0) || 'U'}
               </div>
@@ -128,7 +134,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   {user?.role}
                 </p>
               </div>
-            </div>
+            </button>
             <button
               onClick={handleLogout}
               className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
@@ -159,7 +165,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
           <div className="flex items-center space-x-4">
             <span className="text-sm text-gray-600 hidden sm:inline">
-              Welcome, <span className="font-medium text-gray-900">{user?.full_name}</span>
+              Welcome,{' '}
+              <button
+                onClick={() => navigate('/profile')}
+                className="font-medium text-blue-700 hover:underline"
+              >
+                {user?.full_name}
+              </button>
             </span>
           </div>
         </div>

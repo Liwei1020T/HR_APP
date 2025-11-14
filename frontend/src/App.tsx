@@ -18,6 +18,7 @@ import AdminPage from './pages/AdminPage';
 import BirthdayAdminPage from './pages/BirthdayAdminPage';
 import BirthdayEventDetailPage from './pages/BirthdayEventDetailPage';
 import BirthdayRsvpPage from './pages/BirthdayRsvpPage';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
               <Route path="/announcements" element={<AnnouncementsPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/birthday/:eventId" element={<BirthdayRsvpPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
             </Route>
 
             {/* Admin-only routes */}
