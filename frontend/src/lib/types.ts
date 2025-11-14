@@ -14,6 +14,16 @@ export interface LoginResponse {
   token_type: string;
 }
 
+export interface RegisterRequest {
+  employee_id: string;
+  full_name: string;
+  email: string;
+  password: string;
+  confirm_password: string;
+  department?: string;
+  date_of_birth?: string;
+}
+
 export interface User {
   id: number;
   email: string;
@@ -22,6 +32,7 @@ export interface User {
   is_active: boolean;
   created_at: string;
   department?: string;
+  employee_id?: string | null;
   date_of_birth?: string | null;
 }
 

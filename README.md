@@ -13,6 +13,7 @@ This is a comprehensive HR management system featuring employee feedback, commun
 - Role-based access control (RBAC) with 4 roles: Employee, HR, Admin, Superadmin
 - Secure password hashing with bcrypt
 - Token refresh mechanism with automatic retry
+- Employee self-registration (new accounts default to Employee role)
 
 ### 📝 Feedback System
 - Employee feedback submission with categories
@@ -510,6 +511,12 @@ Frontend:
 3. Create page component in `src/pages/YourModulePage.tsx`
 4. Add route in `src/App.tsx`
 5. Add navigation item in `src/components/AppLayout.tsx`
+
+### Recent Prisma Migrations
+- `20251114090000_add_birthday_events`
+- `20251114101500_add_channel_messages_table`
+- `20251114113000_channel_message_flags`
+- `20251114120000_add_employee_id_to_users`
 
 ## 📝 Event System
 

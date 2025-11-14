@@ -32,6 +32,7 @@ async function main() {
       role: 'SUPERADMIN',
       department: 'Executive',
       dateOfBirth: new Date('1980-01-15'),
+      employeeId: 'EMP-SUP-001',
       isActive: true,
     },
   });
@@ -44,6 +45,7 @@ async function main() {
       role: 'ADMIN',
       department: 'IT',
       dateOfBirth: new Date('1985-03-03'),
+      employeeId: 'EMP-ADM-001',
       isActive: true,
     },
   });
@@ -56,6 +58,7 @@ async function main() {
       role: 'EMPLOYEE',
       department: 'Sales',
       dateOfBirth: new Date('1990-05-20'),
+      employeeId: 'EMP-EMP-001',
       isActive: true,
     },
   });
@@ -69,6 +72,7 @@ async function main() {
       role: 'ADMIN',
       department: 'IT',
       dateOfBirth: new Date('1988-02-10'),
+      employeeId: 'EMP-ADMIN-001',
       isActive: true,
     },
   });
@@ -81,6 +85,7 @@ async function main() {
       role: 'HR',
       department: 'Human Resources',
       dateOfBirth: new Date('1987-04-05'),
+      employeeId: 'EMP-HR-001',
       isActive: true,
     },
   });
@@ -93,6 +98,7 @@ async function main() {
       role: 'EMPLOYEE',
       department: 'Engineering',
       dateOfBirth: new Date('1992-08-12'),
+      employeeId: 'EMP-ENG-001',
       isActive: true,
     },
   });
@@ -105,6 +111,7 @@ async function main() {
       role: 'EMPLOYEE',
       department: 'Marketing',
       dateOfBirth: new Date('1991-09-23'),
+      employeeId: 'EMP-MKT-001',
       isActive: true,
     },
   });
@@ -117,6 +124,7 @@ async function main() {
       role: 'EMPLOYEE',
       department: 'Sales',
       dateOfBirth: new Date('1993-11-30'),
+      employeeId: 'EMP-SLS-001',
       isActive: true,
     },
   });
@@ -129,6 +137,7 @@ async function main() {
       role: 'EMPLOYEE',
       department: 'Engineering',
       dateOfBirth: new Date('1994-12-08'),
+      employeeId: 'EMP-ENG-002',
       isActive: true,
     },
   });

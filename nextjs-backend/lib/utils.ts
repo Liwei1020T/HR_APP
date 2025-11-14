@@ -10,6 +10,7 @@ export function formatUserResponse(user: User) {
     full_name: user.fullName,
     role: user.role,
     department: user.department,
+    employee_id: user.employeeId,
     date_of_birth: user.dateOfBirth ? user.dateOfBirth.toISOString() : null,
     is_active: user.isActive,
     created_at: user.createdAt.toISOString(),

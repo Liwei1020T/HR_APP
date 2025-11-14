@@ -17,6 +17,7 @@ model User {
   fullName                String                 @map("full_name")
   role                    String                 @default("EMPLOYEE") // EMPLOYEE, HR, ADMIN, SUPERADMIN
   department              String?
+  employeeId              String?                @unique @map("employee_id")
   dateOfBirth             DateTime?              @map("date_of_birth")
   isActive                Boolean                @default(true) @map("is_active")
   createdAt               DateTime               @default(now()) @map("created_at")
