@@ -1,4 +1,10 @@
 /** @type {import('next').NextConfig} */
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const nextConfig = {
   // API-only mode - no pages
   experimental: {
@@ -11,16 +17,12 @@ const nextConfig = {
     unoptimized: true,
   },
   // Webpack configuration for path aliases
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@/lib/auth': './lib/auth',
-      '@/lib/db': './lib/db',
-      '@/lib/utils': './lib/utils',
-      '@/lib/errors': './lib/errors',
-      '@/lib/cors': './lib/cors',
-      '@/lib/storage': './lib/storage',
-      '@/lib/mail': './lib/mail',
+      '@': __dirname,
+      '@/lib': path.resolve(__dirname, 'lib'),
+      '@/app': path.resolve(__dirname, 'app'),
     };
     return config;
   },
