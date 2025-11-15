@@ -20,6 +20,14 @@
     ],
     "paths": {
       "@/*": ["./*"],
+      "@/lib/auth": ["./lib/auth"],
+      "@/lib/db": ["./lib/db"],
+      "@/lib/utils": ["./lib/utils"],
+      "@/lib/errors": ["./lib/errors"],
+      "@/lib/cors": ["./lib/cors"],
+      "@/lib/storage": ["./lib/storage"],
+      "@/lib/mail": ["./lib/mail"],
+      "@/lib/validators/*": ["./lib/validators/*"],
       "@/lib/*": ["./lib/*"],
       "@/app/*": ["./app/*"]
     }
