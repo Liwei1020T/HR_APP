@@ -4,6 +4,8 @@ const ALLOWED_ORIGINS = (process.env.CORS_ORIGINS || 'http://localhost:5173,http
   .split(',')
   .map(origin => origin.trim());
 
+console.log('CORS Allowed Origins:', ALLOWED_ORIGINS);
+
 /**
  * Add CORS headers to response
  */
@@ -12,12 +14,13 @@ export function addCorsHeaders(response: NextResponse, request: NextRequest): Ne
   
   if (origin && ALLOWED_ORIGINS.includes(origin)) {
     response.headers.set('Access-Control-Allow-Origin', origin);
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
   } else if (ALLOWED_ORIGINS.includes('*')) {
     response.headers.set('Access-Control-Allow-Origin', '*');
   }
   
   response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   response.headers.set('Access-Control-Max-Age', '86400');
   
   return response;
