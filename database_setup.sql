@@ -1,8 +1,9 @@
 -- ============================================
 -- HR APP - PostgreSQL Database Setup Script
 -- ============================================
--- This script creates all tables and demo data
+-- This script creates all tables matching Prisma schema exactly
 -- Run this script in PostgreSQL to set up the database manually
+-- Compatible with Prisma migrations - no migration needed after running
 -- ============================================
 
 -- Create database (run this separately if needed)
@@ -28,184 +29,196 @@ DROP TABLE IF EXISTS users CASCADE;
 -- ============================================
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    full_name VARCHAR(255) NOT NULL,
-    role VARCHAR(50) DEFAULT 'EMPLOYEE' NOT NULL,
-    department VARCHAR(255),
-    employee_id VARCHAR(50) UNIQUE,
-    date_of_birth TIMESTAMP,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    full_name TEXT NOT NULL,
+    role TEXT DEFAULT 'EMPLOYEE' NOT NULL,
+    department TEXT,
+    employee_id TEXT UNIQUE,
+    date_of_birth TIMESTAMP(3),
     is_active BOOLEAN DEFAULT true NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP(3) NOT NULL
 );
 
-CREATE INDEX idx_users_role ON users(role);
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_employee_id ON users(employee_id);
+CREATE UNIQUE INDEX users_email_key ON users(email);
+CREATE UNIQUE INDEX users_employee_id_key ON users(employee_id) WHERE employee_id IS NOT NULL;
 
 -- ============================================
 -- TABLE: channels
 -- ============================================
 CREATE TABLE channels (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name TEXT NOT NULL,
     description TEXT,
-    channel_type VARCHAR(50) DEFAULT 'general' NOT NULL,
+    channel_type TEXT DEFAULT 'general' NOT NULL,
     is_private BOOLEAN DEFAULT false NOT NULL,
-    created_by INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    created_by INTEGER NOT NULL,
+    created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP(3) NOT NULL,
+    CONSTRAINT channels_created_by_fkey FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_channels_created_by ON channels(created_by);
-CREATE INDEX idx_channels_type ON channels(channel_type);
+CREATE INDEX channels_created_by_idx ON channels(created_by);
 
 -- ============================================
 -- TABLE: channel_members
 -- ============================================
 CREATE TABLE channel_members (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    channel_id INTEGER NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
-    role VARCHAR(50) DEFAULT 'MEMBER' NOT NULL,
-    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UNIQUE(user_id, channel_id)
+    user_id INTEGER NOT NULL,
+    channel_id INTEGER NOT NULL,
+    role TEXT DEFAULT 'MEMBER' NOT NULL,
+    joined_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT channel_members_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT channel_members_channel_id_fkey FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_channel_members_user_id ON channel_members(user_id);
-CREATE INDEX idx_channel_members_channel_id ON channel_members(channel_id);
+CREATE UNIQUE INDEX channel_members_user_id_channel_id_key ON channel_members(user_id, channel_id);
+CREATE UNIQUE INDEX channel_members_channel_id_user_id_key ON channel_members(channel_id, user_id);
+CREATE INDEX channel_members_user_id_idx ON channel_members(user_id);
+CREATE INDEX channel_members_channel_id_idx ON channel_members(channel_id);
 
 -- ============================================
 -- TABLE: channel_messages
 -- ============================================
 CREATE TABLE channel_messages (
     id SERIAL PRIMARY KEY,
-    channel_id INTEGER NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    channel_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
     content TEXT NOT NULL,
+    created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     is_announcement BOOLEAN DEFAULT false NOT NULL,
     is_pinned BOOLEAN DEFAULT false NOT NULL,
-    pinned_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    FOREIGN KEY (channel_id, user_id) REFERENCES channel_members(channel_id, user_id)
+    pinned_at TIMESTAMP(3),
+    CONSTRAINT channel_messages_channel_id_fkey FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE,
+    CONSTRAINT channel_messages_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT channel_messages_member_fk FOREIGN KEY (channel_id, user_id) REFERENCES channel_members(channel_id, user_id)
 );
 
-CREATE INDEX idx_channel_messages_channel_id ON channel_messages(channel_id);
-CREATE INDEX idx_channel_messages_user_id ON channel_messages(user_id);
+CREATE INDEX channel_messages_channel_id_idx ON channel_messages(channel_id);
+CREATE INDEX channel_messages_user_id_idx ON channel_messages(user_id);
 
 -- ============================================
 -- TABLE: feedback
 -- ============================================
 CREATE TABLE feedback (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
+    title TEXT NOT NULL,
     description TEXT NOT NULL,
-    category VARCHAR(50) DEFAULT 'GENERAL' NOT NULL,
-    status VARCHAR(50) DEFAULT 'SUBMITTED' NOT NULL,
+    category TEXT DEFAULT 'GENERAL' NOT NULL,
+    status TEXT DEFAULT 'SUBMITTED' NOT NULL,
     is_anonymous BOOLEAN DEFAULT false NOT NULL,
-    submitted_by INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    assigned_to INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    submitted_by INTEGER NOT NULL,
+    assigned_to INTEGER,
+    created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP(3) NOT NULL,
+    CONSTRAINT feedback_submitted_by_fkey FOREIGN KEY (submitted_by) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT feedback_assigned_to_fkey FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL
 );
 
-CREATE INDEX idx_feedback_submitted_by ON feedback(submitted_by);
-CREATE INDEX idx_feedback_assigned_to ON feedback(assigned_to);
-CREATE INDEX idx_feedback_status ON feedback(status);
+CREATE INDEX feedback_submitted_by_idx ON feedback(submitted_by);
+CREATE INDEX feedback_assigned_to_idx ON feedback(assigned_to);
+CREATE INDEX feedback_status_idx ON feedback(status);
 
 -- ============================================
 -- TABLE: feedback_comments
 -- ============================================
 CREATE TABLE feedback_comments (
     id SERIAL PRIMARY KEY,
-    feedback_id INTEGER NOT NULL REFERENCES feedback(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    feedback_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
     comment TEXT NOT NULL,
     is_internal BOOLEAN DEFAULT false NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT feedback_comments_feedback_id_fkey FOREIGN KEY (feedback_id) REFERENCES feedback(id) ON DELETE CASCADE,
+    CONSTRAINT feedback_comments_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_feedback_comments_feedback_id ON feedback_comments(feedback_id);
-CREATE INDEX idx_feedback_comments_user_id ON feedback_comments(user_id);
+CREATE INDEX feedback_comments_feedback_id_idx ON feedback_comments(feedback_id);
+CREATE INDEX feedback_comments_user_id_idx ON feedback_comments(user_id);
 
 -- ============================================
 -- TABLE: notifications
 -- ============================================
 CREATE TABLE notifications (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    type VARCHAR(50) NOT NULL,
-    title VARCHAR(255) NOT NULL,
+    user_id INTEGER NOT NULL,
+    type TEXT NOT NULL,
+    title TEXT NOT NULL,
     message TEXT NOT NULL,
     is_read BOOLEAN DEFAULT false NOT NULL,
-    related_entity_type VARCHAR(50),
+    related_entity_type TEXT,
     related_entity_id INTEGER,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_notifications_user_id ON notifications(user_id);
-CREATE INDEX idx_notifications_is_read ON notifications(is_read);
-CREATE INDEX idx_notifications_created_at ON notifications(created_at);
+CREATE INDEX notifications_user_id_idx ON notifications(user_id);
+CREATE INDEX notifications_is_read_idx ON notifications(is_read);
 
 -- ============================================
 -- TABLE: announcements
 -- ============================================
 CREATE TABLE announcements (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
+    title TEXT NOT NULL,
     content TEXT NOT NULL,
-    category VARCHAR(50) DEFAULT 'OTHER' NOT NULL,
+    category TEXT DEFAULT 'OTHER' NOT NULL,
     is_pinned BOOLEAN DEFAULT false NOT NULL,
     is_active BOOLEAN DEFAULT true NOT NULL,
-    expires_at TIMESTAMP,
-    created_by INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    expires_at TIMESTAMP(3),
+    created_by INTEGER NOT NULL,
+    created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP(3) NOT NULL,
+    CONSTRAINT announcements_created_by_fkey FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_announcements_created_by ON announcements(created_by);
-CREATE INDEX idx_announcements_is_active ON announcements(is_active);
-CREATE INDEX idx_announcements_is_pinned ON announcements(is_pinned);
+CREATE INDEX announcements_created_by_idx ON announcements(created_by);
+CREATE INDEX announcements_is_active_idx ON announcements(is_active);
 
 -- ============================================
 -- TABLE: files
 -- ============================================
 CREATE TABLE files (
     id SERIAL PRIMARY KEY,
-    filename VARCHAR(255) NOT NULL,
-    file_path VARCHAR(500) NOT NULL,
-    file_type VARCHAR(100) NOT NULL,
+    filename TEXT NOT NULL,
+    file_path TEXT NOT NULL,
+    file_type TEXT NOT NULL,
     file_size INTEGER NOT NULL,
-    uploaded_by INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    entity_type VARCHAR(50),
+    uploaded_by INTEGER NOT NULL,
+    entity_type TEXT,
     entity_id INTEGER,
-    feedback_id INTEGER REFERENCES feedback(id) ON DELETE SET NULL,
-    announcement_id INTEGER REFERENCES announcements(id) ON DELETE SET NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    feedback_id INTEGER,
+    announcement_id INTEGER,
+    created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT files_uploaded_by_fkey FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT files_feedback_id_fkey FOREIGN KEY (feedback_id) REFERENCES feedback(id) ON DELETE SET NULL,
+    CONSTRAINT files_announcement_id_fkey FOREIGN KEY (announcement_id) REFERENCES announcements(id) ON DELETE SET NULL
 );
 
-CREATE INDEX idx_files_uploaded_by ON files(uploaded_by);
-CREATE INDEX idx_files_feedback_id ON files(feedback_id);
-CREATE INDEX idx_files_announcement_id ON files(announcement_id);
+CREATE INDEX files_uploaded_by_idx ON files(uploaded_by);
+CREATE INDEX files_feedback_id_idx ON files(feedback_id);
+CREATE INDEX files_announcement_id_idx ON files(announcement_id);
 
 -- ============================================
 -- TABLE: audit_logs
 -- ============================================
 CREATE TABLE audit_logs (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-    action VARCHAR(255) NOT NULL,
-    entity_type VARCHAR(50),
+    user_id INTEGER,
+    action TEXT NOT NULL,
+    entity_type TEXT,
     entity_id INTEGER,
     details TEXT,
-    ip_address VARCHAR(45),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    ip_address TEXT,
+    created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT audit_logs_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
-CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
-CREATE INDEX idx_audit_logs_entity_type ON audit_logs(entity_type);
-CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at);
+CREATE INDEX audit_logs_user_id_idx ON audit_logs(user_id);
+CREATE INDEX audit_logs_entity_type_idx ON audit_logs(entity_type);
+CREATE INDEX audit_logs_created_at_idx ON audit_logs(created_at);
 
 -- ============================================
 -- TABLE: birthday_events
@@ -214,34 +227,35 @@ CREATE TABLE birthday_events (
     id SERIAL PRIMARY KEY,
     year INTEGER NOT NULL,
     month INTEGER NOT NULL,
-    event_date TIMESTAMP NOT NULL,
-    title VARCHAR(255) NOT NULL,
+    event_date TIMESTAMP(3) NOT NULL,
+    title TEXT NOT NULL,
     description TEXT,
-    location VARCHAR(255),
-    created_by_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UNIQUE(year, month)
+    location TEXT,
+    created_by_id INTEGER NOT NULL,
+    created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP(3) NOT NULL,
+    CONSTRAINT birthday_events_created_by_id_fkey FOREIGN KEY (created_by_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_birthday_events_created_by ON birthday_events(created_by_id);
-CREATE INDEX idx_birthday_events_date ON birthday_events(event_date);
+CREATE UNIQUE INDEX birthday_events_year_month_key ON birthday_events(year, month);
 
 -- ============================================
 -- TABLE: birthday_registrations
 -- ============================================
 CREATE TABLE birthday_registrations (
     id SERIAL PRIMARY KEY,
-    event_id INTEGER NOT NULL REFERENCES birthday_events(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    rsvp_status VARCHAR(50) DEFAULT 'pending' NOT NULL,
-    rsvp_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UNIQUE(event_id, user_id)
+    event_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    rsvp_status TEXT DEFAULT 'pending' NOT NULL,
+    rsvp_at TIMESTAMP(3),
+    created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT birthday_registrations_event_id_fkey FOREIGN KEY (event_id) REFERENCES birthday_events(id) ON DELETE CASCADE,
+    CONSTRAINT birthday_registrations_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_birthday_registrations_event_id ON birthday_registrations(event_id);
-CREATE INDEX idx_birthday_registrations_user_id ON birthday_registrations(user_id);
+CREATE UNIQUE INDEX birthday_registrations_event_id_user_id_key ON birthday_registrations(event_id, user_id);
+CREATE INDEX birthday_registrations_event_id_idx ON birthday_registrations(event_id);
+CREATE INDEX birthday_registrations_user_id_idx ON birthday_registrations(user_id);
 
 -- ============================================
 -- DEMO DATA - USERS
