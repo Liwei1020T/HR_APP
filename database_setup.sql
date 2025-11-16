@@ -263,28 +263,28 @@ CREATE INDEX birthday_registrations_user_id_idx ON birthday_registrations(user_i
 -- Password for all demo accounts: P@ssw0rd!
 -- Bcrypt hash: $2b$10$YourHashHere (you'll need to generate this)
 
-INSERT INTO users (email, password, full_name, role, department, employee_id, date_of_birth, is_active) VALUES
+INSERT INTO users (email, password, full_name, role, department, employee_id, date_of_birth, is_active, created_at, updated_at) VALUES
 -- Demo accounts (password: P@ssw0rd!)
-('sa@demo.local', '$2b$10$2LuLzcisNlNgZrPfivAnhevjCsWtZEm5es/CbB.aktbQuzDWdWVu2', 'Super Administrator', 'SUPERADMIN', 'Executive', 'EMP-SUP-001', '1980-01-15', true),
-('admin@demo.local', '$2b$10$2LuLzcisNlNgZrPfivAnhevjCsWtZEm5es/CbB.aktbQuzDWdWVu2', 'Demo Admin', 'ADMIN', 'IT', 'EMP-ADM-001', '1985-03-03', true),
-('user@demo.local', '$2b$10$2LuLzcisNlNgZrPfivAnhevjCsWtZEm5es/CbB.aktbQuzDWdWVu2', 'Demo Employee', 'EMPLOYEE', 'Sales', 'EMP-EMP-001', '1990-05-20', true),
+('sa@demo.local', '$2b$10$2LuLzcisNlNgZrPfivAnhevjCsWtZEm5es/CbB.aktbQuzDWdWVu2', 'Super Administrator', 'SUPERADMIN', 'Executive', 'EMP-SUP-001', '1980-01-15', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('admin@demo.local', '$2b$10$2LuLzcisNlNgZrPfivAnhevjCsWtZEm5es/CbB.aktbQuzDWdWVu2', 'Demo Admin', 'ADMIN', 'IT', 'EMP-ADM-001', '1985-03-03', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('user@demo.local', '$2b$10$2LuLzcisNlNgZrPfivAnhevjCsWtZEm5es/CbB.aktbQuzDWdWVu2', 'Demo Employee', 'EMPLOYEE', 'Sales', 'EMP-EMP-001', '1990-05-20', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 
 -- Additional users (password: password123)
-('admin@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'Admin User', 'ADMIN', 'IT', 'EMP-ADMIN-001', '1988-02-10', true),
-('hr@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'HR Manager', 'HR', 'Human Resources', 'EMP-HR-001', '1987-04-05', true),
-('john.doe@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'John Doe', 'EMPLOYEE', 'Engineering', 'EMP-ENG-001', '1992-08-12', true),
-('jane.smith@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'Jane Smith', 'EMPLOYEE', 'Marketing', 'EMP-MKT-001', '1991-06-25', true),
-('mike.wilson@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'Mike Wilson', 'EMPLOYEE', 'Sales', 'EMP-SLS-001', '1989-12-03', true);
+('admin@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'Admin User', 'ADMIN', 'IT', 'EMP-ADMIN-001', '1988-02-10', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('hr@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'HR Manager', 'HR', 'Human Resources', 'EMP-HR-001', '1987-04-05', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('john.doe@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'John Doe', 'EMPLOYEE', 'Engineering', 'EMP-ENG-001', '1992-08-12', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('jane.smith@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'Jane Smith', 'EMPLOYEE', 'Marketing', 'EMP-MKT-001', '1991-06-25', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('mike.wilson@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'Mike Wilson', 'EMPLOYEE', 'Sales', 'EMP-SLS-001', '1989-12-03', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- ============================================
 -- DEMO DATA - CHANNELS
 -- ============================================
-INSERT INTO channels (name, description, channel_type, is_private, created_by) VALUES
-('General', 'General company-wide discussions', 'general', false, 1),
-('Engineering Team', 'Engineering department channel', 'department', false, 1),
-('HR Announcements', 'Official HR announcements and updates', 'announcement', false, 5),
-('Sales Team', 'Sales department discussions', 'department', false, 1),
-('Random', 'Off-topic conversations and fun', 'social', false, 1);
+INSERT INTO channels (name, description, channel_type, is_private, created_by, created_at, updated_at) VALUES
+('General', 'General company-wide discussions', 'general', false, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Engineering Team', 'Engineering department channel', 'department', false, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('HR Announcements', 'Official HR announcements and updates', 'announcement', false, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Sales Team', 'Sales department discussions', 'department', false, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Random', 'Off-topic conversations and fun', 'social', false, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- ============================================
 -- DEMO DATA - CHANNEL MEMBERS
@@ -322,20 +322,20 @@ INSERT INTO channel_messages (channel_id, user_id, content) VALUES
 -- ============================================
 -- DEMO DATA - ANNOUNCEMENTS
 -- ============================================
-INSERT INTO announcements (title, content, category, is_pinned, created_by) VALUES
-('Welcome to HR Portal', 'Welcome to our new HR Management System! This platform allows you to submit feedback, join channels, and stay updated with company announcements.', 'COMPANY_NEWS', true, 1),
-('Annual Performance Reviews', 'Annual performance reviews will begin next month. Please schedule time with your managers.', 'HR_POLICY', true, 5),
-('New Office Hours', 'Starting next week, office hours will be 9 AM - 5 PM. Remote work policy remains flexible.', 'HR_POLICY', false, 5),
-('Team Building Event', 'Join us for our quarterly team building event on the 25th! Location and details to follow.', 'EVENT', false, 2);
+INSERT INTO announcements (title, content, category, is_pinned, created_by, created_at, updated_at) VALUES
+('Welcome to HR Portal', 'Welcome to our new HR Management System! This platform allows you to submit feedback, join channels, and stay updated with company announcements.', 'COMPANY_NEWS', true, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Annual Performance Reviews', 'Annual performance reviews will begin next month. Please schedule time with your managers.', 'HR_POLICY', true, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('New Office Hours', 'Starting next week, office hours will be 9 AM - 5 PM. Remote work policy remains flexible.', 'HR_POLICY', false, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Team Building Event', 'Join us for our quarterly team building event on the 25th! Location and details to follow.', 'EVENT', false, 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- ============================================
 -- DEMO DATA - FEEDBACK
 -- ============================================
-INSERT INTO feedback (title, description, category, status, is_anonymous, submitted_by, assigned_to) VALUES
-('Office Temperature', 'The office is too cold in the afternoons. Can we adjust the AC settings?', 'WORKPLACE', 'UNDER_REVIEW', false, 6, 5),
-('Parking Space Request', 'We need more parking spaces for employees. The lot fills up by 9 AM.', 'WORKPLACE', 'SUBMITTED', false, 7, NULL),
-('Training Opportunities', 'Would love to see more professional development and training opportunities.', 'BENEFITS', 'IN_PROGRESS', false, 8, 5),
-('Great Team Culture', 'Just wanted to say the team culture here is amazing! Keep it up.', 'CULTURE', 'RESOLVED', false, 3, 5);
+INSERT INTO feedback (title, description, category, status, is_anonymous, submitted_by, assigned_to, created_at, updated_at) VALUES
+('Office Temperature', 'The office is too cold in the afternoons. Can we adjust the AC settings?', 'WORKPLACE', 'UNDER_REVIEW', false, 6, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Parking Space Request', 'We need more parking spaces for employees. The lot fills up by 9 AM.', 'WORKPLACE', 'SUBMITTED', false, 7, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Training Opportunities', 'Would love to see more professional development and training opportunities.', 'BENEFITS', 'IN_PROGRESS', false, 8, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Great Team Culture', 'Just wanted to say the team culture here is amazing! Keep it up.', 'CULTURE', 'RESOLVED', false, 3, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- ============================================
 -- DEMO DATA - FEEDBACK COMMENTS
