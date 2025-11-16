@@ -45,7 +45,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
     if (href === '/') {
       return location.pathname === '/';
     }
-    return location.pathname.startsWith(href);
+    // Exact match for paths to prevent parent paths from being highlighted
+    return location.pathname === href;
   };
 
   return (
