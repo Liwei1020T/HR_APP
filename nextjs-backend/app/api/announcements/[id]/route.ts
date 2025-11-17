@@ -38,6 +38,8 @@ export async function GET(
 
     const attachments = (await getAttachmentsByEntity('announcement', [announcement.id]))[announcement.id] || [];
 
+    const attachments = (await getAttachmentsByEntity('announcement', [announcement.id]))[announcement.id] || [];
+
     const response = {
       id: announcement.id,
       title: announcement.title,
@@ -56,9 +58,6 @@ export async function GET(
       },
       attachments,
     };
-
-    const attachments = (await getAttachmentsByEntity('announcement', [announcement.id]))[announcement.id] || [];
-    (response as any).attachments = attachments;
 
     return corsResponse(response, { request, status: 200 });
   } catch (error) {
