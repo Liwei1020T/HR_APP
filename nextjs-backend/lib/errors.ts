@@ -19,13 +19,7 @@ export function createErrorResponse(
     body.errors = errors;
   }
   
-  const response = NextResponse.json(body, { status });
-  response.headers.set('Access-Control-Allow-Origin', '*');
-  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  response.headers.set('Access-Control-Max-Age', '86400');
-
-  return response;
+  return NextResponse.json(body, { status });
 }
 
 /**
@@ -80,11 +74,37 @@ export function handleServerError(message: string = 'Internal server error'): Ne
  * Generic error handler for API routes
  */
 export function handleApiError(error: unknown): NextResponse<ErrorResponse> {
-  console.error('API Error:', error);
+  // Safe error logging
+  if (error instanceof Error) {
+    console.error('API Error:', error.message);
+  } else {
+    console.error('API Error:', String(error));
+  }
 
   // Zod validation error
   if (error instanceof ZodError) {
     return handleZodError(error);
+  }
+
+  // Prisma errors
+  if (error && typeof error === 'object' && 'code' in error) {
+    const prismaError = error as { code: string; meta?: { target?: string[] } };
+    
+    // Unique constraint violation
+    if (prismaError.code === 'P2002') {
+      const target = prismaError.meta?.target?.[0] || 'field';
+      return handleConflictError(`${target} already exists`);
+    }
+    
+    // Foreign key constraint violation
+    if (prismaError.code === 'P2003') {
+      return createErrorResponse('Invalid reference', 400);
+    }
+    
+    // Record not found
+    if (prismaError.code === 'P2025') {
+      return handleNotFoundError('Record');
+    }
   }
 
   // Custom error with message
