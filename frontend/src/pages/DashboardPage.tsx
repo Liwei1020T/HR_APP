@@ -1,10 +1,108 @@
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import AppLayout from '../components/AppLayout';
 import { useAuth } from '../contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { feedbackApi, announcementsApi, notificationsApi } from '../lib/api-client';
 
+const TOUR_STORAGE_KEY = 'hr-dashboard-tour-completed';
+
 export default function DashboardPage() {
   const { user } = useAuth();
+  const statsRef = useRef<HTMLDivElement>(null);
+  const announcementsRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+  const quickActionsRef = useRef<HTMLDivElement>(null);
+
+  const [isTourRunning, setIsTourRunning] = useState(false);
+  const [tourStep, setTourStep] = useState(0);
+  const [tourCompleted, setTourCompleted] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.localStorage.getItem(TOUR_STORAGE_KEY) === 'true';
+  });
+
+  const tourSteps = useMemo(
+    () => [
+      {
+        id: 'stats',
+        title: 'Quick stats',
+        description: 'See your feedback count, active announcements, and unread notifications all in one place.',
+        ref: statsRef,
+      },
+      {
+        id: 'announcements',
+        title: 'Announcements',
+        description: 'Stay aligned with company news and updates from HR or leadership.',
+        ref: announcementsRef,
+      },
+      {
+        id: 'notifications',
+        title: 'Notifications',
+        description: 'Watch for real-time action items about feedback, birthdays, and system alerts.',
+        ref: notificationsRef,
+      },
+      {
+        id: 'quick-actions',
+        title: 'Quick actions',
+        description: 'Use these cards to jump straight into feedback, channels, announcements, or notifications.',
+        ref: quickActionsRef,
+      },
+    ],
+    []
+  );
+
+  const startTour = useCallback(() => {
+    setTourStep(0);
+    setIsTourRunning(true);
+  }, []);
+
+  const finishTour = useCallback(() => {
+    setIsTourRunning(false);
+    setTourCompleted(true);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(TOUR_STORAGE_KEY, 'true');
+    }
+  }, []);
+
+  const handleRestartTour = () => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(TOUR_STORAGE_KEY);
+    }
+    setTourCompleted(false);
+    startTour();
+  };
+
+  useEffect(() => {
+    if (!tourCompleted) {
+      startTour();
+    }
+  }, [tourCompleted, startTour]);
+
+  useEffect(() => {
+    if (!isTourRunning) return;
+    const ref = tourSteps[tourStep]?.ref.current;
+    if (ref) {
+      ref.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [isTourRunning, tourStep, tourSteps]);
+
+  const handleNext = () => {
+    if (tourStep === tourSteps.length - 1) {
+      finishTour();
+    } else {
+      setTourStep((prev) => Math.min(prev + 1, tourSteps.length - 1));
+    }
+  };
+
+  const handleBack = () => {
+    setTourStep((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleCloseTour = () => {
+    finishTour();
+  };
+
+  const currentTourStep = tourSteps[tourStep];
+  const highlightStep = (stepId: string) => isTourRunning && currentTourStep?.id === stepId;
 
   // Fetch dashboard data
   const { data: feedbackData } = useQuery({
@@ -63,10 +161,31 @@ export default function DashboardPage() {
           <p className="mt-2 text-gray-600">
             Here's what's happening in your organization today.
           </p>
+          <div className="mt-4 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleRestartTour}
+              className="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {tourCompleted ? 'Restart welcome tour' : 'Launch welcome tour'}
+            </button>
+            {!tourCompleted && (
+              <p className="text-xs text-gray-500">
+                The tour runs once automatically per browser session.
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div
+          ref={statsRef}
+          className={`grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 transition duration-300 ${highlightStep(
+            'stats'
+          )
+            ? 'ring-4 ring-blue-300 shadow-2xl'
+            : ''}`}
+        >
           {stats.map((stat) => (
             <div key={stat.name} className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center">
@@ -85,7 +204,12 @@ export default function DashboardPage() {
         {/* Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Announcements */}
-          <div className="bg-white rounded-lg shadow">
+          <div
+            ref={announcementsRef}
+            className={`bg-white rounded-lg shadow transition duration-300 ${
+              highlightStep('announcements') ? 'ring-4 ring-blue-300' : ''
+            }`}
+          >
             <div className="p-6 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900">Recent Announcements</h3>
             </div>
@@ -118,7 +242,12 @@ export default function DashboardPage() {
           </div>
 
           {/* Recent Notifications */}
-          <div className="bg-white rounded-lg shadow">
+          <div
+            ref={notificationsRef}
+            className={`bg-white rounded-lg shadow transition duration-300 ${
+              highlightStep('notifications') ? 'ring-4 ring-blue-300' : ''
+            }`}
+          >
             <div className="p-6 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900">Recent Notifications</h3>
             </div>
@@ -146,7 +275,12 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div
+          ref={quickActionsRef}
+          className={`bg-white rounded-lg shadow p-6 transition duration-300 ${
+            highlightStep('quick-actions') ? 'ring-4 ring-blue-300 shadow-2xl' : ''
+          }`}
+        >
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <a
@@ -179,6 +313,49 @@ export default function DashboardPage() {
             </a>
           </div>
         </div>
+        {/* Guided tour overlay */}
+        {isTourRunning && currentTourStep && (
+          <>
+            <div className="fixed inset-0 z-40 bg-black/40" aria-hidden="true"></div>
+            <div className="fixed inset-x-4 bottom-6 z-50 flex justify-center">
+              <div className="max-w-xl w-full rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-black/10">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-lg font-semibold text-gray-900">{currentTourStep.title}</h4>
+                  <button
+                    type="button"
+                    onClick={handleCloseTour}
+                    className="text-sm font-medium text-gray-500 hover:text-gray-700"
+                  >
+                    Skip
+                  </button>
+                </div>
+                <p className="mt-3 text-sm text-gray-600">{currentTourStep.description}</p>
+                <div className="mt-5 flex items-center justify-between text-xs text-gray-500">
+                  <span>
+                    Step {tourStep + 1} / {tourSteps.length}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleBack}
+                      disabled={tourStep === 0}
+                      className="rounded-full border border-gray-300 px-4 py-1 text-xs font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className="rounded-full bg-blue-600 px-4 py-1 text-xs font-medium text-white hover:bg-blue-700"
+                    >
+                      {tourStep === tourSteps.length - 1 ? 'Finish tour' : 'Next step'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </AppLayout>
   );
