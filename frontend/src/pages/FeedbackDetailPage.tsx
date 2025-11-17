@@ -193,66 +193,70 @@ export default function FeedbackDetailPage() {
               {canComment && (
                 <div className="border-t border-gray-200 pt-4">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Add a reply</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Attachments
-                      </label>
-                      <input
-                        ref={commentFileInputRef}
-                        type="file"
-                        multiple
-                        onChange={(e) => {
-                          addCommentFiles(e.target.files);
-                          e.target.value = '';
-                        }}
-                        accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-                        className="w-full text-xs text-gray-500"
-                      />
-                      <AttachmentPreviewList
-                        attachments={commentAttachments}
-                        onRemove={removeCommentAttachment}
-                      />
-                    </div>
+                <div className="space-y-3">
+                  <div className="relative">
                     <textarea
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
                       rows={4}
                       placeholder="Share an update or follow-up question..."
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-12 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    {isHr && (
-                      <label className="flex items-center text-sm text-gray-600">
-                        <input
-                          type="checkbox"
-                          checked={isInternal}
-                          onChange={(e) => setIsInternal(e.target.checked)}
-                          className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                        Mark as internal (only HR/Admin can see)
-                      </label>
-                    )}
-                    <div className="flex justify-end gap-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setComment('');
-                          setIsInternal(false);
-                          resetCommentAttachments();
-                        }}
-                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                      >
-                        Reset
-                      </button>
-                      <button
-                        onClick={() => addCommentMutation.mutate()}
-                        disabled={!comment.trim() || addCommentMutation.isPending || commentUploading}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                      >
-                        {addCommentMutation.isPending ? 'Sending...' : 'Post Reply'}
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => commentFileInputRef.current?.click()}
+                      className="absolute bottom-3 right-3 rounded-full p-2 text-gray-500 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      📎
+                    </button>
+                    <input
+                      ref={commentFileInputRef}
+                      type="file"
+                      multiple
+                      onChange={(e) => {
+                        addCommentFiles(e.target.files);
+                        e.target.value = '';
+                      }}
+                      accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                      className="hidden"
+                    />
                   </div>
+                  {isHr && (
+                    <label className="flex items-center text-sm text-gray-600">
+                      <input
+                        type="checkbox"
+                        checked={isInternal}
+                        onChange={(e) => setIsInternal(e.target.checked)}
+                        className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      Mark as internal (only HR/Admin can see)
+                    </label>
+                  )}
+                  <div className="flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setComment('');
+                        setIsInternal(false);
+                        resetCommentAttachments();
+                      }}
+                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                    >
+                      Reset
+                    </button>
+                    <button
+                      onClick={() => addCommentMutation.mutate()}
+                      disabled={!comment.trim() || addCommentMutation.isPending || commentUploading}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      {addCommentMutation.isPending ? 'Sending...' : 'Post Reply'}
+                    </button>
+                  </div>
+                  <AttachmentPreviewList
+                    attachments={commentAttachments}
+                    onRemove={removeCommentAttachment}
+                  />
+                </div>
                 </div>
               )}
             </div>

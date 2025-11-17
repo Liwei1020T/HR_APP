@@ -104,7 +104,7 @@ export default function ChannelDetailPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow h-[32rem] flex flex-col">
+            <div className="bg-white rounded-lg shadow h-[38rem] flex flex-col">
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 {messagesQuery.isLoading ? (
                   <p className="text-gray-500">Loading messages...</p>
@@ -164,11 +164,22 @@ export default function ChannelDetailPage() {
                     Send as announcement (notifies all members)
                   </label>
                 )}
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Attachments
-                    </label>
+                <div className="flex items-end gap-3">
+                  <div className="relative flex-1">
+                    <textarea
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      rows={3}
+                      placeholder="Write a message..."
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-12 bg-gray-50 text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => chatFileInputRef.current?.click()}
+                      className="absolute bottom-2 right-2 rounded-full p-2 text-gray-500 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      📎
+                    </button>
                     <input
                       ref={chatFileInputRef}
                       type="file"
@@ -178,22 +189,9 @@ export default function ChannelDetailPage() {
                         e.target.value = '';
                       }}
                       accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-                      className="w-full text-xs text-gray-500"
-                    />
-                    <AttachmentPreviewList
-                      attachments={chatAttachments}
-                      onRemove={removeChatAttachment}
+                      className="hidden"
                     />
                   </div>
-                  <textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    rows={2}
-                    placeholder="Write a message..."
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex justify-end">
                   <button
                     onClick={() => sendMessageMutation.mutate()}
                     disabled={
@@ -201,11 +199,15 @@ export default function ChannelDetailPage() {
                       sendMessageMutation.isPending ||
                       chatUploading
                     }
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                   >
                     Send
                   </button>
                 </div>
+                <AttachmentPreviewList
+                  attachments={chatAttachments}
+                  onRemove={removeChatAttachment}
+                />
               </div>
             </div>
           </>
