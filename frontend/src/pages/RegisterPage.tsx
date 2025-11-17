@@ -1,63 +1,59 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { authApi } from '../lib/api-client';
+import { registerSchema, RegisterFormData } from '../lib/validators/auth';
 
-interface RegisterFormState {
-  employee_id: string;
-  full_name: string;
-  email: string;
-  department: string;
-  date_of_birth: string;
-  password: string;
-  confirm_password: string;
-}
-
-const initialFormState: RegisterFormState = {
-  employee_id: '',
-  full_name: '',
-  email: '',
-  department: '',
-  date_of_birth: '',
-  password: '',
-  confirm_password: '',
-};
+const departmentSuggestions = [
+  'Engineering',
+  'Human Resources',
+  'Customer Success',
+  'Finance',
+  'Product',
+];
 
 export default function RegisterPage() {
-  const passwordHint = 'Password must be at least 6 characters long';
-  const [formData, setFormData] = useState<RegisterFormState>(initialFormState);
-  const [error, setError] = useState('');
+  const [apiError, setApiError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    reset,
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    mode: 'onChange',
+    defaultValues: {
+      employee_id: '',
+      full_name: '',
+      email: '',
+      department: '',
+      date_of_birth: '',
+      password: '',
+      confirm_password: '',
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+  const onSubmit = async (data: RegisterFormData) => {
+    setApiError('');
     setSuccess('');
     setLoading(true);
 
     try {
-      if (formData.password !== formData.confirm_password) {
-        setError('Passwords do not match');
-        setLoading(false);
-        return;
-      }
-
-      await authApi.register(formData);
+      await authApi.register(data);
       setSuccess('Registration successful! Redirecting to login...');
-      setFormData(initialFormState);
+      reset();
       setTimeout(() => navigate('/login'), 2000);
     } catch (err: any) {
-      const apiError = err.response?.data;
-      let detail = apiError?.detail || apiError?.message;
+      const apiData = err.response?.data;
+      let detail = apiData?.detail || apiData?.message;
 
-      if (detail === 'Validation error' && Array.isArray(apiError?.errors) && apiError.errors.length) {
-        const fieldMessages = apiError.errors.map((error: any) => `${error.field}: ${error.message}`);
+      if (detail === 'Validation error' && Array.isArray(apiData?.errors) && apiData.errors.length) {
+        const fieldMessages = apiData.errors.map((error: any) => `${error.field}: ${error.message}`);
         detail = `Validation error – ${fieldMessages.join('; ')}`;
       }
 
@@ -65,7 +61,7 @@ export default function RegisterPage() {
         detail = 'Registration failed. Please try again.';
       }
 
-      setError(detail);
+      setApiError(detail);
     } finally {
       setLoading(false);
     }
@@ -80,15 +76,12 @@ export default function RegisterPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow-xl p-8 space-y-6">
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                {error}
-              </div>
-            )}
-            {success && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
-                {success}
+          <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+            {(apiError || success) && (
+              <div
+                className={`px-4 py-3 rounded ${apiError ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}
+              >
+                {apiError || success}
               </div>
             )}
 
@@ -97,25 +90,29 @@ export default function RegisterPage() {
                 <label className="block text-sm font-medium text-gray-700">Employee ID *</label>
                 <input
                   type="text"
-                  name="employee_id"
-                  required
-                  value={formData.employee_id}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  {...register('employee_id')}
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white ${
+                    errors.employee_id ? 'border-red-400 focus:border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="EMP-001"
                 />
+                {errors.employee_id && (
+                  <p className="mt-1 text-xs text-red-600">{errors.employee_id.message}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Full Name *</label>
                 <input
                   type="text"
-                  name="full_name"
-                  required
-                  value={formData.full_name}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  {...register('full_name')}
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white ${
+                    errors.full_name ? 'border-red-400 focus:border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="Jane Doe"
                 />
+                {errors.full_name && (
+                  <p className="mt-1 text-xs text-red-600">{errors.full_name.message}</p>
+                )}
               </div>
             </div>
 
@@ -123,13 +120,13 @@ export default function RegisterPage() {
               <label className="block text-sm font-medium text-gray-700">Work Email *</label>
               <input
                 type="email"
-                name="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
+                {...register('email')}
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white ${
+                  errors.email ? 'border-red-400 focus:border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="you@company.com"
               />
+              {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -137,9 +134,7 @@ export default function RegisterPage() {
                 <label className="block text-sm font-medium text-gray-700">Department</label>
                 <input
                   type="text"
-                  name="department"
-                  value={formData.department}
-                  onChange={handleChange}
+                  {...register('department')}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
                   placeholder="e.g., Engineering"
                 />
@@ -148,9 +143,7 @@ export default function RegisterPage() {
                 <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
                 <input
                   type="date"
-                  name="date_of_birth"
-                  value={formData.date_of_birth}
-                  onChange={handleChange}
+                  {...register('date_of_birth')}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
                 />
               </div>
@@ -161,33 +154,38 @@ export default function RegisterPage() {
                 <label className="block text-sm font-medium text-gray-700">Password *</label>
                 <input
                   type="password"
-                  name="password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  {...register('password')}
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white ${
+                    errors.password ? 'border-red-400 focus:border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="••••••••"
                 />
+                {errors.password && (
+                  <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Confirm Password *</label>
                 <input
                   type="password"
-                  name="confirm_password"
-                  required
-                  value={formData.confirm_password}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  {...register('confirm_password')}
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white ${
+                    errors.confirm_password ? 'border-red-400 focus:border-red-500' : 'border-gray-300'
+                  }`}
                   placeholder="••••••••"
                 />
+                {errors.confirm_password && (
+                  <p className="mt-1 text-xs text-red-600">{errors.confirm_password.message}</p>
+                )}
               </div>
             </div>
-            <p className="text-xs text-gray-500">{passwordHint}</p>
+
+            <p className="text-xs text-gray-500">Password must be at least 6 characters long.</p>
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              disabled={!isValid || loading}
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating account...' : 'Create account'}
             </button>
@@ -199,9 +197,26 @@ export default function RegisterPage() {
               Sign in
             </Link>
           </p>
+
+          <div className="mt-4 border-t border-dashed border-gray-200 pt-4">
+            <p className="text-xs font-semibold text-gray-500">Department suggestions</p>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              {departmentSuggestions.map((dept) => (
+                <span
+                  key={dept}
+                  className="inline-flex items-center justify-center px-2 py-1 text-xs rounded-full bg-blue-50 text-blue-700"
+                >
+                  {dept}
+                </span>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-gray-500">
+              If you are registering on behalf of an employee, select the closest department above or type a new one. Admins can request role changes after account creation.
+            </p>
+          </div>
         </div>
 
-        <p className="text-center text-xs text-gray-500">
+        <p className="text-center text-sm text-gray-500">
           Production-ready HR Management System
         </p>
       </div>
