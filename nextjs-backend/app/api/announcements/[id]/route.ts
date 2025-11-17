@@ -38,8 +38,6 @@ export async function GET(
 
     const attachments = (await getAttachmentsByEntity('announcement', [announcement.id]))[announcement.id] || [];
 
-    const attachments = (await getAttachmentsByEntity('announcement', [announcement.id]))[announcement.id] || [];
-
     const response = {
       id: announcement.id,
       title: announcement.title,
