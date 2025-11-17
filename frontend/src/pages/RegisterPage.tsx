@@ -4,32 +4,28 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { authApi } from '../lib/api-client';
 import { registerSchema, RegisterFormData } from '../lib/validators/auth';
-import { useAuth } from '../contexts/AuthContext';
 
-const departmentSuggestions = [
+const DEPARTMENTS = [
   'Engineering',
   'Human Resources',
   'Customer Success',
   'Finance',
   'Product',
+  'Marketing',
+  'Sales',
 ];
-
-const roleSuggestions = ['Employee', 'HR', 'Admin', 'Superadmin'];
 
 export default function RegisterPage() {
   const [apiError, setApiError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { hasRole } = useAuth();
-  const isAdmin = hasRole(['ADMIN', 'SUPERADMIN']);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
     reset,
-    setValue,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     mode: 'onChange',
@@ -138,12 +134,17 @@ export default function RegisterPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Department</label>
-                <input
-                  type="text"
+                <select
                   {...register('department')}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
-                  placeholder="e.g., Engineering"
-                />
+                >
+                  <option value="">Select department</option>
+                  {DEPARTMENTS.map((dept) => (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
@@ -204,52 +205,6 @@ export default function RegisterPage() {
             </Link>
           </p>
 
-            <div className="mt-4 border-t border-dashed border-gray-200 pt-4 space-y-4">
-              <div>
-                <p className="text-xs font-semibold text-gray-500">Department suggestions</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {departmentSuggestions.map((dept) => (
-                    <button
-                      key={dept}
-                      type="button"
-                      onClick={() => setValue('department', dept)}
-                      className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium border border-transparent hover:bg-blue-100 focus:outline-none"
-                    >
-                      {dept}
-                    </button>
-                  ))}
-                </div>
-                <p className="mt-2 text-xs text-gray-500">
-                  Pick the closest department above to speed up onboarding.
-                </p>
-              </div>
-
-              <div className="rounded-lg border px-3 py-2 space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-gray-500">Role suggestions</p>
-                  {isAdmin && (
-                    <span className="text-xs font-medium text-white bg-blue-600 px-2 py-0.5 rounded-full">
-                      Admin shortcut
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {roleSuggestions.map((role) => (
-                    <span
-                      key={role}
-                      className={`inline-flex items-center justify-center px-3 py-1 text-xs font-medium rounded-full ${
-                        isAdmin ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {role}
-                    </span>
-                  ))}
-                </div>
-                <p className="text-xs text-gray-500">
-                  Admins can use these as a reminder when registering teammates. Role changes happen after sign-up if needed.
-                </p>
-              </div>
-            </div>
           </div>
 
         <p className="text-center text-sm text-gray-500">
