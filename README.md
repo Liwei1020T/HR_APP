@@ -1,10 +1,25 @@
 # HR Web Application
 
-A production-ready HR web application built with React (TypeScript) frontend and Next.js 14 API backend.
+A production-ready HR management system deployed on Render with React (TypeScript) frontend and Next.js 14 API backend.
+
+## 🌐 Live Demo
+
+**Production Deployment:**
+- **Frontend**: https://hr-app-frontend-tevw.onrender.com
+- **Backend API**: https://hr-app-sofb.onrender.com/api/v1
+- **Health Check**: https://hr-app-sofb.onrender.com/api/v1/health
+
+**Demo Accounts:**
+| Role | Email | Password | Access Level |
+|------|-------|----------|--------------|
+| **Superadmin** | sa@demo.local | P@ssw0rd! | Full system access |
+| **Admin** | admin@demo.local | P@ssw0rd! | Admin management |
+| **Employee** | user@demo.local | P@ssw0rd! | Basic employee access |
+| **HR Manager** | hr@company.com | password123 | HR management |
 
 ## 🎯 Overview
 
-This is a comprehensive HR management system featuring employee feedback, communication channels, real-time chat, announcements, notifications, birthday celebrations, and administrative tools. Built with modern technologies and best practices including role-based access control (RBAC), Prisma ORM for type-safe database access, and PostgreSQL for production-grade data persistence.
+This is a comprehensive HR management system featuring employee feedback, communication channels, real-time chat, announcements, notifications, birthday celebrations, and administrative tools. Built with modern technologies and deployed on Render's cloud platform with PostgreSQL database.
 
 ## ✨ Key Features
 
@@ -186,6 +201,160 @@ frontend/
 
 ## 🚀 Getting Started
 
+### Quick Start (Local Development)
+
+#### Prerequisites
+- Node.js 18+ installed
+- PostgreSQL 14+ installed and running
+- npm or yarn package manager
+
+#### 1. Clone and Install
+
+```bash
+# Clone repository
+git clone https://github.com/Liwei1020T/HR_APP.git
+cd HR_APP
+
+# Install backend dependencies
+cd nextjs-backend
+npm install
+
+# Install frontend dependencies
+cd ../frontend
+npm install
+```
+
+#### 2. Setup Backend
+
+```bash
+cd nextjs-backend
+
+# Create .env file
+cat > .env << 'EOF'
+# Database - PostgreSQL
+DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/hr_app_db"
+
+# JWT Settings
+JWT_SECRET="your-super-secret-jwt-key-change-in-production"
+JWT_ALGORITHM="HS256"
+JWT_EXPIRE_MIN="30"
+JWT_REFRESH_EXPIRE_DAYS="7"
+
+# CORS - Allow frontend origin
+CORS_ORIGINS="http://localhost:5173,http://localhost:3000"
+
+# File Upload
+MAX_FILE_SIZE="10485760"
+ALLOWED_FILE_TYPES=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+STORAGE_TYPE="local"
+STORAGE_PATH="./uploads"
+
+# Email (Optional - defaults to console)
+EMAIL_PROVIDER="console"
+SMTP_HOST=""
+SMTP_PORT="587"
+SMTP_USER=""
+SMTP_PASS=""
+SMTP_FROM="noreply@hrapp.com"
+
+# App
+APP_NAME="HR Management System"
+PORT="8000"
+EOF
+
+# Create PostgreSQL database
+createdb hr_app_db
+
+# Run database migrations
+npx prisma migrate deploy
+
+# Generate Prisma client
+npx prisma generate
+
+# Seed demo data (optional)
+npm run prisma:seed
+
+# Start backend server
+npm run dev
+```
+
+Backend runs at: **http://localhost:8000**
+
+#### 3. Setup Frontend
+
+```bash
+cd frontend
+
+# Create .env.production
+cat > .env.production << 'EOF'
+VITE_API_BASE_URL=http://localhost:8000/api/v1
+EOF
+
+# Start frontend dev server
+npm run dev
+```
+
+Frontend runs at: **http://localhost:5173**
+
+### Production Deployment (Render)
+
+The application is deployed on [Render.com](https://render.com) with the following services:
+
+#### Backend Service Configuration
+
+**Service Type**: Web Service  
+**Build Command**: `npm install && npx prisma generate && npx prisma migrate deploy && npm run build`  
+**Start Command**: `npm run start`  
+**Environment Variables**:
+```env
+DATABASE_URL=<Render PostgreSQL Internal URL>
+JWT_SECRET=<strong-random-secret>
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MIN=30
+JWT_REFRESH_EXPIRE_DAYS=7
+CORS_ORIGINS=https://hr-app-frontend-tevw.onrender.com
+NODE_ENV=production
+PORT=8000
+```
+
+#### Frontend Service Configuration
+
+**Service Type**: Static Site  
+**Build Command**: `npm install && npm run build`  
+**Publish Directory**: `dist`  
+**Environment Variables**:
+```env
+VITE_API_BASE_URL=https://hr-app-sofb.onrender.com/api/v1
+```
+
+#### Database Service
+
+**Service Type**: PostgreSQL  
+**Plan**: Free tier (shared CPU, 256MB RAM, 1GB storage)  
+**Version**: PostgreSQL 18  
+**Connection**: Internal connection from backend service
+
+#### Deployment Steps
+
+1. **Create PostgreSQL Database** on Render
+   - Note the internal connection URL
+
+2. **Deploy Backend**
+   - Connect GitHub repository
+   - Root directory: `nextjs-backend`
+   - Set environment variables (including `DATABASE_URL`)
+   - Deploy
+
+3. **Deploy Frontend**
+   - Connect GitHub repository  
+   - Root directory: `frontend`
+   - Set `VITE_API_BASE_URL`
+   - Deploy
+
+4. **Run Database Setup**
+   - Connect to PostgreSQL using external URL
+   - Run `database_setup.sql` script manually or let migrations run automatically
+
 ### Prerequisites
 - Python 3.11+
 - Node.js 18+
@@ -293,9 +462,9 @@ The seed script creates the following demo accounts for testing:
 
 The backend provides **68+ API endpoints** organized into 13 modules using Next.js App Router:
 
-### Base URL
-- **Development**: `http://localhost:8000/api`
-- **Production**: Configure via `NEXT_PUBLIC_API_URL` environment variable
+### Base URLs
+- **Local Development**: `http://localhost:8000/api/v1`
+- **Production**: `https://hr-app-sofb.onrender.com/api/v1`
 
 ### API Modules Overview
 
@@ -484,32 +653,46 @@ npx prisma migrate reset
 ### Backend Environment Variables (.env)
 
 ```env
-# Application
-APP_NAME=HR Management System
-DEBUG=True
-
-# Database
-DATABASE_URL=sqlite:///./hr_app.db
+# Database - PostgreSQL
+DATABASE_URL="postgresql://username:password@host:5432/database_name"
 
 # JWT Settings
-JWT_SECRET=your-super-secret-jwt-key-change-in-production
-JWT_ALGORITHM=HS256
-JWT_EXPIRE_MIN=30
-JWT_REFRESH_EXPIRE_DAYS=7
+JWT_SECRET="your-super-secret-jwt-key-change-in-production"
+JWT_ALGORITHM="HS256"
+JWT_EXPIRE_MIN="30"
+JWT_REFRESH_EXPIRE_DAYS="7"
+
+# CORS - Comma-separated allowed origins
+CORS_ORIGINS="http://localhost:5173,https://hr-app-frontend-tevw.onrender.com"
 
 # File Upload
-MAX_FILE_SIZE=10485760  # 10MB in bytes
-ALLOWED_FILE_TYPES=.pdf,.doc,.docx,.txt,.jpg,.jpeg,.png
+MAX_FILE_SIZE="10485760"  # 10MB in bytes
+ALLOWED_FILE_TYPES=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+STORAGE_TYPE="local"
+STORAGE_PATH="./uploads"
 
-# CORS
-ALLOWED_ORIGINS=http://localhost:5173
+# Email (Optional - defaults to console logging)
+EMAIL_PROVIDER="console"
+SMTP_HOST=""
+SMTP_PORT="587"
+SMTP_USER=""
+SMTP_PASS=""
+SMTP_FROM="noreply@hrapp.com"
+
+# App
+APP_NAME="HR Management System"
+NODE_ENV="production"  # Set to "production" on Render
+PORT="8000"
 ```
 
 ### Frontend Environment Variables (.env)
 
 ```env
 # API Configuration
-VITE_API_URL=http://localhost:8000
+VITE_API_BASE_URL=http://localhost:8000/api/v1
+
+# For production (.env.production):
+# VITE_API_BASE_URL=https://hr-app-sofb.onrender.com/api/v1
 ```
 
 ## 🧪 Testing
@@ -726,6 +909,91 @@ All events automatically create notifications for relevant users.
 
 ## 🚀 Deployment Considerations
 
+### Production Checklist
+
+#### Backend (Render Web Service)
+- ✅ PostgreSQL database created and connected
+- ✅ All environment variables configured
+- ✅ `DATABASE_URL` uses internal Render connection
+- ✅ `CORS_ORIGINS` includes frontend URL (no trailing slash)
+- ✅ `NODE_ENV=production` set
+- ✅ Strong `JWT_SECRET` generated
+- ✅ Build command includes Prisma migration: `npx prisma migrate deploy`
+- ✅ Start command: `npm run start -p 8000`
+
+#### Frontend (Render Static Site)
+- ✅ `VITE_API_BASE_URL` points to backend `/api/v1` endpoint
+- ✅ `.env.production` file committed to repository
+- ✅ Build command: `npm install && npm run build`
+- ✅ Publish directory: `dist`
+
+#### Database (Render PostgreSQL)
+- ✅ Migrations applied automatically via build command
+- ✅ Demo data seeded using `database_setup.sql` (if needed)
+- ✅ Regular backups enabled
+- ✅ Connection pooling configured
+
+### Performance & Security
+
+**Backend:**
+- Prisma connection pooling (default 10 connections)
+- API route caching with Next.js
+- CORS configured for specific origins only
+- JWT tokens with 30-minute expiration
+- bcrypt password hashing (cost factor 10)
+- Input validation with Zod schemas
+- SQL injection prevention (Prisma ORM)
+
+**Frontend:**
+- Code splitting with Vite
+- TanStack Query caching (5-minute stale time)
+- Gzip compression enabled
+- Optimized production build
+- Environment-specific API URLs
+
+**Database:**
+- Indexed columns for fast queries
+- Foreign key constraints enforced
+- Proper data normalization
+- Connection pooling
+
+### Monitoring & Logging
+
+**Render provides:**
+- Real-time logs for all services
+- Automatic health checks
+- Auto-restart on crashes
+- Email notifications for failures
+
+**Application logs:**
+- Backend: Console logs visible in Render dashboard
+- Frontend: Browser console for client-side issues
+- Database: Query logs in PostgreSQL service
+
+### Troubleshooting
+
+**Common Issues:**
+
+1. **CORS errors:** Verify `CORS_ORIGINS` matches exact frontend URL
+2. **Database connection failed:** Check `DATABASE_URL` uses internal Render URL
+3. **Build failures:** Check Node.js version matches requirements (18+)
+4. **API 404 errors:** Ensure requests use `/api/v1` prefix
+5. **Authentication issues:** Verify `JWT_SECRET` is set and consistent
+
+**Debug Steps:**
+```bash
+# Check backend health
+curl https://hr-app-sofb.onrender.com/api/v1/health
+
+# Test authentication
+curl -X POST https://hr-app-sofb.onrender.com/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"sa@demo.local","password":"P@ssw0rd!"}'
+
+# View Render logs
+# Go to Render Dashboard → Service → Logs tab
+```
+
 ### Backend
 - Use PostgreSQL for production
 - Set strong JWT_SECRET
@@ -779,4 +1047,7 @@ For issues or questions:
 
 ---
 
-**Built with ❤️ using FastAPI and React**
+**Built with ❤️ using Next.js 14, React 18, and PostgreSQL**  
+**Deployed on Render Cloud Platform**
+
+**Repository**: [github.com/Liwei1020T/HR_APP](https://github.com/Liwei1020T/HR_APP)

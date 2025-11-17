@@ -1,19 +1,24 @@
 # HR App - Next.js Backend
 
-Complete Next.js API-only backend for the HR feedback application. Built with Next.js 14 App Router, TypeScript, Prisma, and PostgreSQL.
+Complete Next.js API-only backend for the HR Management System. Built with Next.js 14 App Router, TypeScript, Prisma ORM, and PostgreSQL.
+
+## 🌐 Live API
+
+**Production**: https://hr-app-sofb.onrender.com/api/v1  
+**Health Check**: https://hr-app-sofb.onrender.com/api/v1/health  
+**Frontend**: https://hr-app-frontend-tevw.onrender.com
 
 ## 🚀 Tech Stack
 
-- **Framework**: Next.js 14.2.18 (App Router, Node.js runtime)
-- **Language**: TypeScript 5.6.3
-- **Database**: PostgreSQL with Prisma ORM 5.22.0
+- **Framework**: Next.js 14.2.18 (App Router, API Routes)
+- **Language**: TypeScript 5.7.2
+- **Database**: PostgreSQL 18.x with Prisma ORM 5.22.0
 - **Validation**: Zod 3.23.8
-- **Authentication**: JWT (jsonwebtoken + bcrypt)
-- **File Storage**: Local / AWS S3 / Vercel Blob
-- **Email**: Resend / SMTP (Nodemailer)
-- **Scheduled Jobs**: Vercel Cron
-- **Testing**: Vitest + Playwright
-- **Containerization**: Docker
+- **Authentication**: JWT (jsonwebtoken 9.0.2 + bcrypt 5.1.1)
+- **File Storage**: Local filesystem / AWS S3 / Vercel Blob
+- **Email**: Nodemailer 6.9.15 / Resend
+- **Testing**: Vitest 2.1.4 + Playwright 1.48.1
+- **Deployment**: Render.com (Web Service + PostgreSQL)
 
 ## 📋 Features
 
@@ -109,119 +114,209 @@ Complete Next.js API-only backend for the HR feedback application. Built with Ne
 
 ## 🔧 Setup Instructions
 
-### Prerequisites
+### Local Development
+
+#### Prerequisites
 - Node.js 18+ and npm
-- PostgreSQL 14+ database
-- (Optional) Docker for containerized deployment
+- PostgreSQL 14+ database running locally
+- Git for version control
 
-### 1. Install Dependencies
+#### 1. Install Dependencies
 
-```powershell
+```bash
 cd nextjs-backend
 npm install
 ```
 
-### 2. Environment Configuration
+#### 2. Environment Configuration
 
-Copy `.env.example` to `.env` and configure:
+Create `.env` file in `nextjs-backend` directory:
 
 ```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/hr_app"
+# Database - PostgreSQL
+DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/hr_app_db"
 
-# JWT
+# JWT Settings
 JWT_SECRET="your-super-secret-jwt-key-change-in-production"
 JWT_ALGORITHM="HS256"
 JWT_EXPIRE_MIN="30"
 JWT_REFRESH_EXPIRE_DAYS="7"
 
-# CORS
+# CORS - Allow frontend origins
 CORS_ORIGINS="http://localhost:5173,http://localhost:3000"
 
 # File Upload
-MAX_FILE_SIZE="10485760"
+MAX_FILE_SIZE="10485760"  # 10MB
 ALLOWED_FILE_TYPES=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
 STORAGE_TYPE="local"
+STORAGE_PATH="./uploads"
 
-# Email (optional)
-EMAIL_PROVIDER="smtp"
-FROM_EMAIL="noreply@hr-app.com"
-SMTP_HOST="smtp.gmail.com"
+# Email (Optional - defaults to console)
+EMAIL_PROVIDER="console"
+SMTP_HOST=""
 SMTP_PORT="587"
-SMTP_SECURE="false"
-SMTP_USER="your-email@gmail.com"
-SMTP_PASS="your-app-password"
+SMTP_USER=""
+SMTP_PASS=""
+SMTP_FROM="noreply@hrapp.com"
 
-# App URL (for email links)
-APP_URL="http://localhost:5173"
+# App
+APP_NAME="HR Management System"
+PORT="8000"
 ```
 
-### 3. Database Setup
+#### 3. Database Setup
 
-```powershell
+```bash
+# Create PostgreSQL database
+createdb hr_app_db
+
 # Generate Prisma client
-npm run prisma:generate
+npx prisma generate
 
-# Run migrations
-npm run prisma:migrate
+# Run migrations to create tables
+npx prisma migrate deploy
 
-# Seed database with test data
+# (Optional) Seed database with demo data
 npm run prisma:seed
 ```
 
-### 4. Start Development Server
+#### 4. Start Development Server
 
-```powershell
+```bash
 npm run dev
 ```
 
-API will be available at `http://localhost:8000/api/v1/*`
+API available at: `http://localhost:8000/api/v1/*`  
+Health check: `http://localhost:8000/api/v1/health`
 
-### 5. Test the API
+#### 5. Test the API
 
-Login with test credentials:
-```powershell
-curl -X POST http://localhost:8000/api/v1/auth/login `
-  -H "Content-Type: application/json" `
-  -d '{"email":"admin@company.com","password":"password123"}'
+```bash
+# Health check
+curl http://localhost:8000/api/v1/health
+
+# Login
+curl -X POST http://localhost:8000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"sa@demo.local","password":"P@ssw0rd!"}'
 ```
 
-## 👥 Test Users
+### Production Deployment (Render)
 
-After seeding, these users are available:
+#### Service Configuration
 
-| Email | Password | Role | Department |
-|-------|----------|------|------------|
-| superadmin@company.com | password123 | SUPERADMIN | IT |
-| admin@company.com | password123 | ADMIN | IT |
-| hr@company.com | password123 | HR | Human Resources |
-| john.doe@company.com | password123 | EMPLOYEE | Engineering |
-| jane.smith@company.com | password123 | EMPLOYEE | Marketing |
-| bob.johnson@company.com | password123 | EMPLOYEE | Sales |
-| alice.williams@company.com | password123 | EMPLOYEE | Engineering |
-
-## 🐳 Docker Deployment
-
-Build and run with Docker:
-
-```powershell
-# Build image
-docker build -t hr-app-api .
-
-# Run container
-docker run -p 8000:8000 --env-file .env hr-app-api
+**Service Type**: Web Service  
+**Repository**: `Liwei1020T/HR_APP`  
+**Root Directory**: `nextjs-backend`  
+**Build Command**: 
 ```
+npm install && npx prisma generate && npx prisma migrate deploy && npm run build
+```
+**Start Command**: 
+```
+npm run start
+```
+**Port**: 8000
+
+#### Environment Variables (Render Dashboard)
+
+```env
+# Database - Use Render PostgreSQL Internal URL
+DATABASE_URL=postgresql://hr_app_db_user:password@dpg-xxx.oregon-postgres.render.com/hr_app_db
+
+# JWT
+JWT_SECRET=<strong-random-secret-minimum-32-chars>
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MIN=30
+JWT_REFRESH_EXPIRE_DAYS=7
+
+# CORS - Frontend URL (no trailing slash)
+CORS_ORIGINS=https://hr-app-frontend-tevw.onrender.com
+
+# File Upload
+MAX_FILE_SIZE=10485760
+ALLOWED_FILE_TYPES=.pdf,.doc,.docx,.txt,.jpg,.jpeg,.png
+STORAGE_TYPE=local
+STORAGE_PATH=./uploads
+
+# Email
+EMAIL_PROVIDER=console
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=noreply@hrapp.com
+
+# App
+APP_NAME=HR Management System
+NODE_ENV=production
+PORT=8000
+```
+
+#### Database Setup on Render
+
+1. **Create PostgreSQL Service**
+   - Free tier: 256MB RAM, 1GB storage
+   - Note the internal connection URL
+
+2. **Connect to Database**
+   - Use external connection URL for manual SQL execution
+   - Or let migrations run automatically via build command
+
+3. **Seed Data** (Optional)
+   - Connect via psql: `psql <EXTERNAL_DATABASE_URL>`
+   - Run: `\i database_setup.sql`
+
+#### Deploy
+
+1. Push to GitHub `main` branch
+2. Render automatically builds and deploys
+3. Check logs for any errors
+4. Test health endpoint: `https://hr-app-sofb.onrender.com/api/v1/health`
+
+#### Auto-Redeploy
+
+Pushes to `main` branch automatically trigger:
+- `npm install`
+- `npx prisma generate` (generates Prisma client)
+- `npx prisma migrate deploy` (applies migrations)
+- `npm run build` (Next.js production build)
+- `npm run start` (starts server on port 8000)
+
+## 👥 Demo Accounts
+
+Production system includes these test accounts:
+
+| Email | Password | Role | Notes |
+|-------|----------|------|-------|
+| sa@demo.local | P@ssw0rd! | SUPERADMIN | Full system access |
+| admin@demo.local | P@ssw0rd! | ADMIN | Admin dashboard access |
+| user@demo.local | P@ssw0rd! | EMPLOYEE | Standard user |
+| hr@company.com | password123 | HR | HR management access |
+| john.doe@company.com | password123 | EMPLOYEE | Engineering dept |
+| jane.smith@company.com | password123 | EMPLOYEE | Marketing dept |
+
+**Local Development**: Use `npm run prisma:seed` to create additional test users.
 
 ## 📚 API Documentation
+
+Base URLs:
+- **Local Development**: `http://localhost:8000/api/v1`
+- **Production (Render)**: `https://hr-app-sofb.onrender.com/api/v1`
 
 ### Authentication Flow
 
 1. **Login**: `POST /api/v1/auth/login`
-   ```json
-   {
-     "email": "admin@company.com",
-     "password": "password123"
-   }
+   ```bash
+   # Local
+   curl -X POST http://localhost:8000/api/v1/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"email":"sa@demo.local","password":"P@ssw0rd!"}'
+   
+   # Production
+   curl -X POST https://hr-app-sofb.onrender.com/api/v1/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"email":"sa@demo.local","password":"P@ssw0rd!"}'
    ```
    Response:
    ```json
@@ -246,16 +341,45 @@ docker run -p 8000:8000 --env-file .env hr-app-api
 
 ### Example: Submit Feedback
 
-```powershell
-curl -X POST http://localhost:8000/api/v1/feedback `
-  -H "Authorization: Bearer <access_token>" `
-  -H "Content-Type: application/json" `
+```bash
+# Local
+curl -X POST http://localhost:8000/api/v1/feedback \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
   -d '{
     "title": "Suggestion for improvement",
     "description": "It would be great if we had...",
     "category": "GENERAL",
     "is_anonymous": false
   }'
+
+# Production
+curl -X POST https://hr-app-sofb.onrender.com/api/v1/feedback \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Suggestion for improvement",
+    "description": "It would be great if we had...",
+    "category": "GENERAL",
+    "is_anonymous": false
+  }'
+```
+
+### Health Check
+
+```bash
+# Local
+curl http://localhost:8000/api/v1/health
+
+# Production  
+curl https://hr-app-sofb.onrender.com/api/v1/health
+```
+
+Returns:
+```json
+{
+  "status": "ok"
+}
 ```
 
 ## 🧪 Testing
@@ -366,28 +490,167 @@ See `MIGRATION.md` for detailed migration guide.
 
 ## 🚨 Troubleshooting
 
-### Port already in use
+### Common Issues
+
+#### 1. Port Already in Use
+**Symptoms**: `Error: listen EADDRINUSE: address already in use :::8000`
+
+**Solutions**:
 ```powershell
-# Kill process on port 8000
+# Find process using port 8000
 netstat -ano | findstr :8000
+
+# Kill the process
 taskkill /PID <PID> /F
 ```
 
-### Database connection error
-- Check DATABASE_URL in `.env`
-- Ensure PostgreSQL is running
-- Verify database exists
+#### 2. Database Connection Failed
+**Symptoms**: `Can't reach database server at localhost:5432`
 
-### Prisma client not generated
-```powershell
-npm run prisma:generate
-```
+**Solutions**:
+- Check DATABASE_URL in `.env` file
+- Verify PostgreSQL is running: `pg_isready`
+- Ensure database exists: `psql -l | grep hr_app_db`
+- Test connection: `psql $DATABASE_URL`
 
-### Module not found errors
-```powershell
+**Production (Render)**:
+- Use **internal** database URL (not external)
+- Format: `postgresql://user:pass@dpg-xxx-a.oregon-postgres.render.com/dbname`
+- Check Render dashboard for connection status
+
+#### 3. Prisma Client Not Generated
+**Symptoms**: `@prisma/client did not initialize yet`
+
+**Solutions**:
+```bash
+# Regenerate Prisma client
+npx prisma generate
+
+# Clear node_modules and reinstall
 rm -rf node_modules
 npm install
 ```
+
+#### 4. Module Not Found / Path Alias Issues
+**Symptoms**: `Cannot find module '@/lib/db'`
+
+**Solutions**:
+- Verify `tsconfig.json` has `"baseUrl": "."`
+- Check `next.config.mjs` webpack aliases
+- Rebuild: `npm run build`
+
+**Production (Render)**:
+- Ensure build command includes `npm install` (not `npm ci`)
+- Use `npm install --include=dev` to get TypeScript types
+
+#### 5. CORS Errors
+**Symptoms**: `No 'Access-Control-Allow-Origin' header is present`
+
+**Solutions**:
+- Check `CORS_ORIGINS` environment variable
+- Format: No trailing slashes, comma-separated
+- Example: `https://hr-app-frontend-tevw.onrender.com`
+- Redeploy backend after changing env vars on Render
+
+**Debug**:
+```bash
+# Check CORS headers
+curl -I -X OPTIONS https://hr-app-sofb.onrender.com/api/v1/auth/login \
+  -H "Origin: https://hr-app-frontend-tevw.onrender.com"
+```
+
+#### 6. Migration Failed
+**Symptoms**: `Migration failed to apply cleanly`
+
+**Solutions**:
+```bash
+# Reset database (WARNING: deletes all data)
+npx prisma migrate reset
+
+# Apply migrations manually
+npx prisma migrate deploy
+
+# Check migration status
+npx prisma migrate status
+```
+
+#### 7. Authentication Errors
+**Symptoms**: `401 Unauthorized` or `Invalid token`
+
+**Solutions**:
+- Verify JWT_SECRET is set in environment
+- Check token expiration (JWT_EXPIRE_MIN)
+- Ensure Authorization header format: `Bearer <token>`
+- Test login endpoint:
+  ```bash
+  curl -X POST https://hr-app-sofb.onrender.com/api/v1/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{"email":"sa@demo.local","password":"P@ssw0rd!"}'
+  ```
+
+#### 8. Build Fails on Render
+**Symptoms**: `Build failed` in Render logs
+
+**Common Causes**:
+- Missing dependencies in `package.json`
+- TypeScript errors (run `npm run build` locally first)
+- Prisma schema issues (run `npx prisma validate`)
+- Environment variables not set
+
+**Solutions**:
+1. Check Render build logs for specific error
+2. Verify build command:
+   ```
+   npm install && npx prisma generate && npx prisma migrate deploy && npm run build
+   ```
+3. Ensure `typescript`, `@types/node`, `@types/react` in `devDependencies`
+4. Test locally: `npm run build` should succeed
+
+#### 9. File Upload Errors
+**Symptoms**: `413 Payload Too Large` or upload fails
+
+**Solutions**:
+- Check MAX_FILE_SIZE environment variable (bytes)
+- Verify ALLOWED_FILE_TYPES includes file extension
+- Ensure STORAGE_PATH directory exists and is writable
+- For Render: Use persistent storage or external service (S3)
+
+#### 10. Slow API Performance
+**Symptoms**: Requests take >3 seconds
+
+**Solutions**:
+- Check Render service logs for cold starts (free tier spins down)
+- Optimize database queries (add indexes)
+- Use Prisma `select` to limit returned fields
+- Implement pagination for large datasets
+- Upgrade Render plan for always-on service
+
+### Debug Mode
+
+Enable detailed logging:
+
+```env
+# .env
+DEBUG=true
+LOG_LEVEL=debug
+```
+
+Check logs:
+```bash
+# Local
+npm run dev | tee debug.log
+
+# Production (Render)
+# View logs in Render dashboard
+```
+
+### Getting Help
+
+1. Check Render deployment logs
+2. Run health check: `curl https://hr-app-sofb.onrender.com/api/v1/health`
+3. Test database connection in Render shell
+4. Review recent commits for breaking changes
+5. Compare working local setup vs production config
 
 ## 📝 License
 
@@ -395,11 +658,16 @@ MIT
 
 ## 🤝 Contributing
 
-1. Fork the repository
+1. Fork the repository at [github.com/Liwei1020T/HR_APP](https://github.com/Liwei1020T/HR_APP)
 2. Create feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit changes (`git commit -m 'Add amazing feature'`)
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open Pull Request
+
+---
+
+**Built with ❤️ using Next.js 14, Prisma, and PostgreSQL**  
+**Deployed on [Render Cloud Platform](https://render.com)**
 
 ## 📞 Support
 
