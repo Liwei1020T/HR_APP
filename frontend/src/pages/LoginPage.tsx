@@ -2,6 +2,18 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
+const tabs = [
+  { id: 'login', label: 'Login', path: '/login' },
+  { id: 'register', label: 'Register', path: '/register' },
+];
+
+const demoAccounts = [
+  { label: 'Employee', email: 'user@demo.local', password: 'P@ssw0rd!' },
+  { label: 'HR', email: 'hr@company.com', password: 'password123' },
+  { label: 'Admin', email: 'admin@demo.local', password: 'P@ssw0rd!' },
+  { label: 'Superadmin', email: 'sa@demo.local', password: 'P@ssw0rd!' },
+];
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,156 +55,112 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <h2 className="text-4xl font-extrabold text-gray-900">HR Portal</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Sign in to access your account
-          </p>
-        </div>
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 space-y-6">
+          <div className="text-center space-y-1">
+            <p className="text-sm uppercase tracking-[0.3em] text-slate-400">HR Platform</p>
+            <h1 className="text-4xl font-black text-slate-900">Employee Portal</h1>
+            <p className="text-sm text-slate-500">Sign in to access your HR platform.</p>
+          </div>
 
-        {/* Login Form */}
-        <div className="bg-white rounded-lg shadow-xl p-8 space-y-6">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <div className="bg-slate-100 rounded-full p-1 flex text-sm font-medium">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => navigate(tab.path)}
+                className={`flex-1 py-2 rounded-full transition ${
+                  tab.id === 'login'
+                    ? 'bg-white text-slate-900 shadow'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <form className="space-y-5" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
                 {error}
               </div>
             )}
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 bg-">
-                Email address
+            <div className="space-y-1">
+              <label htmlFor="email" className="text-sm font-medium text-slate-700">
+                Email
               </label>
               <input
                 id="email"
-                name="email"
                 type="email"
-                autoComplete="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="you@company.com"
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                placeholder="Enter your work email"
               />
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="text-sm font-medium text-slate-700">
+                  Password
+                </label>
+                <button
+                  type="button"
+                  className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  Forgot Password?
+                </button>
+              </div>
               <input
                 id="password"
-                name="password"
                 type="password"
-                autoComplete="current-password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white  rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="••••••••"
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                placeholder="Enter your password"
               />
+              <p className="text-xs text-slate-400">
+                Must be 8+ characters, with 1 uppercase letter, 1 number, and 1 special character.
+              </p>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-2xl bg-blue-600 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? 'Signing in...' : 'Sign In'}
             </button>
-
-            <p className="text-center text-sm text-gray-600">
-              Don't have an account?{' '}
-              <button
-                type="button"
-                onClick={() => navigate('/register')}
-                className="text-blue-600 hover:text-blue-800 font-medium"
-              >
-                Register
-              </button>
-            </p>
           </form>
 
-          {/* Demo Accounts */}
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Demo Accounts</span>
-              </div>
+          <div className="space-y-3">
+            <p className="text-center text-xs text-slate-400">
+              Or try any of the demo accounts below
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {demoAccounts.map((account) => (
+                <button
+                  key={account.label}
+                  onClick={() => quickLogin(account.email, account.password)}
+                  disabled={loading}
+                  className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-[11px] font-medium text-slate-600 hover:border-blue-200 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  <span className="block text-base leading-4">•</span>
+                  {account.label}
+                </button>
+              ))}
             </div>
-
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <button
-                onClick={() => quickLogin('user@demo.local', 'P@ssw0rd!')}
-                disabled={loading}
-                className="flex flex-col items-center px-4 py-3 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none disabled:opacity-50 transition-colors"
-              >
-                <span className="text-lg mb-1">👤</span>
-                <span>Employee</span>
-              </button>
-
-              <button
-                onClick={() => quickLogin('hr@company.com', 'password123')}
-                disabled={loading}
-                className="flex flex-col items-center px-4 py-3 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none disabled:opacity-50 transition-colors"
-              >
-                <span className="text-lg mb-1">💼</span>
-                <span>HR</span>
-              </button>
-
-              <button
-                onClick={() => quickLogin('admin@demo.local', 'P@ssw0rd!')}
-                disabled={loading}
-                className="flex flex-col items-center px-4 py-3 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none disabled:opacity-50 transition-colors"
-              >
-                <span className="text-lg mb-1">⚙️</span>
-                <span>Admin</span>
-              </button>
-
-              <button
-                onClick={() => quickLogin('sa@demo.local', 'P@ssw0rd!')}
-                disabled={loading}
-                className="flex flex-col items-center px-4 py-3 border border-gray-300 rounded-md shadow-sm text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none disabled:opacity-50 transition-colors"
-              >
-                <span className="text-lg mb-1">👑</span>
-                <span>Superadmin</span>
-              </button>
-            </div>
-
-            {/* Credentials Info */}
-            <div className="mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
-              <p className="text-xs text-blue-800 font-medium mb-2">Quick Login Credentials:</p>
-              <div className="text-xs text-blue-700 space-y-1">
-                <div className="flex justify-between">
-                  <span className="font-medium">Employee:</span>
-                  <span className="font-mono">user@demo.local / P@ssw0rd!</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">HR:</span>
-                  <span className="font-mono">hr@company.com / password123</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Admin:</span>
-                  <span className="font-mono">admin@demo.local / P@ssw0rd!</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Superadmin:</span>
-                  <span className="font-mono">sa@demo.local / P@ssw0rd!</span>
-                </div>
-              </div>
+            <div className="text-center text-[11px] text-slate-400 leading-tight">
+              Employee: user@demo.local / P@ssw0rd!<br />
+              HR: hr@company.com / password123<br />
+              Admin: admin@demo.local / P@ssw0rd!<br />
+              Superadmin: sa@demo.local / P@ssw0rd!
             </div>
           </div>
         </div>
-
-        {/* Footer */}
-        <p className="text-center text-xs text-gray-500">
-          Production-ready HR Management System
-        </p>
       </div>
     </div>
   );
