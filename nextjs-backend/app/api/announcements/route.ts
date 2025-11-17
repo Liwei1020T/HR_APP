@@ -6,6 +6,7 @@ import { formatDate, getPaginationParams, parseQueryBoolean } from '@/lib/utils'
 import { handleApiError } from '@/lib/errors';
 import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
 import { sendAnnouncementNotification } from '@/lib/mail';
+import { assignFilesToEntity, getAttachmentsByEntity } from '@/lib/files';
 
 export async function OPTIONS(request: NextRequest) {
   return handleCorsPreflightRequest(request);
@@ -52,6 +53,9 @@ export async function GET(request: NextRequest) {
       ],
     });
 
+    const announcementIds = announcements.map((a) => a.id);
+    const attachmentMap = await getAttachmentsByEntity('announcement', announcementIds);
+
     const formatted = announcements.map((a) => ({
       id: a.id,
       title: a.title,
@@ -68,6 +72,7 @@ export async function GET(request: NextRequest) {
         email: a.creator.email,
         full_name: a.creator.fullName,
       },
+      attachments: attachmentMap[a.id] || [],
     }));
 
     const total = await db.announcement.count({ where });
@@ -113,6 +118,18 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    const attachmentIds = validated.attachments ?? [];
+    if (attachmentIds.length) {
+      await assignFilesToEntity({
+        attachmentIds,
+        userId: authUser.id,
+        entity: 'announcement',
+        entityId: announcement.id,
+      });
+    }
+
+    const attachments = (await getAttachmentsByEntity('announcement', [announcement.id]))[announcement.id] || [];
+
     // Create notifications for all active users
     const activeUsers = await db.user.findMany({
       where: { isActive: true, id: { not: authUser.id } },
@@ -151,6 +168,7 @@ export async function POST(request: NextRequest) {
         email: announcement.creator.email,
         full_name: announcement.creator.fullName,
       },
+      attachments,
     };
 
     return corsResponse(response, { request, status: 201 });

@@ -5,6 +5,7 @@ import { sendChannelMessageSchema } from '@/lib/validators/channels';
 import { formatDate } from '@/lib/utils';
 import { handleApiError, handleForbiddenError, handleNotFoundError } from '@/lib/errors';
 import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
+import { assignFilesToEntity, getAttachmentsByEntity } from '@/lib/files';
 
 async function ensureChannelMember(channelId: number, userId: number) {
   const channel = await db.channel.findUnique({
@@ -65,6 +66,9 @@ export async function GET(
       ],
     });
 
+    const messageIds = messages.map((message) => message.id);
+    const attachmentsMap = await getAttachmentsByEntity('channel_message', messageIds);
+
     const formatted = messages.map((message) => ({
       id: message.id,
       channel_id: message.channelId,
@@ -78,6 +82,7 @@ export async function GET(
         full_name: message.user.fullName,
         email: message.user.email,
       },
+      attachments: attachmentsMap[message.id] || [],
     }));
 
     return corsResponse({ messages: formatted }, { request, status: 200 });
@@ -95,6 +100,7 @@ export async function POST(
     const channelId = parseInt(params.id);
     const payload = await request.json();
     const validated = sendChannelMessageSchema.parse(payload);
+    const attachmentIds = validated.attachments ?? [];
 
     const { channelExists, membership, channel } = await ensureChannelMember(channelId, authUser.id);
 
@@ -130,6 +136,15 @@ export async function POST(
       },
     });
 
+    if (attachmentIds.length) {
+      await assignFilesToEntity({
+        attachmentIds,
+        userId: authUser.id,
+        entity: 'channel_message',
+        entityId: message.id,
+      });
+    }
+
     if (validated.is_announcement) {
       const members = await db.channelMember.findMany({
         where: { channelId },
@@ -154,6 +169,8 @@ export async function POST(
       }
     }
 
+    const attachments = (await getAttachmentsByEntity('channel_message', [message.id]))[message.id] || [];
+
     const response = {
       id: message.id,
       channel_id: message.channelId,
@@ -167,6 +184,7 @@ export async function POST(
         full_name: message.user.fullName,
         email: message.user.email,
       },
+      attachments,
     };
 
     return corsResponse(response, { request, status: 201 });

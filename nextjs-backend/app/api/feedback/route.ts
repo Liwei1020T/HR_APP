@@ -5,6 +5,7 @@ import { createFeedbackSchema } from '@/lib/validators/feedback';
 import { formatDate, getPaginationParams, parseQueryBoolean } from '@/lib/utils';
 import { handleApiError } from '@/lib/errors';
 import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
+import { assignFilesToEntity, getAttachmentsByEntity } from '@/lib/files';
 
 export async function OPTIONS(request: NextRequest) {
   return handleCorsPreflightRequest(request);
@@ -62,6 +63,9 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
     });
 
+    const feedbackIds = feedback.map((f) => f.id);
+    const attachmentsByFeedback = await getAttachmentsByEntity('feedback', feedbackIds);
+
     const formatted = feedback.map((f) => ({
       id: f.id,
       title: f.title,
@@ -85,6 +89,7 @@ export async function GET(request: NextRequest) {
         email: f.assignee.email,
         full_name: f.assignee.fullName,
       } : null,
+      attachments: attachmentsByFeedback[f.id] || [],
     }));
 
     const total = await db.feedback.count({ where });
@@ -120,6 +125,18 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    const attachmentIds = validated.attachments ?? [];
+    if (attachmentIds.length) {
+      await assignFilesToEntity({
+        attachmentIds,
+        userId: authUser.id,
+        entity: 'feedback',
+        entityId: feedback.id,
+      });
+    }
+
+    const attachments = (await getAttachmentsByEntity('feedback', [feedback.id]))[feedback.id] || [];
 
     // Create notification for HR team
     const hrUsers = await db.user.findMany({
@@ -161,6 +178,7 @@ export async function POST(request: NextRequest) {
         full_name: feedback.submitter.fullName,
       },
       assignee: null,
+      attachments,
     };
 
     return corsResponse(response, { request, status: 201 });

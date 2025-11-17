@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import { useAuth } from '../contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { feedbackApi } from '../lib/api-client';
 import type { FeedbackItem, FeedbackCreate } from '../lib/types';
+import { useAttachmentUpload, AttachmentPreviewList } from '../components/AttachmentUploader';
 
 const STATUS_OPTIONS = ['all', 'SUBMITTED', 'UNDER_REVIEW', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const;
 
@@ -34,6 +35,8 @@ export default function FeedbackPage() {
   const [selectedStatus, setSelectedStatus] = useState<typeof STATUS_OPTIONS[number]>('all');
   const [selectedFeedback, setSelectedFeedback] = useState<FeedbackItem | null>(null);
 
+  const attachmentUpload = useAttachmentUpload(4);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   // Form state
   const [formData, setFormData] = useState<FeedbackCreate>({
     title: '',
@@ -56,8 +59,9 @@ export default function FeedbackPage() {
       queryClient.invalidateQueries({ queryKey: ['feedback'] });
       setShowCreateForm(false);
       setFormData({ title: '', description: '', category: 'general', is_anonymous: false });
-    },
-  });
+      attachmentUpload.resetAttachments();
+   },
+ });
 
   // Update status mutation (HR/Admin only)
   const updateStatusMutation = useMutation({
@@ -71,11 +75,12 @@ export default function FeedbackPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createMutation.mutate({
-      ...formData,
-      category: formData.category.toUpperCase(),
-    });
-  };
+      createMutation.mutate({
+        ...formData,
+        category: formData.category.toUpperCase(),
+        attachments: attachmentUpload.attachmentIds,
+      });
+    };
 
   const filteredFeedback = feedbackData?.feedback || [];
   const canManage = hasRole(['hr', 'admin', 'superadmin']);
@@ -113,6 +118,27 @@ export default function FeedbackPage() {
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Attachments
+                  </label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    onChange={(e) => {
+                      attachmentUpload.addFiles(e.target.files);
+                      e.target.value = '';
+                    }}
+                    accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                    className="w-full text-xs text-gray-500"
+                  />
+                  <AttachmentPreviewList
+                    attachments={attachmentUpload.attachments}
+                    onRemove={attachmentUpload.removeAttachment}
                   />
                 </div>
 
@@ -173,7 +199,7 @@ export default function FeedbackPage() {
                   </button>
                   <button
                     type="submit"
-                    disabled={createMutation.isPending}
+                    disabled={createMutation.isPending || attachmentUpload.isUploading}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                   >
                     {createMutation.isPending ? 'Submitting...' : 'Submit Feedback'}

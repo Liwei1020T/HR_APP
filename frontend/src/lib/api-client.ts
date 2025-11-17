@@ -121,11 +121,12 @@ export const channelsApi = {
   sendMessage: async (
     id: number,
     content: string,
-    options?: { isAnnouncement?: boolean }
+    options?: { isAnnouncement?: boolean; attachments?: number[] }
   ): Promise<ChannelMessage> => {
     const response = await api.post<ChannelMessage>(`/channels/${id}/messages`, {
       content,
       is_announcement: options?.isAnnouncement ?? false,
+      attachments: options?.attachments,
     });
     return response.data;
   },
@@ -193,7 +194,7 @@ export const feedbackApi = {
 
   addComment: async (
     id: number,
-    data: { comment: string; is_internal?: boolean }
+    data: { comment: string; is_internal?: boolean; attachments?: number[] }
   ): Promise<FeedbackComment> => {
     const response = await api.post<FeedbackComment>(`/feedback/${id}/comments`, data);
     return response.data;

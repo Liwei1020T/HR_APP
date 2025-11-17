@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { uploadFile, validateFile } from '@/lib/storage';
+import { scanFile, uploadFile, validateFile } from '@/lib/storage';
 import { formatDate } from '@/lib/utils';
 import { handleApiError, createErrorResponse } from '@/lib/errors';
 import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
@@ -20,8 +20,14 @@ export async function POST(request: NextRequest) {
       return createErrorResponse('No file provided', 400);
     }
 
+    const url = new URL(request.url);
+    const entityType = url.searchParams.get('entity_type');
+    const entityIdParam = url.searchParams.get('entity_id');
+    const entityId = entityIdParam ? parseInt(entityIdParam, 10) : null;
+
     // Validate and upload file
     validateFile(file);
+    const scanResult = await scanFile(file);
     const filePath = await uploadFile(file, 'uploads');
 
     // Save file metadata
@@ -31,6 +37,11 @@ export async function POST(request: NextRequest) {
         filePath: filePath,
         fileType: file.type,
         fileSize: file.size,
+        originalFilename: file.name,
+        scannerStatus: scanResult.status,
+        scannerDetails: scanResult.details,
+        entityType: entityType,
+        entityId,
         uploadedBy: authUser.id,
       },
       include: {
@@ -50,6 +61,9 @@ export async function POST(request: NextRequest) {
       file_path: fileRecord.filePath,
       file_type: fileRecord.fileType,
       file_size: fileRecord.fileSize,
+      original_filename: fileRecord.originalFilename,
+      scanner_status: fileRecord.scannerStatus,
+      scanner_details: fileRecord.scannerDetails,
       uploaded_by: fileRecord.uploadedBy,
       entity_type: fileRecord.entityType,
       entity_id: fileRecord.entityId,

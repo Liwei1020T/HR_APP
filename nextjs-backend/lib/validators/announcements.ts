@@ -12,6 +12,7 @@ export const ANNOUNCEMENT_CATEGORIES = [
 
 export type AnnouncementCategory = typeof ANNOUNCEMENT_CATEGORIES[number];
 const CategorySchema = z.enum(ANNOUNCEMENT_CATEGORIES);
+const AttachmentSchema = z.array(z.number().int().positive()).optional();
 
 // Create announcement request
 export const createAnnouncementSchema = z.object({
@@ -19,6 +20,7 @@ export const createAnnouncementSchema = z.object({
   content: z.string().min(1),
   category: CategorySchema.optional().default('OTHER'),
   is_pinned: z.boolean().optional().default(false),
+  attachments: AttachmentSchema,
   // Allow ISO strings; keep optional
   expires_at: z.string().datetime().optional(),
 });

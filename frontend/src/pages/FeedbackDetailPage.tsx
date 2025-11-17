@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AppLayout from '../components/AppLayout';
 import { feedbackApi } from '../lib/api-client';
 import { useAuth } from '../contexts/AuthContext';
+import { AttachmentPreviewList, useAttachmentUpload } from '../components/AttachmentUploader';
+import { AttachmentList } from '../components/AttachmentList';
 
 const STATUS_BADGE: Record<string, string> = {
   RESOLVED: 'bg-green-100 text-green-800',
@@ -25,6 +27,15 @@ export default function FeedbackDetailPage() {
 
   const [comment, setComment] = useState('');
   const [isInternal, setIsInternal] = useState(false);
+  const {
+    attachments: commentAttachments,
+    addFiles: addCommentFiles,
+    removeAttachment: removeCommentAttachment,
+    resetAttachments: resetCommentAttachments,
+    attachmentIds: commentAttachmentIds,
+    isUploading: commentUploading,
+  } = useAttachmentUpload(4);
+  const commentFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const feedbackQuery = useQuery({
     queryKey: ['feedback-detail', feedbackId],
@@ -51,10 +62,12 @@ export default function FeedbackDetailPage() {
       feedbackApi.addComment(feedbackId, {
         comment,
         ...(isHr ? { is_internal: isInternal } : {}),
+        attachments: commentAttachmentIds,
       }),
     onSuccess: () => {
       setComment('');
       setIsInternal(false);
+      resetCommentAttachments();
       queryClient.invalidateQueries({ queryKey: ['feedback-comments', feedbackId] });
     },
   });
@@ -93,6 +106,7 @@ export default function FeedbackDetailPage() {
                   <p className="text-sm text-gray-500 uppercase tracking-wide">Feedback</p>
                   <h1 className="text-3xl font-bold text-gray-900">{feedback.title}</h1>
                   <p className="text-gray-600 mt-2">{(feedback as any).description}</p>
+                  <AttachmentList attachments={feedback.attachments} />
                 </div>
                 <div className="flex flex-col items-start md:items-end gap-2">
                   <span
@@ -170,6 +184,7 @@ export default function FeedbackDetailPage() {
                         </div>
                       </div>
                       <p className="text-gray-700 mt-3 whitespace-pre-line">{entry.comment}</p>
+                      <AttachmentList attachments={entry.attachments} />
                     </div>
                   ))}
                 </div>
@@ -179,6 +194,26 @@ export default function FeedbackDetailPage() {
                 <div className="border-t border-gray-200 pt-4">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Add a reply</h3>
                   <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Attachments
+                      </label>
+                      <input
+                        ref={commentFileInputRef}
+                        type="file"
+                        multiple
+                        onChange={(e) => {
+                          addCommentFiles(e.target.files);
+                          e.target.value = '';
+                        }}
+                        accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                        className="w-full text-xs text-gray-500"
+                      />
+                      <AttachmentPreviewList
+                        attachments={commentAttachments}
+                        onRemove={removeCommentAttachment}
+                      />
+                    </div>
                     <textarea
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
@@ -197,10 +232,21 @@ export default function FeedbackDetailPage() {
                         Mark as internal (only HR/Admin can see)
                       </label>
                     )}
-                    <div className="flex justify-end">
+                    <div className="flex justify-end gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setComment('');
+                          setIsInternal(false);
+                          resetCommentAttachments();
+                        }}
+                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                      >
+                        Reset
+                      </button>
                       <button
                         onClick={() => addCommentMutation.mutate()}
-                        disabled={!comment.trim() || addCommentMutation.isPending}
+                        disabled={!comment.trim() || addCommentMutation.isPending || commentUploading}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                       >
                         {addCommentMutation.isPending ? 'Sending...' : 'Post Reply'}

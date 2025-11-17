@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AppLayout from '../components/AppLayout';
 import { channelsApi } from '../lib/api-client';
 import { useAuth } from '../contexts/AuthContext';
+import { AttachmentList } from '../components/AttachmentList';
+import { AttachmentPreviewList, useAttachmentUpload } from '../components/AttachmentUploader';
 
 export default function ChannelDetailPage() {
   const { id } = useParams();
@@ -13,6 +15,15 @@ export default function ChannelDetailPage() {
   const { hasRole } = useAuth();
   const [message, setMessage] = useState('');
   const [sendAsAnnouncement, setSendAsAnnouncement] = useState(false);
+  const {
+    attachments: chatAttachments,
+    addFiles: addChatFiles,
+    removeAttachment: removeChatAttachment,
+    resetAttachments: resetChatAttachments,
+    attachmentIds: chatAttachmentIds,
+    isUploading: chatUploading,
+  } = useAttachmentUpload(4);
+  const chatFileInputRef = useRef<HTMLInputElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const channelQuery = useQuery({
@@ -32,11 +43,13 @@ export default function ChannelDetailPage() {
     mutationFn: () =>
       channelsApi.sendMessage(channelId, message.trim(), {
         isAnnouncement: sendAsAnnouncement,
+        attachments: chatAttachmentIds,
       }),
     onSuccess: () => {
       setMessage('');
       setSendAsAnnouncement(false);
       queryClient.invalidateQueries({ queryKey: ['channel-messages', channelId] });
+      resetChatAttachments();
     },
   });
 
@@ -131,6 +144,7 @@ export default function ChannelDetailPage() {
                         )}
                       </div>
                       <div className="text-gray-800 mt-1 whitespace-pre-line">{msg.content}</div>
+                      <AttachmentList attachments={msg.attachments} />
                     </div>
                   ))
                 ) : (
@@ -138,9 +152,9 @@ export default function ChannelDetailPage() {
                 )}
                 <div ref={bottomRef} />
               </div>
-              <div className="border-t border-gray-200 p-4">
+              <div className="border-t border-gray-200 p-4 space-y-3">
                 {hasRole(['hr', 'admin', 'superadmin']) && (
-                  <label className="mb-2 flex items-center gap-2 text-sm text-gray-600">
+                  <label className="flex items-center gap-2 text-sm text-gray-600">
                     <input
                       type="checkbox"
                       checked={sendAsAnnouncement}
@@ -150,7 +164,27 @@ export default function ChannelDetailPage() {
                     Send as announcement (notifies all members)
                   </label>
                 )}
-                <div className="flex items-end gap-3">
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Attachments
+                    </label>
+                    <input
+                      ref={chatFileInputRef}
+                      type="file"
+                      multiple
+                      onChange={(e) => {
+                        addChatFiles(e.target.files);
+                        e.target.value = '';
+                      }}
+                      accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                      className="w-full text-xs text-gray-500"
+                    />
+                    <AttachmentPreviewList
+                      attachments={chatAttachments}
+                      onRemove={removeChatAttachment}
+                    />
+                  </div>
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
@@ -158,9 +192,15 @@ export default function ChannelDetailPage() {
                     placeholder="Write a message..."
                     className="flex-1 border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                </div>
+                <div className="flex justify-end">
                   <button
                     onClick={() => sendMessageMutation.mutate()}
-                    disabled={!message.trim() || sendMessageMutation.isPending}
+                    disabled={
+                      !message.trim() ||
+                      sendMessageMutation.isPending ||
+                      chatUploading
+                    }
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                   >
                     Send

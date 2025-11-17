@@ -5,6 +5,7 @@ import { updateAnnouncementSchema } from '@/lib/validators/announcements';
 import { formatDate } from '@/lib/utils';
 import { handleApiError, handleNotFoundError } from '@/lib/errors';
 import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
+import { getAttachmentsByEntity } from '@/lib/files';
 
 export async function OPTIONS(request: NextRequest) {
   return handleCorsPreflightRequest(request);
@@ -35,6 +36,8 @@ export async function GET(
       return handleNotFoundError('Announcement');
     }
 
+    const attachments = (await getAttachmentsByEntity('announcement', [announcement.id]))[announcement.id] || [];
+
     const response = {
       id: announcement.id,
       title: announcement.title,
@@ -51,7 +54,11 @@ export async function GET(
         email: announcement.creator.email,
         full_name: announcement.creator.fullName,
       },
+      attachments,
     };
+
+    const attachments = (await getAttachmentsByEntity('announcement', [announcement.id]))[announcement.id] || [];
+    (response as any).attachments = attachments;
 
     return corsResponse(response, { request, status: 200 });
   } catch (error) {

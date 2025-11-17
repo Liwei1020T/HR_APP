@@ -139,3 +139,13 @@ export async function getFile(filePath: string): Promise<Buffer | string> {
   // The client can download from the URL
   return filePath;
 }
+
+/**
+ * Stub scanner for demonstration; replace with real virus scanning integration as needed.
+ */
+export async function scanFile(
+  file: File
+): Promise<{ status: 'clean' | 'infected'; details?: string }> {
+  // Placeholder logic: always report clean in this demo.
+  return { status: 'clean', details: 'No threats detected (stub scanner)' };
+}

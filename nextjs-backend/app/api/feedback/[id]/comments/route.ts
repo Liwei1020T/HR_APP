@@ -5,6 +5,7 @@ import { addCommentSchema } from '@/lib/validators/feedback';
 import { formatDate } from '@/lib/utils';
 import { handleApiError, handleNotFoundError, handleForbiddenError } from '@/lib/errors';
 import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
+import { assignFilesToEntity, getAttachmentsByEntity } from '@/lib/files';
 
 export async function OPTIONS(request: NextRequest) {
   return handleCorsPreflightRequest(request);
@@ -49,6 +50,9 @@ export async function GET(
       orderBy: { createdAt: 'asc' },
     });
 
+    const commentIds = comments.map((c) => c.id);
+    const attachmentMap = await getAttachmentsByEntity('feedback_comment', commentIds);
+
     const formatted = comments.map((c) => ({
       id: c.id,
       feedback_id: c.feedbackId,
@@ -61,6 +65,7 @@ export async function GET(
         email: c.user.email,
         full_name: c.user.fullName,
       },
+      attachments: attachmentMap[c.id] || [],
     }));
 
     const total = comments.length;
@@ -129,6 +134,18 @@ export async function POST(
       });
     }
 
+    const attachmentIds = validated.attachments ?? [];
+    if (attachmentIds.length) {
+      await assignFilesToEntity({
+        attachmentIds,
+        userId: authUser.id,
+        entity: 'feedback_comment',
+        entityId: comment.id,
+      });
+    }
+
+    const attachments = (await getAttachmentsByEntity('feedback_comment', [comment.id]))[comment.id] || [];
+
     const response = {
       id: comment.id,
       feedback_id: comment.feedbackId,
@@ -141,6 +158,7 @@ export async function POST(
         email: comment.user.email,
         full_name: comment.user.fullName,
       },
+      attachments,
     };
 
     return corsResponse(response, { request, status: 201 });

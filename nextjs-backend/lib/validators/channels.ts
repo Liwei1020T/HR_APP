@@ -20,9 +20,12 @@ export const updateChannelSchema = z.object({
 
 export type UpdateChannelRequest = z.infer<typeof updateChannelSchema>;
 
+const AttachmentSchema = z.array(z.number().int().positive()).optional();
+
 export const sendChannelMessageSchema = z.object({
   content: z.string().min(1).max(2000),
   is_announcement: z.boolean().optional().default(false),
+  attachments: AttachmentSchema,
 });
 
 export type SendChannelMessageRequest = z.infer<typeof sendChannelMessageSchema>;

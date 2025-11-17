@@ -24,6 +24,7 @@ export type FeedbackStatus = typeof FEEDBACK_STATUSES[number];
 
 const CategorySchema = z.enum(FEEDBACK_CATEGORIES);
 const StatusSchema = z.enum(FEEDBACK_STATUSES);
+const AttachmentSchema = z.array(z.number().int().positive()).optional();
 
 // Create feedback request
 export const createFeedbackSchema = z.object({
@@ -31,6 +32,7 @@ export const createFeedbackSchema = z.object({
   description: z.string().min(1),
   category: CategorySchema.optional().default('GENERAL'),
   is_anonymous: z.boolean().optional().default(false),
+  attachments: AttachmentSchema,
 });
 
 export type CreateFeedbackRequest = z.infer<typeof createFeedbackSchema>;
@@ -56,6 +58,7 @@ export type UpdateFeedbackStatusRequest = z.infer<typeof updateFeedbackStatusSch
 export const addCommentSchema = z.object({
   comment: z.string().min(1),
   is_internal: z.boolean().optional().default(false),
+  attachments: AttachmentSchema,
 });
 
 export type AddCommentRequest = z.infer<typeof addCommentSchema>;

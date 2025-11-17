@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import AppLayout from '../components/AppLayout';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { announcementsApi } from '../lib/api-client';
 import { useAuth } from '../contexts/AuthContext';
 import type { Announcement, AnnouncementCreate } from '../lib/types';
+import { AttachmentPreviewList, useAttachmentUpload } from '../components/AttachmentUploader';
+import { AttachmentList } from '../components/AttachmentList';
 
 const ANNOUNCEMENT_CATEGORIES = [
   { value: 'COMPANY_NEWS', label: 'Company News', icon: '📰' },
@@ -34,6 +36,8 @@ export default function AnnouncementsPage() {
     category: ANNOUNCEMENT_CATEGORIES[0].value,
     is_pinned: false,
   });
+  const announcementAttachments = useAttachmentUpload(4);
+  const attachmentInputRef = useRef<HTMLInputElement | null>(null);
 
   const { hasRole } = useAuth();
   const canManage = hasRole(['hr', 'admin', 'superadmin']);
@@ -61,6 +65,7 @@ export default function AnnouncementsPage() {
         category: ANNOUNCEMENT_CATEGORIES[0].value,
         is_pinned: false,
       });
+      announcementAttachments.resetAttachments();
     },
   });
 
@@ -71,6 +76,7 @@ export default function AnnouncementsPage() {
       content: formData.content,
       category: formData.category,
       is_pinned: formData.is_pinned,
+      attachments: announcementAttachments.attachmentIds,
     });
   };
 
@@ -223,6 +229,25 @@ export default function AnnouncementsPage() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Attachments</label>
+                <input
+                  ref={attachmentInputRef}
+                  type="file"
+                  multiple
+                  onChange={(e) => {
+                    announcementAttachments.addFiles(e.target.files);
+                    e.target.value = '';
+                  }}
+                  accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                  className="w-full text-xs text-gray-500"
+                />
+                <AttachmentPreviewList
+                  attachments={announcementAttachments.attachments}
+                  onRemove={announcementAttachments.removeAttachment}
+                />
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
@@ -306,6 +331,7 @@ export default function AnnouncementsPage() {
               </button>
             </div>
             <div className="text-gray-800 whitespace-pre-line">{selectedAnnouncement.content}</div>
+            <AttachmentList attachments={selectedAnnouncement.attachments} />
             <div className="flex justify-end pt-6">
               <button
                 onClick={() => setSelectedAnnouncement(null)}

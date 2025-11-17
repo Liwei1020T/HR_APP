@@ -80,6 +80,7 @@ export interface ChannelMessage {
     full_name: string;
     email: string;
   };
+  attachments?: FileUpload[];
 }
 
 // ===== Feedback Types =====
@@ -112,6 +113,7 @@ export interface Feedback {
   submitter_name?: string;
   assignee_name?: string;
   comment_count: number;
+  attachments?: FileUpload[];
 }
 
 export interface FeedbackComment {
@@ -126,6 +128,7 @@ export interface FeedbackComment {
     email: string;
     full_name: string;
   };
+  attachments?: FileUpload[];
 }
 
 export interface FeedbackCreate {
@@ -133,6 +136,7 @@ export interface FeedbackCreate {
   description: string;
   category: string;
   is_anonymous?: boolean;
+  attachments?: number[];
 }
 
 // ===== Notification Types =====
@@ -213,6 +217,7 @@ export interface Announcement {
     email: string;
     full_name: string;
   };
+  attachments?: FileUpload[];
 }
 
 export interface AnnouncementCreate {
@@ -221,6 +226,7 @@ export interface AnnouncementCreate {
   category: string;
   is_pinned?: boolean;
   expires_at?: string;
+  attachments?: number[];
 }
 
 // ===== File Types =====
@@ -235,7 +241,7 @@ export interface FileUpload {
   entity_id?: number;
   uploaded_by: number;
   uploaded_at: string;
-  uploader_name: string;
+  scanner_status: string;
 }
 
 // ===== Admin Types =====
