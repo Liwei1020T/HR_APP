@@ -225,6 +225,22 @@ export default function ChannelsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {channels.map((channel: any) => {
+              const getChannelIcon = (type: string) => {
+                switch (type) {
+                  case 'general':
+                    return '💬';
+                  case 'department':
+                    return '🏢';
+                  case 'project':
+                    return '🧩';
+                  case 'announcement':
+                    return '📢';
+                  case 'social':
+                    return '🎉';
+                  default:
+                    return '💡';
+                }
+              };
               const isMember = userChannelIds.has(channel.id);
               return (
                 <div key={channel.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
@@ -232,13 +248,7 @@ export default function ChannelsPage() {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center space-x-2">
                         <span className="text-2xl">
-                          {channel.channel_type === 'general'
-                            ? '??'
-                            : channel.channel_type === 'department'
-                            ? '??'
-                            : channel.channel_type === 'project'
-                            ? '??'
-                            : '??'}
+                          {getChannelIcon(channel.channel_type)}
                         </span>
                         <h3 className="text-lg font-semibold text-gray-900">{channel.name}</h3>
                       </div>
