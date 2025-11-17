@@ -5,7 +5,7 @@ import { updateFeedbackSchema } from '@/lib/validators/feedback';
 import { formatDate } from '@/lib/utils';
 import { handleApiError, handleNotFoundError, handleForbiddenError } from '@/lib/errors';
 import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
-import { getAttachmentsByEntity } from '@/lib/files';
+import { getAttachmentsByEntity, AttachmentResponse } from '@/lib/files';
 
 export async function OPTIONS(request: NextRequest) {
   return handleCorsPreflightRequest(request);
@@ -71,7 +71,7 @@ export async function GET(
         email: feedback.assignee.email,
         full_name: feedback.assignee.fullName,
       } : null,
-      attachments: [],
+      attachments: [] as AttachmentResponse[],
     };
 
     const attachments = (await getAttachmentsByEntity('feedback', [feedback.id]))[feedback.id] || [];
