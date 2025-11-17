@@ -77,6 +77,10 @@ export default function ChannelDetailPage() {
     );
   }
 
+  const messages = messagesQuery.data?.messages ?? [];
+  const pinnedMessages = messages.filter((msg: any) => msg.is_pinned);
+  const regularMessages = messages.filter((msg: any) => !msg.is_pinned);
+
   return (
     <AppLayout>
       <div className="space-y-6 max-w-5xl mx-auto">
@@ -105,53 +109,86 @@ export default function ChannelDetailPage() {
             </div>
 
             <div className="bg-white rounded-lg shadow h-[38rem] flex flex-col">
-              <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                {messagesQuery.isLoading ? (
-                  <p className="text-gray-500">Loading messages...</p>
-                ) : messagesQuery.data?.messages.length ? (
-                  messagesQuery.data.messages.map((msg: any) => (
-                    <div
-                      key={msg.id}
-                      className={`flex flex-col rounded-lg p-3 ${
-                        msg.is_pinned ? 'bg-yellow-50 border border-yellow-200' : 'bg-gray-100'
-                      }`}
-                    >
-                      <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-gray-900">
-                        <span>{msg.user.full_name}</span>
-                        <span className="text-xs text-gray-500">
-                          {new Date(msg.created_at).toLocaleString()}
-                        </span>
-                        {msg.is_announcement && (
-                          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-purple-100 text-purple-700">
-                            Announcement
-                          </span>
-                        )}
-                        {msg.is_pinned && (
-                          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-200 text-yellow-800">
-                            Pinned
-                          </span>
-                        )}
-                        {hasRole(['hr', 'admin', 'superadmin']) && (
-                          <button
-                            onClick={() =>
-                              pinMessageMutation.mutate({ messageId: msg.id, isPinned: !msg.is_pinned })
-                            }
-                            disabled={pinMessageMutation.isPending}
-                            className="text-xs text-blue-600 hover:text-blue-800"
-                          >
-                            {msg.is_pinned ? 'Unpin' : 'Pin'}
-                          </button>
-                        )}
-                      </div>
-                      <div className="text-gray-800 mt-1 whitespace-pre-line">{msg.content}</div>
-                      <AttachmentList attachments={msg.attachments} />
+              {messagesQuery.isLoading ? (
+                <div className="p-6 text-gray-500">Loading messages...</div>
+              ) : (
+                <>
+                  {pinnedMessages.length > 0 && (
+                    <div className="border-b border-gray-200 p-4 space-y-2 bg-yellow-25">
+                      <div className="text-xs font-semibold uppercase text-gray-500">Pinned</div>
+                      {pinnedMessages.map((msg: any) => (
+                        <div
+                          key={'pinned-' + String(msg.id)}
+                          className="flex flex-col rounded-lg border border-yellow-200 bg-yellow-50 p-3"
+                        >
+                          <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-gray-900">
+                            <span>{msg.user.full_name}</span>
+                            <span className="text-xs text-gray-500">
+                              {new Date(msg.created_at).toLocaleString()}
+                            </span>
+                            {msg.is_announcement && (
+                              <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700">
+                                Announcement
+                              </span>
+                            )}
+                            <span className="rounded-full bg-yellow-200 px-2 py-0.5 text-xs font-semibold text-yellow-800">
+                              Pinned
+                            </span>
+                            {hasRole(['hr', 'admin', 'superadmin']) && (
+                              <button
+                                onClick={() =>
+                                  pinMessageMutation.mutate({ messageId: msg.id, isPinned: false })
+                                }
+                                disabled={pinMessageMutation.isPending}
+                                className="text-xs text-blue-600 hover:text-blue-800"
+                              >
+                                Unpin
+                              </button>
+                            )}
+                          </div>
+                          <div className="mt-1 whitespace-pre-line text-gray-800">{msg.content}</div>
+                          <AttachmentList attachments={msg.attachments} />
+                        </div>
+                      ))}
                     </div>
-                  ))
-                ) : (
-                  <p className="text-gray-500">No messages yet. Start the conversation!</p>
-                )}
-                <div ref={bottomRef} />
-              </div>
+                  )}
+                  <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                    {regularMessages.length ? (
+                      regularMessages.map((msg: any) => (
+                        <div key={msg.id} className="flex flex-col rounded-lg bg-gray-100 p-3">
+                          <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-gray-900">
+                            <span>{msg.user.full_name}</span>
+                            <span className="text-xs text-gray-500">
+                              {new Date(msg.created_at).toLocaleString()}
+                            </span>
+                            {msg.is_announcement && (
+                              <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700">
+                                Announcement
+                              </span>
+                            )}
+                            {hasRole(['hr', 'admin', 'superadmin']) && (
+                              <button
+                                onClick={() =>
+                                  pinMessageMutation.mutate({ messageId: msg.id, isPinned: true })
+                                }
+                                disabled={pinMessageMutation.isPending}
+                                className="text-xs text-blue-600 hover:text-blue-800"
+                              >
+                                Pin
+                              </button>
+                            )}
+                          </div>
+                          <div className="mt-1 whitespace-pre-line text-gray-800">{msg.content}</div>
+                          <AttachmentList attachments={msg.attachments} />
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-500">No messages yet. Start the conversation!</p>
+                    )}
+                    <div ref={bottomRef} />
+                  </div>
+                </>
+              )}
               <div className="border-t border-gray-200 p-4 space-y-3">
                 {hasRole(['hr', 'admin', 'superadmin']) && (
                   <label className="flex items-center gap-2 text-sm text-gray-600">
