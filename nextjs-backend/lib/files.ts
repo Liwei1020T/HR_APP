@@ -15,6 +15,7 @@ export interface AttachmentResponse {
   entity_id: number | null;
   uploaded_by: number;
   uploaded_at: string;
+  is_image: boolean;
 }
 
 export async function assignFilesToEntity(opts: {
@@ -103,6 +104,8 @@ export function formatAttachmentResponse(file: {
   createdAt: Date;
   scannerStatus: string;
 }): AttachmentResponse {
+  const isImage = file.fileType.startsWith('image/');
+  
   return {
     id: file.id,
     filename: file.filename,
@@ -115,5 +118,6 @@ export function formatAttachmentResponse(file: {
     entity_id: file.entityId,
     uploaded_by: file.uploadedBy,
     uploaded_at: formatDate(file.createdAt),
+    is_image: isImage,
   };
 }

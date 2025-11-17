@@ -242,6 +242,7 @@ export interface FileUpload {
   uploaded_by: number;
   uploaded_at: string;
   scanner_status: string;
+  is_image?: boolean;
 }
 
 // ===== Admin Types =====

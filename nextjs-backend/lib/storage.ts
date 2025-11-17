@@ -2,11 +2,12 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { S3 } from 'aws-sdk';
 import { put } from '@vercel/blob';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const STORAGE_TYPE = process.env.STORAGE_TYPE || 'local'; // 'local', 's3', or 'vercel-blob'
+const STORAGE_TYPE = process.env.STORAGE_TYPE || 'local'; // 'local', 's3', 'vercel-blob', or 'supabase'
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
 const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE || '10485760'); // 10MB default
-const ALLOWED_FILE_TYPES = (process.env.ALLOWED_FILE_TYPES || '.pdf,.doc,.docx,.txt,.jpg,.jpeg,.png')
+const ALLOWED_FILE_TYPES = (process.env.ALLOWED_FILE_TYPES || '.pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.webp')
   .split(',')
   .map(type => type.trim());
 
@@ -18,6 +19,21 @@ if (STORAGE_TYPE === 's3' && process.env.AWS_S3_BUCKET) {
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: process.env.AWS_REGION || 'us-east-1',
   });
+}
+
+// Supabase client (if using Supabase)
+let supabaseClient: SupabaseClient | null = null;
+if (STORAGE_TYPE === 'supabase' && process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  supabaseClient = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    }
+  );
 }
 
 /**
@@ -93,6 +109,29 @@ export async function uploadFile(file: File, folder: string = 'general'): Promis
     return blob.url;
   }
 
+  if (STORAGE_TYPE === 'supabase' && supabaseClient && process.env.SUPABASE_BUCKET) {
+    const key = `${folder}/${filename}`;
+    const buffer = Buffer.from(await file.arrayBuffer());
+    
+    const { data, error } = await supabaseClient.storage
+      .from(process.env.SUPABASE_BUCKET)
+      .upload(key, buffer, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (error) {
+      throw new Error(`Supabase upload failed: ${error.message}`);
+    }
+
+    // Get public URL for the uploaded file
+    const { data: urlData } = supabaseClient.storage
+      .from(process.env.SUPABASE_BUCKET)
+      .getPublicUrl(key);
+
+    return urlData.publicUrl;
+  }
+
   throw new Error('Invalid storage type configured');
 }
 
@@ -121,6 +160,27 @@ export async function deleteFile(filePath: string): Promise<void> {
     }
   }
 
+  if (STORAGE_TYPE === 'supabase' && supabaseClient && process.env.SUPABASE_BUCKET) {
+    try {
+      // Extract the path from the public URL
+      const url = new URL(filePath);
+      const pathParts = url.pathname.split('/');
+      // Path structure: /storage/v1/object/public/{bucket}/{path}
+      const bucketIndex = pathParts.indexOf('public') + 1;
+      const key = pathParts.slice(bucketIndex + 1).join('/');
+      
+      const { error } = await supabaseClient.storage
+        .from(process.env.SUPABASE_BUCKET)
+        .remove([key]);
+
+      if (error) {
+        console.error('Failed to delete Supabase file:', error);
+      }
+    } catch (error) {
+      console.error('Failed to parse Supabase file path:', error);
+    }
+  }
+
   // Vercel Blob doesn't support programmatic deletion via SDK in this version
   // Files expire based on plan settings
 }
@@ -135,9 +195,16 @@ export async function getFile(filePath: string): Promise<Buffer | string> {
     return await fs.readFile(fullPath);
   }
 
-  // For S3 and Vercel Blob, return the URL directly
-  // The client can download from the URL
+  // For S3, Vercel Blob, and Supabase, return the URL directly
+  // The client can download from the URL or display it directly for images
   return filePath;
+}
+
+/**
+ * Check if a file is an image based on content type
+ */
+export function isImageFile(contentType: string): boolean {
+  return contentType.startsWith('image/');
 }
 
 /**
