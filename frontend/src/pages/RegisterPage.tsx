@@ -23,6 +23,7 @@ const initialFormState: RegisterFormState = {
 };
 
 export default function RegisterPage() {
+  const passwordHint = 'Password must be at least 6 characters long';
   const [formData, setFormData] = useState<RegisterFormState>(initialFormState);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -169,6 +170,7 @@ export default function RegisterPage() {
                 />
               </div>
             </div>
+            <p className="text-xs text-gray-500">{passwordHint}</p>
 
             <button
               type="submit"
