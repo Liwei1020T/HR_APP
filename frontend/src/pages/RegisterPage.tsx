@@ -53,7 +53,19 @@ export default function RegisterPage() {
       setFormData(initialFormState);
       setTimeout(() => navigate('/login'), 2000);
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Registration failed. Please try again.');
+      const apiError = err.response?.data;
+      let detail = apiError?.detail || apiError?.message;
+
+      if (detail === 'Validation error' && Array.isArray(apiError?.errors) && apiError.errors.length) {
+        const fieldMessages = apiError.errors.map((error: any) => `${error.field}: ${error.message}`);
+        detail = `Validation error – ${fieldMessages.join('; ')}`;
+      }
+
+      if (!detail) {
+        detail = 'Registration failed. Please try again.';
+      }
+
+      setError(detail);
     } finally {
       setLoading(false);
     }
