@@ -7,36 +7,6 @@ import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
 import { buildDirectConversationKey, formatDate, getPaginationParams } from '@/lib/utils';
 import { startDirectConversationSchema } from '@/lib/validators/directMessages';
 
-type ConversationWithRelations = NonNullable<
-  Awaited<
-    ReturnType<typeof db.directConversation.findFirst>
-  >
-> & {
-  participants: Array<{
-    id: number;
-    userId: number;
-    joinedAt: Date;
-    lastReadMessageId: number | null;
-    user: {
-      id: number;
-      fullName: string;
-      email: string;
-      department: string | null;
-    };
-  }>;
-  messages: Array<{
-    id: number;
-    content: string;
-    createdAt: Date;
-    editedAt: Date | null;
-    sender: {
-      id: number;
-      fullName: string;
-      email: string;
-    };
-  }>;
-};
-
 const participantUserSelect = {
   id: true,
   fullName: true,
@@ -44,7 +14,7 @@ const participantUserSelect = {
   department: true,
 };
 
-const conversationInclude: Prisma.DirectConversationInclude = {
+const conversationInclude = {
   participants: {
     include: {
       user: {
@@ -61,7 +31,11 @@ const conversationInclude: Prisma.DirectConversationInclude = {
       },
     },
   },
-};
+} satisfies Prisma.DirectConversationInclude;
+
+type ConversationWithRelations = Prisma.DirectConversationGetPayload<{
+  include: typeof conversationInclude;
+}>;
 
 function formatConversation(conversation: ConversationWithRelations, authUserId: number) {
   const membership = conversation.participants.find((participant) => participant.userId === authUserId);
