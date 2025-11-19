@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { NextRequest } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -43,7 +44,7 @@ const participantUserSelect = {
   department: true,
 };
 
-const conversationInclude = {
+const conversationInclude: Prisma.DirectConversationInclude = {
   participants: {
     include: {
       user: {
@@ -53,7 +54,7 @@ const conversationInclude = {
   },
   messages: {
     take: 1,
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: Prisma.SortOrder.desc },
     include: {
       sender: {
         select: participantUserSelect,
@@ -123,8 +124,8 @@ export async function GET(request: NextRequest) {
       skip,
       take: limit,
       orderBy: [
-        { lastMessageAt: 'desc' },
-        { updatedAt: 'desc' },
+        { lastMessageAt: Prisma.SortOrder.desc },
+        { updatedAt: Prisma.SortOrder.desc },
       ],
       include: conversationInclude,
     });
