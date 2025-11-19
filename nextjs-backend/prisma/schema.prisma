@@ -11,65 +11,68 @@ datasource db {
 // SQLite doesn't support enums, so we use String fields with validation in code
 
 model User {
-  id                      Int                    @id @default(autoincrement())
-  email                   String                 @unique
-  password                String
-  fullName                String                 @map("full_name")
-  role                    String                 @default("EMPLOYEE") // EMPLOYEE, HR, ADMIN, SUPERADMIN
-  department              String?
-  employeeId              String?                @unique @map("employee_id")
-  dateOfBirth             DateTime?              @map("date_of_birth")
-  isActive                Boolean                @default(true) @map("is_active")
-  createdAt               DateTime               @default(now()) @map("created_at")
-  updatedAt               DateTime               @updatedAt @map("updated_at")
-  
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  password    String
+  fullName    String    @map("full_name")
+  role        String    @default("EMPLOYEE") // EMPLOYEE, HR, ADMIN, SUPERADMIN
+  department  String?
+  employeeId  String?   @unique @map("employee_id")
+  dateOfBirth DateTime? @map("date_of_birth")
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
   // Relations
-  channelsCreated         Channel[]              @relation("ChannelCreator")
-  memberships             ChannelMember[]
-  feedbackSubmitted       Feedback[]             @relation("FeedbackSubmitter")
-  feedbackAssigned        Feedback[]             @relation("FeedbackAssignee")
-  feedbackComments        FeedbackComment[]
-  notifications           Notification[]
-  announcementsCreated    Announcement[]
-  filesUploaded           File[]
-  auditLogs               AuditLog[]
-  birthdayEventsCreated   BirthdayEvent[]        @relation("BirthdayEventsCreated")
-  birthdayRegistrations   BirthdayRegistration[]
-  channelMessages         ChannelMessage[]
+  channelsCreated               Channel[]                       @relation("ChannelCreator")
+  memberships                   ChannelMember[]
+  feedbackSubmitted             Feedback[]                      @relation("FeedbackSubmitter")
+  feedbackAssigned              Feedback[]                      @relation("FeedbackAssignee")
+  feedbackComments              FeedbackComment[]
+  notifications                 Notification[]
+  announcementsCreated          Announcement[]
+  filesUploaded                 File[]
+  auditLogs                     AuditLog[]
+  birthdayEventsCreated         BirthdayEvent[]                 @relation("BirthdayEventsCreated")
+  birthdayRegistrations         BirthdayRegistration[]
+  channelMessages               ChannelMessage[]
+  directConversationsCreated    DirectConversation[]            @relation("DirectConversationCreator")
+  directConversationMemberships DirectConversationParticipant[]
+  directMessages                DirectMessage[]
 
   @@map("users")
 }
 
 model Channel {
-  id                      Int                    @id @default(autoincrement())
-  name                    String
-  description             String?
-  channelType             String                 @default("general") @map("channel_type") // general, department, project, social, announcement
-  isPrivate               Boolean                @default(false) @map("is_private")
-  createdBy               Int                    @map("created_by")
-  createdAt               DateTime               @default(now()) @map("created_at")
-  updatedAt               DateTime               @updatedAt @map("updated_at")
-  
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  channelType String   @default("general") @map("channel_type") // general, department, project, social, announcement
+  isPrivate   Boolean  @default(false) @map("is_private")
+  createdBy   Int      @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
   // Relations
-  creator                 User                   @relation("ChannelCreator", fields: [createdBy], references: [id], onDelete: Cascade)
-  members                 ChannelMember[]
-  messages                ChannelMessage[]
+  creator  User             @relation("ChannelCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  members  ChannelMember[]
+  messages ChannelMessage[]
 
   @@index([createdBy])
   @@map("channels")
 }
 
 model ChannelMember {
-  id                      Int                    @id @default(autoincrement())
-  userId                  Int                    @map("user_id")
-  channelId               Int                    @map("channel_id")
-  role                    String                 @default("MEMBER") // MEMBER, MODERATOR
-  joinedAt                DateTime               @default(now()) @map("joined_at")
-  
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  channelId Int      @map("channel_id")
+  role      String   @default("MEMBER") // MEMBER, MODERATOR
+  joinedAt  DateTime @default(now()) @map("joined_at")
+
   // Relations
-  user                    User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  channel                 Channel                @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  messages                ChannelMessage[]
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel  Channel          @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  messages ChannelMessage[]
 
   @@unique([userId, channelId])
   @@unique([channelId, userId])
@@ -79,41 +82,92 @@ model ChannelMember {
 }
 
 model ChannelMessage {
-  id          Int             @id @default(autoincrement())
-  channelId   Int             @map("channel_id")
-  userId      Int             @map("user_id")
-  content     String
-  createdAt   DateTime        @default(now()) @map("created_at")
-  isAnnouncement Boolean      @default(false) @map("is_announcement")
-  isPinned     Boolean        @default(false) @map("is_pinned")
-  pinnedAt     DateTime?      @map("pinned_at")
+  id             Int       @id @default(autoincrement())
+  channelId      Int       @map("channel_id")
+  userId         Int       @map("user_id")
+  content        String
+  createdAt      DateTime  @default(now()) @map("created_at")
+  isAnnouncement Boolean   @default(false) @map("is_announcement")
+  isPinned       Boolean   @default(false) @map("is_pinned")
+  pinnedAt       DateTime? @map("pinned_at")
 
-  channel     Channel         @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  member      ChannelMember   @relation(fields: [channelId, userId], references: [channelId, userId])
+  channel Channel       @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  member  ChannelMember @relation(fields: [channelId, userId], references: [channelId, userId])
 
   @@index([channelId])
   @@index([userId])
   @@map("channel_messages")
 }
 
+model DirectConversation {
+  id             Int       @id @default(autoincrement())
+  participantKey String    @unique @map("participant_key")
+  topic          String?
+  createdBy      Int       @map("created_by")
+  lastMessageAt  DateTime? @map("last_message_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  creator      User                            @relation("DirectConversationCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  participants DirectConversationParticipant[]
+  messages     DirectMessage[]
+
+  @@index([createdBy])
+  @@index([lastMessageAt])
+  @@map("direct_conversations")
+}
+
+model DirectConversationParticipant {
+  id                Int      @id @default(autoincrement())
+  conversationId    Int      @map("conversation_id")
+  userId            Int      @map("user_id")
+  lastReadMessageId Int?     @map("last_read_message_id")
+  joinedAt          DateTime @default(now()) @map("joined_at")
+
+  conversation    DirectConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadMessage DirectMessage?     @relation("DirectMessageReadReceipt", fields: [lastReadMessageId], references: [id])
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+  @@map("direct_conversation_participants")
+}
+
+model DirectMessage {
+  id             Int       @id @default(autoincrement())
+  conversationId Int       @map("conversation_id")
+  senderId       Int       @map("sender_id")
+  content        String
+  createdAt      DateTime  @default(now()) @map("created_at")
+  editedAt       DateTime? @map("edited_at")
+
+  conversation DirectConversation              @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User                            @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  readBy       DirectConversationParticipant[] @relation("DirectMessageReadReceipt")
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@map("direct_messages")
+}
+
 model Feedback {
-  id                      Int                    @id @default(autoincrement())
-  title                   String
-  description             String
-  category                String                 @default("GENERAL") // GENERAL, WORKPLACE, MANAGEMENT, BENEFITS, CULTURE, OTHER
-  status                  String                 @default("SUBMITTED") // SUBMITTED, UNDER_REVIEW, IN_PROGRESS, RESOLVED, CLOSED
-  isAnonymous             Boolean                @default(false) @map("is_anonymous")
-  submittedBy             Int                    @map("submitted_by")
-  assignedTo              Int?                   @map("assigned_to")
-  createdAt               DateTime               @default(now()) @map("created_at")
-  updatedAt               DateTime               @updatedAt @map("updated_at")
-  
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  category    String   @default("GENERAL") // GENERAL, WORKPLACE, MANAGEMENT, BENEFITS, CULTURE, OTHER
+  status      String   @default("SUBMITTED") // SUBMITTED, UNDER_REVIEW, IN_PROGRESS, RESOLVED, CLOSED
+  isAnonymous Boolean  @default(false) @map("is_anonymous")
+  submittedBy Int      @map("submitted_by")
+  assignedTo  Int?     @map("assigned_to")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
   // Relations
-  submitter               User                   @relation("FeedbackSubmitter", fields: [submittedBy], references: [id], onDelete: Cascade)
-  assignee                User?                  @relation("FeedbackAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
-  comments                FeedbackComment[]
-  files                   File[]
+  submitter User              @relation("FeedbackSubmitter", fields: [submittedBy], references: [id], onDelete: Cascade)
+  assignee  User?             @relation("FeedbackAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
+  comments  FeedbackComment[]
+  files     File[]
 
   @@index([submittedBy])
   @@index([assignedTo])
@@ -122,16 +176,16 @@ model Feedback {
 }
 
 model FeedbackComment {
-  id                      Int                    @id @default(autoincrement())
-  feedbackId              Int                    @map("feedback_id")
-  userId                  Int                    @map("user_id")
-  comment                 String
-  isInternal              Boolean                @default(false) @map("is_internal")
-  createdAt               DateTime               @default(now()) @map("created_at")
-  
+  id         Int      @id @default(autoincrement())
+  feedbackId Int      @map("feedback_id")
+  userId     Int      @map("user_id")
+  comment    String
+  isInternal Boolean  @default(false) @map("is_internal")
+  createdAt  DateTime @default(now()) @map("created_at")
+
   // Relations
-  feedback                Feedback               @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
-  user                    User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([feedbackId])
   @@index([userId])
@@ -139,18 +193,18 @@ model FeedbackComment {
 }
 
 model Notification {
-  id                      Int                    @id @default(autoincrement())
-  userId                  Int                    @map("user_id")
-  type                    String                 // FEEDBACK, ANNOUNCEMENT, CHANNEL, SYSTEM
-  title                   String
-  message                 String
-  isRead                  Boolean                @default(false) @map("is_read")
-  relatedEntityType       String?                @map("related_entity_type")
-  relatedEntityId         Int?                   @map("related_entity_id")
-  createdAt               DateTime               @default(now()) @map("created_at")
-  
+  id                Int      @id @default(autoincrement())
+  userId            Int      @map("user_id")
+  type              String // FEEDBACK, ANNOUNCEMENT, CHANNEL, SYSTEM
+  title             String
+  message           String
+  isRead            Boolean  @default(false) @map("is_read")
+  relatedEntityType String?  @map("related_entity_type")
+  relatedEntityId   Int?     @map("related_entity_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+
   // Relations
-  user                    User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([isRead])
@@ -158,20 +212,20 @@ model Notification {
 }
 
 model Announcement {
-  id                      Int                    @id @default(autoincrement())
-  title                   String
-  content                 String
-  category                String                 @default("OTHER") // COMPANY_NEWS, HR_POLICY, EVENT, BENEFIT, TRAINING, OTHER
-  isPinned                Boolean                @default(false) @map("is_pinned")
-  isActive                Boolean                @default(true) @map("is_active")
-  expiresAt               DateTime?              @map("expires_at")
-  createdBy               Int                    @map("created_by")
-  createdAt               DateTime               @default(now()) @map("created_at")
-  updatedAt               DateTime               @updatedAt @map("updated_at")
-  
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String
+  category  String    @default("OTHER") // COMPANY_NEWS, HR_POLICY, EVENT, BENEFIT, TRAINING, OTHER
+  isPinned  Boolean   @default(false) @map("is_pinned")
+  isActive  Boolean   @default(true) @map("is_active")
+  expiresAt DateTime? @map("expires_at")
+  createdBy Int       @map("created_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
   // Relations
-  creator                 User                   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  files                   File[]
+  creator User   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  files   File[]
 
   @@index([createdBy])
   @@index([isActive])
@@ -179,25 +233,25 @@ model Announcement {
 }
 
 model File {
-  id                      Int                    @id @default(autoincrement())
-  filename                String
-  filePath                String                 @map("file_path")
-  fileType                String                 @map("file_type")
-  fileSize                Int                    @map("file_size")
-  originalFilename        String                 @map("original_filename")
-  scannerStatus           String                 @map("scanner_status") @default("pending")
-  scannerDetails          String?                @map("scanner_details")
-  uploadedBy              Int                    @map("uploaded_by")
-  entityType              String?                @map("entity_type")
-  entityId                Int?                   @map("entity_id")
-  feedbackId              Int?                   @map("feedback_id")
-  announcementId          Int?                   @map("announcement_id")
-  createdAt               DateTime               @default(now()) @map("created_at")
-  
+  id               Int      @id @default(autoincrement())
+  filename         String
+  filePath         String   @map("file_path")
+  fileType         String   @map("file_type")
+  fileSize         Int      @map("file_size")
+  originalFilename String   @map("original_filename")
+  scannerStatus    String   @default("pending") @map("scanner_status")
+  scannerDetails   String?  @map("scanner_details")
+  uploadedBy       Int      @map("uploaded_by")
+  entityType       String?  @map("entity_type")
+  entityId         Int?     @map("entity_id")
+  feedbackId       Int?     @map("feedback_id")
+  announcementId   Int?     @map("announcement_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+
   // Relations
-  uploader                User                   @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
-  feedback                Feedback?              @relation(fields: [feedbackId], references: [id], onDelete: SetNull)
-  announcement            Announcement?          @relation(fields: [announcementId], references: [id], onDelete: SetNull)
+  uploader     User          @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
+  feedback     Feedback?     @relation(fields: [feedbackId], references: [id], onDelete: SetNull)
+  announcement Announcement? @relation(fields: [announcementId], references: [id], onDelete: SetNull)
 
   @@index([uploadedBy])
   @@index([feedbackId])
@@ -206,17 +260,17 @@ model File {
 }
 
 model AuditLog {
-  id                      Int                    @id @default(autoincrement())
-  userId                  Int?                   @map("user_id")
-  action                  String
-  entityType              String?                @map("entity_type")
-  entityId                Int?                   @map("entity_id")
-  details                 String?
-  ipAddress               String?                @map("ip_address")
-  createdAt               DateTime               @default(now()) @map("created_at")
-  
+  id         Int      @id @default(autoincrement())
+  userId     Int?     @map("user_id")
+  action     String
+  entityType String?  @map("entity_type")
+  entityId   Int?     @map("entity_id")
+  details    String?
+  ipAddress  String?  @map("ip_address")
+  createdAt  DateTime @default(now()) @map("created_at")
+
   // Relations
-  user                    User?                  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([entityType])
@@ -225,36 +279,36 @@ model AuditLog {
 }
 
 model BirthdayEvent {
-  id                      Int                       @id @default(autoincrement())
-  year                    Int
-  month                   Int
-  eventDate               DateTime                   @map("event_date")
-  title                   String
-  description             String?
-  location                String?
-  createdById             Int                        @map("created_by_id")
-  createdAt               DateTime                   @default(now()) @map("created_at")
-  updatedAt               DateTime                   @updatedAt @map("updated_at")
+  id          Int      @id @default(autoincrement())
+  year        Int
+  month       Int
+  eventDate   DateTime @map("event_date")
+  title       String
+  description String?
+  location    String?
+  createdById Int      @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relations
-  createdBy               User                      @relation("BirthdayEventsCreated", fields: [createdById], references: [id], onDelete: Cascade)
-  registrations           BirthdayRegistration[]
+  createdBy     User                   @relation("BirthdayEventsCreated", fields: [createdById], references: [id], onDelete: Cascade)
+  registrations BirthdayRegistration[]
 
   @@unique([year, month])
   @@map("birthday_events")
 }
 
 model BirthdayRegistration {
-  id                      Int                       @id @default(autoincrement())
-  eventId                 Int                       @map("event_id")
-  userId                  Int                       @map("user_id")
-  rsvpStatus              String                    @default("pending") @map("rsvp_status")
-  rsvpAt                  DateTime?                 @map("rsvp_at")
-  createdAt               DateTime                  @default(now()) @map("created_at")
+  id         Int       @id @default(autoincrement())
+  eventId    Int       @map("event_id")
+  userId     Int       @map("user_id")
+  rsvpStatus String    @default("pending") @map("rsvp_status")
+  rsvpAt     DateTime? @map("rsvp_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
 
   // Relations
-  event                   BirthdayEvent             @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user                    User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event BirthdayEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([eventId, userId])
   @@index([eventId])

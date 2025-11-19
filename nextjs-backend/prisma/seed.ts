@@ -8,6 +8,9 @@ async function main() {
 
   // Clear existing data
   await prisma.auditLog.deleteMany();
+  await prisma.directMessage.deleteMany();
+  await prisma.directConversationParticipant.deleteMany();
+  await prisma.directConversation.deleteMany();
   await prisma.feedbackComment.deleteMany();
   await prisma.file.deleteMany();
   await prisma.notification.deleteMany();
@@ -268,7 +271,7 @@ async function main() {
   await prisma.announcement.createMany({
     data: [
       {
-        title: 'Welcome to the HR Portal',
+        title: 'Welcome to the HR APP',
         content: 'We are excited to launch our new HR feedback portal. Please share your thoughts!',
         category: 'COMPANY_NEWS',
         isPinned: true,
@@ -312,7 +315,7 @@ async function main() {
         userId: employee1.id,
         type: 'ANNOUNCEMENT',
         title: 'New Announcement',
-        message: 'Welcome to the HR Portal',
+        message: 'Welcome to the HR APP',
         isRead: false,
         relatedEntityType: 'announcement',
         relatedEntityId: 1,
@@ -339,6 +342,71 @@ async function main() {
   });
 
   console.log('✅ Created notifications');
+
+  // Create sample direct conversation with messages
+  const sampleParticipantKey = `${Math.min(employee1.id, employee2.id)}:${Math.max(employee1.id, employee2.id)}`;
+  const directConversation = await prisma.directConversation.create({
+    data: {
+      participantKey: sampleParticipantKey,
+      topic: 'Product launch sync',
+      createdBy: employee1.id,
+      participants: {
+        create: [
+          { userId: employee1.id },
+          { userId: employee2.id },
+        ],
+      },
+    },
+  });
+
+  const firstDirectMessage = await prisma.directMessage.create({
+    data: {
+      conversationId: directConversation.id,
+      senderId: employee1.id,
+      content: 'Hey Jane, wanted to sync up about the launch tasks.',
+    },
+  });
+
+  const secondDirectMessage = await prisma.directMessage.create({
+    data: {
+      conversationId: directConversation.id,
+      senderId: employee2.id,
+      content: 'Sure thing! I can chat after lunch today.',
+    },
+  });
+
+  await prisma.directConversation.update({
+    where: { id: directConversation.id },
+    data: {
+      lastMessageAt: secondDirectMessage.createdAt,
+    },
+  });
+
+  await prisma.directConversationParticipant.update({
+    where: {
+      conversationId_userId: {
+        conversationId: directConversation.id,
+        userId: employee1.id,
+      },
+    },
+    data: {
+      lastReadMessageId: secondDirectMessage.id,
+    },
+  });
+
+  await prisma.directConversationParticipant.update({
+    where: {
+      conversationId_userId: {
+        conversationId: directConversation.id,
+        userId: employee2.id,
+      },
+    },
+    data: {
+      lastReadMessageId: firstDirectMessage.id,
+    },
+  });
+
+  console.log('✅ Created sample direct conversation and messages');
 
 
   // Create sample birthday event for August

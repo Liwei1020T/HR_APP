@@ -8,7 +8,8 @@ export type NotificationType =
   | 'FEEDBACK_COMMENT'
   | 'CHANNEL_INVITATION'
   | 'ANNOUNCEMENT'
-  | 'SYSTEM';
+  | 'SYSTEM'
+  | 'DIRECT_MESSAGE';
 
 // Notification response
 export interface NotificationResponse {

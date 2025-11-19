@@ -51,3 +51,11 @@ export function getPaginationParams(searchParams: URLSearchParams) {
   
   return { skip, limit: Math.min(limit, 100) }; // Cap at 100
 }
+
+/**
+ * Build deterministic key for two direct conversation participants
+ */
+export function buildDirectConversationKey(userA: number, userB: number): string {
+  const [lower, higher] = [userA, userB].sort((a, b) => a - b);
+  return `${lower}:${higher}`;
+}

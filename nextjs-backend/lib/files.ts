@@ -1,7 +1,12 @@
 import { db } from './db';
 import { formatDate } from './utils';
 
-export type AttachmentEntity = 'feedback' | 'announcement' | 'feedback_comment' | 'channel_message';
+export type AttachmentEntity =
+  | 'feedback'
+  | 'announcement'
+  | 'feedback_comment'
+  | 'channel_message'
+  | 'direct_message';
 
 export interface AttachmentResponse {
   id: number;

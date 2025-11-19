@@ -1,9 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
-  return NextResponse.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    service: 'HR App API',
-  });
-}
+type HealthResponse = {
+  status: 'healthy' | 'degraded' | 'unhealthy';
+  service: string;
+  timestamp: string;
+};
+
+const baseHealth: Omit<HealthResponse, 'timestamp'> = {
+  status: 'healthy',
+  service: 'HR App API',
+};
+
+const buildHealthPayload = (): HealthResponse => ({
+  ...baseHealth,
+  timestamp: new Date().toISOString(),
+});
+
+export const GET = () => NextResponse.json(buildHealthPayload());

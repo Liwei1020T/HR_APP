@@ -19,6 +19,9 @@ DROP TABLE IF EXISTS announcements CASCADE;
 DROP TABLE IF EXISTS notifications CASCADE;
 DROP TABLE IF EXISTS feedback_comments CASCADE;
 DROP TABLE IF EXISTS feedback CASCADE;
+DROP TABLE IF EXISTS direct_messages CASCADE;
+DROP TABLE IF EXISTS direct_conversation_participants CASCADE;
+DROP TABLE IF EXISTS direct_conversations CASCADE;
 DROP TABLE IF EXISTS channel_messages CASCADE;
 DROP TABLE IF EXISTS channel_members CASCADE;
 DROP TABLE IF EXISTS channels CASCADE;
@@ -98,6 +101,58 @@ CREATE TABLE channel_messages (
 
 CREATE INDEX channel_messages_channel_id_idx ON channel_messages(channel_id);
 CREATE INDEX channel_messages_user_id_idx ON channel_messages(user_id);
+
+-- ============================================
+-- TABLE: direct_conversations
+-- ============================================
+CREATE TABLE direct_conversations (
+    id SERIAL PRIMARY KEY,
+    participant_key TEXT UNIQUE NOT NULL,
+    topic TEXT,
+    created_by INTEGER NOT NULL,
+    last_message_at TIMESTAMP(3),
+    created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP(3) NOT NULL,
+    CONSTRAINT direct_conversations_created_by_fkey FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX direct_conversations_participant_key_key ON direct_conversations(participant_key);
+CREATE INDEX direct_conversations_created_by_idx ON direct_conversations(created_by);
+CREATE INDEX direct_conversations_last_message_at_idx ON direct_conversations(last_message_at);
+
+-- ============================================
+-- TABLE: direct_messages
+-- ============================================
+CREATE TABLE direct_messages (
+    id SERIAL PRIMARY KEY,
+    conversation_id INTEGER NOT NULL,
+    sender_id INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    edited_at TIMESTAMP(3),
+    CONSTRAINT direct_messages_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES direct_conversations(id) ON DELETE CASCADE,
+    CONSTRAINT direct_messages_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX direct_messages_conversation_id_idx ON direct_messages(conversation_id);
+CREATE INDEX direct_messages_sender_id_idx ON direct_messages(sender_id);
+
+-- ============================================
+-- TABLE: direct_conversation_participants
+-- ============================================
+CREATE TABLE direct_conversation_participants (
+    id SERIAL PRIMARY KEY,
+    conversation_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    last_read_message_id INTEGER,
+    joined_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT direct_conversation_participants_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES direct_conversations(id) ON DELETE CASCADE,
+    CONSTRAINT direct_conversation_participants_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT direct_conversation_participants_last_read_message_id_fkey FOREIGN KEY (last_read_message_id) REFERENCES direct_messages(id) ON DELETE SET NULL
+);
+
+CREATE UNIQUE INDEX direct_conversation_participants_conversation_id_user_id_key ON direct_conversation_participants(conversation_id, user_id);
+CREATE INDEX direct_conversation_participants_user_id_idx ON direct_conversation_participants(user_id);
 
 -- ============================================
 -- TABLE: feedback
@@ -317,7 +372,7 @@ INSERT INTO channel_members (user_id, channel_id, role) VALUES
 -- DEMO DATA - CHANNEL MESSAGES
 -- ============================================
 INSERT INTO channel_messages (channel_id, user_id, content) VALUES
-(1, 1, 'Welcome to the HR Portal! Feel free to share your thoughts and feedback.'),
+(1, 1, 'Welcome to the HR APP! Feel free to share your thoughts and feedback.'),
 (1, 5, 'Don''t forget to submit your timesheets by end of day Friday!'),
 (2, 6, 'Team meeting scheduled for tomorrow at 10 AM to discuss Q1 roadmap.'),
 (3, 5, 'New company policy updates have been posted. Please review by end of week.');
@@ -326,7 +381,7 @@ INSERT INTO channel_messages (channel_id, user_id, content) VALUES
 -- DEMO DATA - ANNOUNCEMENTS
 -- ============================================
 INSERT INTO announcements (title, content, category, is_pinned, created_by, created_at, updated_at) VALUES
-('Welcome to HR Portal', 'Welcome to our new HR Management System! This platform allows you to submit feedback, join channels, and stay updated with company announcements.', 'COMPANY_NEWS', true, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Welcome to HR APP', 'Welcome to our new HR Management System! This platform allows you to submit feedback, join channels, and stay updated with company announcements.', 'COMPANY_NEWS', true, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('Annual Performance Reviews', 'Annual performance reviews will begin next month. Please schedule time with your managers.', 'HR_POLICY', true, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('New Office Hours', 'Starting next week, office hours will be 9 AM - 5 PM. Remote work policy remains flexible.', 'HR_POLICY', false, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('Team Building Event', 'Join us for our quarterly team building event on the 25th! Location and details to follow.', 'EVENT', false, 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
@@ -354,8 +409,35 @@ INSERT INTO feedback_comments (feedback_id, user_id, comment, is_internal) VALUE
 INSERT INTO notifications (user_id, type, title, message, is_read, related_entity_type, related_entity_id) VALUES
 (6, 'FEEDBACK_STATUS_CHANGED', 'Feedback Status Updated', 'Your feedback "Office Temperature" is now under review.', false, 'FEEDBACK', 1),
 (8, 'FEEDBACK_STATUS_CHANGED', 'Feedback Status Updated', 'Your feedback "Training Opportunities" status changed to In Progress.', false, 'FEEDBACK', 3),
-(3, 'ANNOUNCEMENT', 'New Announcement', 'New announcement: Welcome to HR Portal', false, 'ANNOUNCEMENT', 1),
+(3, 'ANNOUNCEMENT', 'New Announcement', 'New announcement: Welcome to HR APP', false, 'ANNOUNCEMENT', 1),
 (5, 'FEEDBACK_SUBMITTED', 'New Feedback Submitted', 'New feedback received: Office Temperature', true, 'FEEDBACK', 1);
+
+-- ============================================
+-- DEMO DATA - DIRECT MESSAGES
+-- ============================================
+-- Conversation between John Doe (ID 6) and Jane Smith (ID 7)
+INSERT INTO direct_conversations (participant_key, topic, created_by, last_message_at, created_at, updated_at) VALUES
+('6:7', 'Product launch sync', 6, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO direct_conversation_participants (conversation_id, user_id, joined_at) VALUES
+(1, 6, CURRENT_TIMESTAMP),
+(1, 7, CURRENT_TIMESTAMP);
+
+INSERT INTO direct_messages (conversation_id, sender_id, content, created_at) VALUES
+(1, 6, 'Hey Jane, wanted to sync up about the launch tasks.', CURRENT_TIMESTAMP),
+(1, 7, 'Sure thing! I can chat after lunch today.', CURRENT_TIMESTAMP);
+
+UPDATE direct_conversations
+SET last_message_at = (SELECT created_at FROM direct_messages WHERE id = 2)
+WHERE id = 1;
+
+UPDATE direct_conversation_participants
+SET last_read_message_id = 2
+WHERE conversation_id = 1 AND user_id = 6;
+
+UPDATE direct_conversation_participants
+SET last_read_message_id = 1
+WHERE conversation_id = 1 AND user_id = 7;
 
 -- ============================================
 -- DEMO DATA - AUDIT LOGS
@@ -365,7 +447,7 @@ INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details) VALUES
 (2, 'USER_LOGIN', 'USER', 2, 'Demo Admin logged in'),
 (5, 'FEEDBACK_ASSIGNED', 'FEEDBACK', 1, 'Assigned feedback to HR Manager'),
 (5, 'FEEDBACK_STATUS_UPDATED', 'FEEDBACK', 1, 'Updated status to UNDER_REVIEW'),
-(1, 'ANNOUNCEMENT_CREATED', 'ANNOUNCEMENT', 1, 'Created announcement: Welcome to HR Portal');
+(1, 'ANNOUNCEMENT_CREATED', 'ANNOUNCEMENT', 1, 'Created announcement: Welcome to HR APP');
 
 -- ============================================
 -- NOTES
