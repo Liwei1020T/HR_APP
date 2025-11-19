@@ -46,7 +46,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-4xl font-extrabold text-gray-900">HR Portal</h2>
+          <h2 className="text-4xl font-extrabold text-gray-900">HR APP</h2>
           <p className="mt-2 text-sm text-gray-600">
             Sign in to access your account
           </p>

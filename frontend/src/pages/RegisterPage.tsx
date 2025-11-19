@@ -74,7 +74,7 @@ export default function RegisterPage() {
       <div className="max-w-xl w-full space-y-8">
         <div className="text-center">
           <h2 className="text-4xl font-extrabold text-gray-900">Create Account</h2>
-          <p className="mt-2 text-sm text-gray-600">Register as an employee to access the HR Portal</p>
+          <p className="mt-2 text-sm text-gray-600">Register as an employee to access the HR APP</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-xl p-8 space-y-6">

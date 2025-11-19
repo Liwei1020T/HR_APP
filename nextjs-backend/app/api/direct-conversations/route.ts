@@ -7,8 +7,34 @@ import { buildDirectConversationKey, formatDate, getPaginationParams } from '@/l
 import { startDirectConversationSchema } from '@/lib/validators/directMessages';
 
 type ConversationWithRelations = NonNullable<
-  Awaited<ReturnType<typeof db.directConversation.findFirst>>
->;
+  Awaited<
+    ReturnType<typeof db.directConversation.findFirst>
+  >
+> & {
+  participants: Array<{
+    id: number;
+    userId: number;
+    joinedAt: Date;
+    lastReadMessageId: number | null;
+    user: {
+      id: number;
+      fullName: string;
+      email: string;
+      department: string | null;
+    };
+  }>;
+  messages: Array<{
+    id: number;
+    content: string;
+    createdAt: Date;
+    editedAt: Date | null;
+    sender: {
+      id: number;
+      fullName: string;
+      email: string;
+    };
+  }>;
+};
 
 const participantUserSelect = {
   id: true,

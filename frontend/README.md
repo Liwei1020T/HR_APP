@@ -1,4 +1,4 @@
-# HR Portal - Frontend
+# HR APP - Frontend
 
 React + TypeScript frontend for the HR Management System.
 

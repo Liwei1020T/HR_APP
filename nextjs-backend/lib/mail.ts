@@ -125,7 +125,7 @@ export async function sendWeeklyDigest(
 ): Promise<void> {
   await sendEmail({
     to: recipientEmail,
-    subject: 'Your Weekly HR Portal Digest',
+    subject: 'Your Weekly HR APP Digest',
     html: `
       <h2>Hello ${recipientName},</h2>
       <p>Here's your weekly summary:</p>
@@ -134,7 +134,7 @@ export async function sendWeeklyDigest(
         <li><strong>${stats.newAnnouncements}</strong> new announcements</li>
         <li><strong>${stats.pendingFeedback}</strong> feedback items pending your action</li>
       </ul>
-      <p><a href="${process.env.APP_URL || 'http://localhost:5173'}">Visit the HR Portal</a></p>
+      <p><a href="${process.env.APP_URL || 'http://localhost:5173'}">Visit the HR APP</a></p>
     `,
     text: `Hello ${recipientName}, Weekly summary: ${stats.newFeedback} new feedback, ${stats.newAnnouncements} announcements, ${stats.pendingFeedback} pending.`,
   });
