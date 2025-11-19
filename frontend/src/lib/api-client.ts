@@ -19,6 +19,9 @@ import type {
   AuditLog,
   BirthdayEvent,
   BirthdayRegistration,
+  DirectConversation,
+  DirectMessage,
+  DirectConversationRecipient,
 } from './types';
 
 // ===== Auth API =====
@@ -234,6 +237,54 @@ export const notificationsApi = {
 
   deleteAll: async (): Promise<{ deleted: number }> => {
     const response = await api.delete('/notifications/delete-all');
+    return response.data;
+  },
+};
+
+// ===== Direct Conversations API =====
+export const directConversationsApi = {
+  getAll: async (params?: { skip?: number; limit?: number }): Promise<{ conversations: DirectConversation[]; total: number }> => {
+    const response = await api.get('/direct-conversations', { params });
+    return response.data;
+  },
+
+  startConversation: async (data: { target_user_id: number; topic?: string }): Promise<DirectConversation> => {
+    const response = await api.post<DirectConversation>('/direct-conversations', data);
+    return response.data;
+  },
+
+  getMessages: async (
+    conversationId: number,
+    params?: { skip?: number; limit?: number }
+  ): Promise<{ messages: DirectMessage[] }> => {
+    const response = await api.get(`/direct-conversations/${conversationId}/messages`, { params });
+    return response.data;
+  },
+
+  sendMessage: async (
+    conversationId: number,
+    data: { content: string; attachments?: number[] }
+  ): Promise<DirectMessage> => {
+    const response = await api.post<DirectMessage>(`/direct-conversations/${conversationId}/messages`, data);
+    return response.data;
+  },
+
+  markRead: async (
+    conversationId: number,
+    lastReadMessageId?: number | null
+  ): Promise<{ success: boolean; last_read_message_id: number | null }> => {
+    const payload =
+      typeof lastReadMessageId === 'undefined'
+        ? {}
+        : { last_read_message_id: lastReadMessageId };
+    const response = await api.patch(`/direct-conversations/${conversationId}/read-receipt`, payload);
+    return response.data;
+  },
+
+  getRecipients: async (
+    params?: { q?: string }
+  ): Promise<{ users: DirectConversationRecipient[] }> => {
+    const response = await api.get('/direct-conversations/recipients', { params });
     return response.data;
   },
 };

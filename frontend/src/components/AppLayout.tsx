@@ -33,6 +33,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { name: 'Dashboard', href: '/', icon: '📊', roles: ['employee', 'hr', 'admin', 'superadmin'] },
     { name: 'Feedback', href: '/feedback', icon: '📝', roles: ['employee', 'hr', 'admin', 'superadmin'] },
     { name: 'Channels', href: '/channels', icon: '💬', roles: ['employee', 'hr', 'admin', 'superadmin'] },
+    { name: 'Direct Chat', href: '/direct-messages', icon: '💭', roles: ['employee', 'hr', 'admin', 'superadmin'] },
     { name: 'Announcements', href: '/announcements', icon: '📢', roles: ['employee', 'hr', 'admin', 'superadmin'] },
     { name: 'Notifications', href: '/notifications', icon: '🔔', roles: ['employee', 'hr', 'admin', 'superadmin'], badge: unreadCount },
     { name: 'Admin', href: '/admin', icon: '⚙️', roles: ['hr', 'admin', 'superadmin'], attribute: true },
@@ -70,7 +71,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <div className="flex items-center justify-between h-16 px-6 bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg">
             <Link to="/" className="text-xl font-bold text-white flex items-center">
               <span className="mr-2">🏢</span>
-              HR Portal
+              HR APP
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -158,7 +159,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           </button>
 
           <h1 className="flex-1 text-2xl font-semibold text-gray-900">
-            {navigation.find(item => isActive(item.href))?.name || 'HR Portal'}
+            {navigation.find(item => isActive(item.href))?.name || 'HR APP'}
           </h1>
 
           <div className="flex items-center space-x-4">

@@ -7,6 +7,17 @@ import { formatDate, getPaginationParams } from '@/lib/utils';
 import { sendDirectMessageSchema } from '@/lib/validators/directMessages';
 import { assignFilesToEntity, getAttachmentsByEntity, AttachmentResponse } from '@/lib/files';
 
+type DirectMessageWithSender = NonNullable<
+  Awaited<ReturnType<typeof db.directMessage.findFirst>>
+> & {
+  sender: {
+    id: number;
+    fullName: string;
+    email: string;
+    department: string | null;
+  };
+};
+
 const senderSelect = {
   id: true,
   fullName: true,
@@ -31,10 +42,7 @@ async function ensureConversationParticipant(conversationId: number, userId: num
   return { exists: true, participant };
 }
 
-function formatMessage(
-  message: NonNullable<Awaited<ReturnType<typeof db.directMessage.findFirst>>>,
-  attachments: AttachmentResponse[]
-) {
+function formatMessage(message: DirectMessageWithSender, attachments: AttachmentResponse[]) {
   return {
     id: message.id,
     conversation_id: message.conversationId,

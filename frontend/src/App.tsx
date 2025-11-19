@@ -19,6 +19,7 @@ import BirthdayAdminPage from './pages/BirthdayAdminPage';
 import BirthdayEventDetailPage from './pages/BirthdayEventDetailPage';
 import BirthdayRsvpPage from './pages/BirthdayRsvpPage';
 import ProfilePage from './pages/ProfilePage';
+import DirectMessagesPage from './pages/DirectMessagesPage';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
               <Route path="/feedback/:id" element={<FeedbackDetailPage />} />
               <Route path="/channels" element={<ChannelsPage />} />
               <Route path="/channels/:id" element={<ChannelDetailPage />} />
+              <Route path="/direct-messages" element={<DirectMessagesPage />} />
               <Route path="/announcements" element={<AnnouncementsPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/birthday/:eventId" element={<BirthdayRsvpPage />} />

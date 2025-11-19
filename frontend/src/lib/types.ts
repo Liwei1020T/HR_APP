@@ -156,6 +156,56 @@ export interface Notification {
   };
 }
 
+// ===== Direct Messaging Types =====
+export interface DirectConversationParticipant {
+  id: number;
+  user_id: number;
+  joined_at: string;
+  last_read_message_id?: number | null;
+  user: {
+    id: number;
+    full_name: string;
+    email: string;
+    department?: string | null;
+  };
+}
+
+export interface DirectMessage {
+  id: number;
+  conversation_id: number;
+  sender_id: number;
+  content: string;
+  created_at: string;
+  edited_at?: string | null;
+  sender: {
+    id: number;
+    full_name: string;
+    email: string;
+    department?: string | null;
+  };
+  attachments?: FileUpload[];
+}
+
+export interface DirectConversation {
+  id: number;
+  topic?: string | null;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
+  last_message_at?: string | null;
+  participants: DirectConversationParticipant[];
+  last_message?: DirectMessage | null;
+  has_unread: boolean;
+}
+
+export interface DirectConversationRecipient {
+  id: number;
+  full_name: string;
+  email: string;
+  department?: string | null;
+  role: string;
+}
+
 // ===== Birthday Types =====
 export interface BirthdayEventSummary {
   total_registrations: number;
