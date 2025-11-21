@@ -62,16 +62,16 @@ function formatConversation(conversation: ConversationWithRelations, authUserId:
     })),
     last_message: lastMessage
       ? {
-          id: lastMessage.id,
-          content: lastMessage.content,
-          created_at: formatDate(lastMessage.createdAt),
-          edited_at: lastMessage.editedAt ? formatDate(lastMessage.editedAt) : null,
-          sender: {
-            id: lastMessage.sender.id,
-            full_name: lastMessage.sender.fullName,
-            email: lastMessage.sender.email,
-          },
-        }
+        id: lastMessage.id,
+        content: lastMessage.content,
+        created_at: formatDate(lastMessage.createdAt),
+        edited_at: lastMessage.editedAt ? formatDate(lastMessage.editedAt) : null,
+        sender: {
+          id: lastMessage.sender.id,
+          full_name: lastMessage.sender.fullName,
+          email: lastMessage.sender.email,
+        },
+      }
       : null,
     has_unread:
       !!lastMessage &&
@@ -126,26 +126,28 @@ export async function POST(request: NextRequest) {
     const payload = await request.json();
     const validated = startDirectConversationSchema.parse(payload);
 
-    if (validated.target_user_id === authUser.id) {
-      return handleForbiddenError('Cannot start a conversation with yourself');
+    // Ensure unique IDs and remove self
+    const targetUserIds = [...new Set(validated.target_user_ids)].filter((id) => id !== authUser.id);
+
+    if (targetUserIds.length === 0) {
+      return handleForbiddenError('Cannot start a conversation without other participants');
     }
 
-    const targetUser = await db.user.findUnique({
-      where: { id: validated.target_user_id },
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        department: true,
+    // Verify all target users exist and are active
+    const targetUsers = await db.user.findMany({
+      where: {
+        id: { in: targetUserIds },
         isActive: true,
       },
+      select: { id: true },
     });
 
-    if (!targetUser || !targetUser.isActive) {
-      return handleNotFoundError('User');
+    if (targetUsers.length !== targetUserIds.length) {
+      return handleNotFoundError('One or more users');
     }
 
-    const participantKey = buildDirectConversationKey(authUser.id, targetUser.id);
+    const allParticipantIds = [authUser.id, ...targetUserIds];
+    const participantKey = buildDirectConversationKey(allParticipantIds);
 
     let conversation = await db.directConversation.findUnique({
       where: { participantKey },
@@ -161,10 +163,7 @@ export async function POST(request: NextRequest) {
           topic: validated.topic || null,
           createdBy: authUser.id,
           participants: {
-            create: [
-              { userId: authUser.id },
-              { userId: targetUser.id },
-            ],
+            create: allParticipantIds.map((userId) => ({ userId })),
           },
         },
         include: conversationInclude,

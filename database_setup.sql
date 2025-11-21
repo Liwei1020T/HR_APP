@@ -45,7 +45,7 @@ CREATE TABLE users (
 );
 
 CREATE UNIQUE INDEX users_email_key ON users(email);
-CREATE UNIQUE INDEX users_employee_id_key ON users(employee_id) WHERE employee_id IS NOT NULL;
+CREATE UNIQUE INDEX users_employee_id_key ON users(employee_id);
 
 -- ============================================
 -- TABLE: channels
@@ -95,8 +95,7 @@ CREATE TABLE channel_messages (
     is_pinned BOOLEAN DEFAULT false NOT NULL,
     pinned_at TIMESTAMP(3),
     CONSTRAINT channel_messages_channel_id_fkey FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE,
-    CONSTRAINT channel_messages_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT channel_messages_member_fk FOREIGN KEY (channel_id, user_id) REFERENCES channel_members(channel_id, user_id)
+    CONSTRAINT channel_messages_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE INDEX channel_messages_channel_id_idx ON channel_messages(channel_id);
@@ -319,7 +318,7 @@ CREATE INDEX birthday_registrations_user_id_idx ON birthday_registrations(user_i
 -- DEMO DATA - USERS
 -- ============================================
 -- Password for all demo accounts: P@ssw0rd!
--- Bcrypt hash: $2b$10$YourHashHere (you'll need to generate this)
+-- Bcrypt hash: $2b$10$2LuLzcisNlNgZrPfivAnhevjCsWtZEm5es/CbB.aktbQuzDWdWVu2
 
 INSERT INTO users (email, password, full_name, role, department, employee_id, date_of_birth, is_active, created_at, updated_at) VALUES
 -- Demo accounts (password: P@ssw0rd!)
@@ -449,28 +448,6 @@ INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details) VALUES
 (5, 'FEEDBACK_STATUS_UPDATED', 'FEEDBACK', 1, 'Updated status to UNDER_REVIEW'),
 (1, 'ANNOUNCEMENT_CREATED', 'ANNOUNCEMENT', 1, 'Created announcement: Welcome to HR APP');
 
--- ============================================
--- NOTES
--- ============================================
--- 1. You need to replace the password hashes with actual bcrypt hashes
---    Generate them using: bcrypt.hash('P@ssw0rd!', 10) or bcrypt.hash('password123', 10)
---
--- 2. Demo Accounts:
---    - sa@demo.local / P@ssw0rd! (SUPERADMIN)
---    - admin@demo.local / P@ssw0rd! (ADMIN)
---    - user@demo.local / P@ssw0rd! (EMPLOYEE)
---
--- 3. Legacy Accounts (for backward compatibility):
---    - admin@company.com / password123
---    - hr@company.com / password123
---    - john.doe@company.com / password123
---
--- 4. To generate real password hashes, run:
---    node -e "const bcrypt = require('bcrypt'); bcrypt.hash('P@ssw0rd!', 10).then(console.log)"
---
--- 5. After running this script, update your .env file:
---    DATABASE_URL="postgresql://username:password@localhost:5432/hr_app_db"
---
 -- ============================================
 -- END OF SCRIPT
 -- ============================================

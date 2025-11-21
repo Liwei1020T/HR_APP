@@ -48,14 +48,13 @@ export function parseQueryBoolean(value: string | null, defaultValue: boolean = 
 export function getPaginationParams(searchParams: URLSearchParams) {
   const skip = parseQueryNumber(searchParams.get('skip'), 0);
   const limit = parseQueryNumber(searchParams.get('limit'), 50);
-  
+
   return { skip, limit: Math.min(limit, 100) }; // Cap at 100
 }
 
 /**
- * Build deterministic key for two direct conversation participants
+ * Build deterministic key for direct conversation participants
  */
-export function buildDirectConversationKey(userA: number, userB: number): string {
-  const [lower, higher] = [userA, userB].sort((a, b) => a - b);
-  return `${lower}:${higher}`;
+export function buildDirectConversationKey(userIds: number[]): string {
+  return userIds.sort((a, b) => a - b).join(':');
 }

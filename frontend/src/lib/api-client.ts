@@ -248,7 +248,7 @@ export const directConversationsApi = {
     return response.data;
   },
 
-  startConversation: async (data: { target_user_id: number; topic?: string }): Promise<DirectConversation> => {
+  startConversation: async (data: { target_user_ids: number[]; topic?: string }): Promise<DirectConversation> => {
     const response = await api.post<DirectConversation>('/direct-conversations', data);
     return response.data;
   },
@@ -369,11 +369,11 @@ export const filesApi = {
   upload: async (file: File, entityType?: string, entityId?: number): Promise<FileUpload> => {
     const formData = new FormData();
     formData.append('file', file);
-    
+
     const params = new URLSearchParams();
     if (entityType) params.append('entity_type', entityType);
     if (entityId) params.append('entity_id', entityId.toString());
-    
+
     const response = await api.post<FileUpload>(`/files/upload?${params.toString()}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });

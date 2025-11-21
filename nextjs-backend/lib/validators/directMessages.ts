@@ -3,7 +3,7 @@ import { z } from 'zod';
 const AttachmentSchema = z.array(z.number().int().positive()).optional();
 
 export const startDirectConversationSchema = z.object({
-  target_user_id: z.number().int().positive(),
+  target_user_ids: z.array(z.number().int().positive()).min(1),
   topic: z.string().min(1).max(100).optional(),
 });
 

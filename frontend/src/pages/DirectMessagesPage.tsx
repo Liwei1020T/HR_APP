@@ -26,7 +26,7 @@ export default function DirectMessagesPage() {
   const [selectedConversationId, setSelectedConversationId] = useState<number | null>(null);
   const [message, setMessage] = useState('');
   const [showNewChatModal, setShowNewChatModal] = useState(false);
-  const [selectedRecipientId, setSelectedRecipientId] = useState<number | null>(null);
+  const [selectedRecipientIds, setSelectedRecipientIds] = useState<number[]>([]);
   const [conversationTopic, setConversationTopic] = useState('');
   const [recipientSearch, setRecipientSearch] = useState('');
   const [debouncedRecipientSearch, setDebouncedRecipientSearch] = useState('');
@@ -120,13 +120,13 @@ export default function DirectMessagesPage() {
   });
 
   const startConversationMutation = useMutation({
-    mutationFn: (payload: { target_user_id: number; topic?: string }) =>
+    mutationFn: (payload: { target_user_ids: number[]; topic?: string }) =>
       directConversationsApi.startConversation(payload),
     onSuccess: (conversation) => {
       setShowNewChatModal(false);
       setRecipientSearch('');
       setConversationTopic('');
-      setSelectedRecipientId(null);
+      setSelectedRecipientIds([]);
       queryClient.invalidateQueries({ queryKey: ['direct-conversations'] });
       setSelectedConversationId(conversation.id);
     },
@@ -160,9 +160,9 @@ export default function DirectMessagesPage() {
 
   const handleStartConversation = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedRecipientId || startConversationMutation.isPending) return;
+    if (selectedRecipientIds.length === 0 || startConversationMutation.isPending) return;
     startConversationMutation.mutate({
-      target_user_id: selectedRecipientId,
+      target_user_ids: selectedRecipientIds,
       topic: conversationTopic.trim() || undefined,
     });
   };
@@ -202,9 +202,8 @@ export default function DirectMessagesPage() {
                   <button
                     key={conversation.id}
                     onClick={() => setSelectedConversationId(conversation.id)}
-                    className={`flex w-full flex-col items-start gap-1 p-4 text-left transition hover:bg-blue-50 ${
-                      conversation.id === selectedConversationId ? 'bg-blue-50' : ''
-                    }`}
+                    className={`flex w-full flex-col items-start gap-1 p-4 text-left transition hover:bg-blue-50 ${conversation.id === selectedConversationId ? 'bg-blue-50' : ''
+                      }`}
                   >
                     <div className="flex w-full items-center justify-between">
                       <p className="text-sm font-semibold text-gray-900">{title}</p>
@@ -256,9 +255,8 @@ export default function DirectMessagesPage() {
                     return (
                       <div
                         key={msg.id}
-                        className={`flex flex-col rounded-lg px-4 py-3 ${
-                          isMine ? 'bg-blue-600 text-white ml-auto max-w-[80%]' : 'bg-white text-gray-900 shadow max-w-[80%]'
-                        }`}
+                        className={`flex flex-col rounded-lg px-4 py-3 ${isMine ? 'bg-blue-600 text-white ml-auto max-w-[80%]' : 'bg-white text-gray-900 shadow max-w-[80%]'
+                          }`}
                       >
                         <div className="flex items-center justify-between text-xs opacity-80">
                           <span>{isMine ? 'You' : msg.sender.full_name}</span>
@@ -312,9 +310,8 @@ export default function DirectMessagesPage() {
                   <button
                     type="submit"
                     disabled={isSendDisabled}
-                    className={`rounded-md px-4 py-2 text-sm font-semibold text-white transition ${
-                      isSendDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-                    }`}
+                    className={`rounded-md px-4 py-2 text-sm font-semibold text-white transition ${isSendDisabled ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                      }`}
                   >
                     {sendMessageMutation.isPending ? 'Sending…' : 'Send'}
                   </button>
@@ -337,7 +334,7 @@ export default function DirectMessagesPage() {
                 onClick={() => {
                   setShowNewChatModal(false);
                   setRecipientSearch('');
-                  setSelectedRecipientId(null);
+                  setSelectedRecipientIds([]);
                 }}
                 className="text-gray-500 hover:text-gray-700"
               >
@@ -364,21 +361,24 @@ export default function DirectMessagesPage() {
                   recipientOptions.map((recipient) => (
                     <label
                       key={recipient.id}
-                      className={`flex cursor-pointer items-center justify-between px-4 py-3 text-sm hover:bg-blue-50 ${
-                        selectedRecipientId === recipient.id ? 'bg-blue-50' : ''
-                      }`}
+                      className={`flex cursor-pointer items-center justify-between px-4 py-3 text-sm hover:bg-blue-50 ${selectedRecipientIds.includes(recipient.id) ? 'bg-blue-50' : ''
+                        }`}
                     >
                       <div>
                         <p className="font-medium text-gray-900">{recipient.full_name}</p>
                         <p className="text-xs text-gray-500">{recipient.email}</p>
                       </div>
                       <input
-                        type="radio"
-                        name="recipient"
-                        value={recipient.id}
-                        checked={selectedRecipientId === recipient.id}
-                        onChange={() => setSelectedRecipientId(recipient.id)}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                        type="checkbox"
+                        checked={selectedRecipientIds.includes(recipient.id)}
+                        onChange={() => {
+                          setSelectedRecipientIds((prev) =>
+                            prev.includes(recipient.id)
+                              ? prev.filter((id) => id !== recipient.id)
+                              : [...prev, recipient.id]
+                          );
+                        }}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 rounded"
                       />
                     </label>
                   ))
@@ -405,7 +405,7 @@ export default function DirectMessagesPage() {
                   type="button"
                   onClick={() => {
                     setShowNewChatModal(false);
-                    setSelectedRecipientId(null);
+                    setSelectedRecipientIds([]);
                     setRecipientSearch('');
                   }}
                   className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -414,12 +414,11 @@ export default function DirectMessagesPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={!selectedRecipientId || startConversationMutation.isPending}
-                  className={`rounded-md px-4 py-2 text-sm font-semibold text-white ${
-                    !selectedRecipientId || startConversationMutation.isPending
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-700'
-                  }`}
+                  disabled={selectedRecipientIds.length === 0 || startConversationMutation.isPending}
+                  className={`rounded-md px-4 py-2 text-sm font-semibold text-white ${selectedRecipientIds.length === 0 || startConversationMutation.isPending
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
                 >
                   {startConversationMutation.isPending ? 'Starting…' : 'Start chat'}
                 </button>
