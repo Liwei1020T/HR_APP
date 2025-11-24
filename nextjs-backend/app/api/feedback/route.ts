@@ -6,6 +6,7 @@ import { formatDate, getPaginationParams, parseQueryBoolean } from '@/lib/utils'
 import { handleApiError } from '@/lib/errors';
 import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
 import { assignFilesToEntity, getAttachmentsByEntity } from '@/lib/files';
+import { analyzeFeedback } from '@/lib/ai';
 
 export async function OPTIONS(request: NextRequest) {
   return handleCorsPreflightRequest(request);
@@ -72,6 +73,8 @@ export async function GET(request: NextRequest) {
       description: f.description,
       category: f.category,
       status: f.status,
+      priority: f.priority,
+      ai_analysis: f.aiAnalysis,
       is_anonymous: f.isAnonymous,
       submitted_by: f.submittedBy,
       submitted_by_name: f.isAnonymous ? undefined : f.submitter.fullName,
@@ -106,13 +109,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validated = createFeedbackSchema.parse(body);
 
+    // Analyze feedback with AI
+    const aiResult = await analyzeFeedback(validated.title, validated.description);
+
     const feedback = await db.feedback.create({
       data: {
         title: validated.title,
         description: validated.description,
-        category: validated.category || 'GENERAL',
+        category: aiResult.category || validated.category || 'GENERAL', // Updated category logic
         isAnonymous: validated.is_anonymous || false,
         status: 'SUBMITTED',
+        priority: aiResult.priority, // Added priority
+        aiAnalysis: aiResult.analysis, // Added aiAnalysis
         submittedBy: authUser.id,
       },
       include: {
@@ -147,12 +155,15 @@ export async function POST(request: NextRequest) {
     });
 
     for (const hrUser of hrUsers) {
+      const isUrgent = aiResult.priority === 'URGENT'; // Added urgency check
       await db.notification.create({
         data: {
           userId: hrUser.id,
           type: 'FEEDBACK',
-          title: 'New Feedback Submitted',
-          message: `New feedback: ${validated.title}`,
+          title: isUrgent ? '🚨 URGENT FEEDBACK RECEIVED' : 'New Feedback Submitted', // Updated title
+          message: isUrgent
+            ? `URGENT: ${validated.title} (Priority: ${aiResult.priority})`
+            : `New feedback: ${validated.title}`, // Updated message
           relatedEntityType: 'feedback',
           relatedEntityId: feedback.id,
         },
@@ -165,6 +176,8 @@ export async function POST(request: NextRequest) {
       description: feedback.description,
       category: feedback.category,
       status: feedback.status,
+      priority: feedback.priority, // Added priority
+      ai_analysis: feedback.aiAnalysis, // Added ai_analysis
       is_anonymous: feedback.isAnonymous,
       submitted_by: feedback.submittedBy,
       submitted_by_name: feedback.isAnonymous ? undefined : feedback.submitter.fullName,

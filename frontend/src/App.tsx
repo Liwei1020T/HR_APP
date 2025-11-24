@@ -4,7 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { queryClient } from './lib/queryClient';
 import { ProtectedRoute, PublicRoute, RoleProtectedRoute } from './components/ProtectedRoute';
 
-// Placeholder pages (will be implemented in Step 12-13)
+// Pages
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
@@ -20,6 +20,7 @@ import BirthdayEventDetailPage from './pages/BirthdayEventDetailPage';
 import BirthdayRsvpPage from './pages/BirthdayRsvpPage';
 import ProfilePage from './pages/ProfilePage';
 import DirectMessagesPage from './pages/DirectMessagesPage';
+import AdminFeedbackDashboard from './pages/AdminFeedbackDashboard';
 
 function App() {
   return (
@@ -48,8 +49,9 @@ function App() {
             </Route>
 
             {/* Admin-only routes */}
-            <Route element={<RoleProtectedRoute roles={['hr', 'admin', 'superadmin']} />}>
+            <Route element={<RoleProtectedRoute roles={['HR', 'ADMIN', 'SUPERADMIN']} />}>
               <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin/feedback" element={<AdminFeedbackDashboard />} />
               <Route path="/admin/birthdays" element={<BirthdayAdminPage />} />
               <Route path="/admin/birthdays/:eventId" element={<BirthdayEventDetailPage />} />
             </Route>

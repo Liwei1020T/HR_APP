@@ -15,7 +15,6 @@ import type {
   AnnouncementCreate,
   FileUpload,
   SystemMetrics,
-  UserMetrics,
   AuditLog,
   BirthdayEvent,
   BirthdayRegistration,
@@ -407,8 +406,8 @@ export const adminApi = {
     return response.data;
   },
 
-  getUserMetrics: async (): Promise<UserMetrics[]> => {
-    const response = await api.get<UserMetrics[]>('/admin/users');
+  getAllUsers: async (): Promise<{ users: User[]; total: number }> => {
+    const response = await api.get('/admin/users');
     return response.data;
   },
 
@@ -431,6 +430,11 @@ export const adminApi = {
 
   getAuditLogs: async (params?: { page?: number; page_size?: number; user_id?: number; action?: string }): Promise<{ logs: AuditLog[]; total: number; page: number; page_size: number }> => {
     const response = await api.get('/admin/audit-logs', { params });
+    return response.data;
+  },
+
+  getFeedbackStats: async (): Promise<any> => {
+    const response = await api.get('/admin/feedback-stats');
     return response.data;
   },
 };

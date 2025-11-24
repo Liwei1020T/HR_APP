@@ -19,7 +19,7 @@ A production-ready HR management system deployed on Render with React (TypeScrip
 
 ## 🎯 Overview
 
-This is a comprehensive HR management system featuring employee feedback, communication channels, real-time chat, announcements, notifications, birthday celebrations, and administrative tools. Built with modern technologies and deployed on Render's cloud platform with PostgreSQL database.
+This is a comprehensive HR management system designed to streamline organizational processes and enhance employee engagement. It features a robust set of tools including employee feedback loops, dynamic communication channels, real-time chat, company-wide announcements, automated birthday celebrations, and powerful administrative controls. Built with modern technologies and deployed on Render's cloud platform with a PostgreSQL database, it offers a secure, scalable, and user-friendly experience for employees, HR managers, and administrators alike.
 
 ## ✨ Key Features
 
@@ -80,6 +80,56 @@ This is a comprehensive HR management system featuring employee feedback, commun
 - User management (view all users with roles and status)
 - Audit logs with event tracking
 - Role-based dashboard access
+
+## 📖 Page Guide
+
+### 👤 Authentication & Profile
+- **Login (`/login`)**: Secure entry point for employees and admins. Supports demo account quick-login.
+- **Register (`/register`)**: Self-registration for new employees.
+- **Profile (`/profile`)**: Manage personal information, view role status, and update account settings.
+
+### 🏠 Main Hub
+- **Dashboard (`/dashboard`)**: The central hub showing recent activities, quick stats, and navigation shortcuts.
+
+### 💬 Communication
+- **Channels (`/channels`)**: Browse and join public channels or access private ones.
+- **Channel Chat (`/channels/:id`)**: Real-time messaging interface for team collaboration.
+- **Direct Messages (`/messages`)**: Private 1-on-1 conversations with colleagues.
+- **Announcements (`/announcements`)**: View company-wide news and updates.
+
+### 📝 Feedback & Support
+- **Feedback List (`/feedback`)**: Submit new feedback or browse existing submissions.
+- **Feedback Details (`/feedback/:id`)**: Track status, view comments, and engage in discussion on specific feedback items.
+
+### 🎉 Culture & Events
+- **Celebrations (`/celebrations`)**: Overview of upcoming birthdays and company events.
+- **Event Details (`/celebrations/events/:id`)**: Specifics about an event, including location and time.
+- **RSVP (`/celebrations/rsvp`)**: Manage attendance for events.
+
+### 🛡️ Administration
+- **Admin Dashboard (`/admin`)**: Comprehensive control panel for user management, system metrics, and audit logs.
+- **Birthday Management (`/admin/birthdays`)**: Tools for HR to create and manage birthday events.
+
+## 💡 How to Use
+
+### 1. Logging In
+- Use the **Quick Login** buttons on the login page to access different roles (Employee, HR, Admin).
+- Or register a new account (defaults to Employee role).
+
+### 2. Submitting Feedback
+- Navigate to **Feedback** from the sidebar.
+- Click **"Submit Feedback"**.
+- Fill in the title, category, and description.
+- Toggle "Anonymous" if you wish to stay unidentified.
+
+### 3. Joining the Conversation
+- Go to **Channels**.
+- Browse "Available Channels" and click **Join** on any public channel.
+- Once joined, click the channel card to enter the chat.
+
+### 4. Checking Updates
+- Visit **Announcements** to see the latest company news.
+- Check the **Notifications** bell icon in the top right for personal alerts.
 
 ## 🏗️ Architecture
 
@@ -159,7 +209,7 @@ frontend/
 │   │   ├── ChannelsPage.tsx        # Channel management & chat
 │   │   ├── AnnouncementsPage.tsx   # Announcements
 │   │   ├── NotificationsPage.tsx   # Notifications center
-│   │   └── AdminPage.tsx           # Admin dashboard
+│   │   ├── AdminPage.tsx           # Admin dashboard
 │   ├── App.tsx             # Routing configuration
 │   ├── main.tsx            # Application entry point
 │   └── index.css           # Tailwind CSS styles
