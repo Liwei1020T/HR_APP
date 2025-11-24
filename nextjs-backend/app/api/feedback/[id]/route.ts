@@ -6,6 +6,7 @@ import { formatDate } from '@/lib/utils';
 import { handleApiError, handleNotFoundError, handleForbiddenError } from '@/lib/errors';
 import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
 import { getAttachmentsByEntity, AttachmentResponse } from '@/lib/files';
+import { computeSlaStatus, getAllowedCategoriesForUser, computeSlaMeta } from '../route';
 
 export async function OPTIONS(request: NextRequest) {
   return handleCorsPreflightRequest(request);
@@ -43,10 +44,24 @@ export async function GET(
       return handleNotFoundError('Feedback');
     }
 
-    // Access control: only submitter or HR+ can view
-    if (feedback.submittedBy !== authUser.id && !hasRole(authUser, 'HR')) {
-      return handleForbiddenError('Access denied');
+    // Access control:
+    // - Submitter can view
+    // - HR/Admin can view only if assigned to them
+    // - Superadmin can view all
+    if (feedback.submittedBy !== authUser.id) {
+      if (authUser.role === 'SUPERADMIN') {
+        // allowed
+      } else if (authUser.role === 'HR' || authUser.role === 'ADMIN') {
+        const assignedToSelf = feedback.assignedTo === authUser.id;
+        if (!assignedToSelf) {
+          return handleForbiddenError('Access denied');
+        }
+      } else {
+        return handleForbiddenError('Access denied');
+      }
     }
+
+    const slaMeta = computeSlaMeta(feedback);
 
     const response = {
       id: feedback.id,
@@ -54,6 +69,10 @@ export async function GET(
       description: feedback.description,
       category: feedback.category,
       status: feedback.status,
+      priority: feedback.priority,
+      sla_status: slaMeta.status,
+      sla_seconds_to_breach: slaMeta.seconds_to_breach,
+      sla_seconds_since_breach: slaMeta.seconds_since_breach,
       is_anonymous: feedback.isAnonymous,
       submitted_by: feedback.submittedBy,
       submitted_by_name: feedback.isAnonymous && authUser.id !== feedback.submittedBy ? undefined : feedback.submitter.fullName,
@@ -61,6 +80,7 @@ export async function GET(
       assigned_to_name: feedback.assignee ? feedback.assignee.fullName : undefined,
       created_at: formatDate(feedback.createdAt),
       updated_at: formatDate(feedback.updatedAt),
+      ai_analysis: feedback.aiAnalysis,
       submitter: feedback.isAnonymous && authUser.id !== feedback.submittedBy ? null : {
         id: feedback.submitter.id,
         email: feedback.submitter.email,

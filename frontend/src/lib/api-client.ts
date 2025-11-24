@@ -21,6 +21,7 @@ import type {
   DirectConversation,
   DirectMessage,
   DirectConversationRecipient,
+  AISuggestionResponse,
 } from './types';
 
 // ===== Auth API =====
@@ -165,7 +166,16 @@ export const membershipsApi = {
 
 // ===== Feedback API =====
 export const feedbackApi = {
-  getAll: async (params?: { status?: string; category?: string }): Promise<{ feedback: Feedback[]; total: number }> => {
+  getAll: async (params?: {
+    status?: string;
+    category?: string;
+    priority?: string;
+    assigned?: string;
+    sla?: string;
+    q?: string;
+    my_assigned?: boolean;
+    my_feedback?: boolean;
+  }): Promise<{ feedback: Feedback[]; total: number }> => {
     const response = await api.get('/feedback', { params });
     return response.data;
   },
@@ -199,6 +209,13 @@ export const feedbackApi = {
     data: { comment: string; is_internal?: boolean; attachments?: number[] }
   ): Promise<FeedbackComment> => {
     const response = await api.post<FeedbackComment>(`/feedback/${id}/comments`, data);
+    return response.data;
+  },
+
+  generateReplySuggestion: async (id: number): Promise<AISuggestionResponse> => {
+    const response = await api.post<AISuggestionResponse>('/feedback/ai-reply', {
+      feedbackId: id,
+    });
     return response.data;
   },
 
@@ -435,6 +452,17 @@ export const adminApi = {
 
   getFeedbackStats: async (): Promise<any> => {
     const response = await api.get('/admin/feedback-stats');
+    return response.data;
+  },
+
+  generateAiReport: async (data: {
+    range?: '7d' | '30d' | 'custom';
+    from?: string;
+    to?: string;
+    status?: string;
+    priority?: string;
+  }): Promise<{ summary: string; insights: string[]; stats: any }> => {
+    const response = await api.post('/admin/ai-report', data);
     return response.data;
   },
 };

@@ -162,6 +162,8 @@ CREATE TABLE feedback (
     description TEXT NOT NULL,
     category TEXT DEFAULT 'GENERAL' NOT NULL,
     status TEXT DEFAULT 'SUBMITTED' NOT NULL,
+    priority TEXT DEFAULT 'MEDIUM' NOT NULL,
+    ai_analysis TEXT,
     is_anonymous BOOLEAN DEFAULT false NOT NULL,
     submitted_by INTEGER NOT NULL,
     assigned_to INTEGER,
@@ -174,6 +176,7 @@ CREATE TABLE feedback (
 CREATE INDEX feedback_submitted_by_idx ON feedback(submitted_by);
 CREATE INDEX feedback_assigned_to_idx ON feedback(assigned_to);
 CREATE INDEX feedback_status_idx ON feedback(status);
+CREATE INDEX feedback_priority_idx ON feedback(priority);
 
 -- ============================================
 -- TABLE: feedback_comments
@@ -388,11 +391,11 @@ INSERT INTO announcements (title, content, category, is_pinned, created_by, crea
 -- ============================================
 -- DEMO DATA - FEEDBACK
 -- ============================================
-INSERT INTO feedback (title, description, category, status, is_anonymous, submitted_by, assigned_to, created_at, updated_at) VALUES
-('Office Temperature', 'The office is too cold in the afternoons. Can we adjust the AC settings?', 'WORKPLACE', 'UNDER_REVIEW', false, 6, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Parking Space Request', 'We need more parking spaces for employees. The lot fills up by 9 AM.', 'WORKPLACE', 'SUBMITTED', false, 7, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Training Opportunities', 'Would love to see more professional development and training opportunities.', 'BENEFITS', 'IN_PROGRESS', false, 8, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Great Team Culture', 'Just wanted to say the team culture here is amazing! Keep it up.', 'CULTURE', 'RESOLVED', false, 3, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO feedback (title, description, category, status, priority, is_anonymous, submitted_by, assigned_to, created_at, updated_at) VALUES
+('Office Temperature', 'The office is too cold in the afternoons. Can we adjust the AC settings?', 'WORKPLACE', 'UNDER_REVIEW', 'MEDIUM', false, 6, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Parking Space Request', 'We need more parking spaces for employees. The lot fills up by 9 AM.', 'WORKPLACE', 'SUBMITTED', 'HIGH', false, 7, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Training Opportunities', 'Would love to see more professional development and training opportunities.', 'BENEFITS', 'IN_PROGRESS', 'MEDIUM', false, 8, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Great Team Culture', 'Just wanted to say the team culture here is amazing! Keep it up.', 'CULTURE', 'RESOLVED', 'LOW', false, 3, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- ============================================
 -- DEMO DATA - FEEDBACK COMMENTS

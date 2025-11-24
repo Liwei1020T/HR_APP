@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
@@ -13,6 +13,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
 
   // Fetch unread notifications count
   const { data: notificationsData } = useQuery({
@@ -31,7 +32,16 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: '📊', roles: ['employee', 'hr', 'admin', 'superadmin'] },
-    { name: 'Feedback', href: '/feedback', icon: '📝', roles: ['employee', 'hr', 'admin', 'superadmin'] },
+    {
+      name: 'Feedback',
+      href: '/feedback',
+      icon: '📝',
+      roles: ['employee', 'hr', 'admin', 'superadmin'],
+      subItems: [
+        { name: 'My Feedback', href: '/feedback', roles: ['employee', 'hr', 'admin', 'superadmin'] },
+        { name: 'Dashboard', href: '/admin/feedback', roles: ['hr', 'admin', 'superadmin'] },
+      ]
+    },
     { name: 'Channels', href: '/channels', icon: '💬', roles: ['employee', 'hr', 'admin', 'superadmin'] },
     { name: 'Direct Chat', href: '/direct-messages', icon: '💭', roles: ['employee', 'hr', 'admin', 'superadmin'] },
     { name: 'Announcements', href: '/announcements', icon: '📢', roles: ['employee', 'hr', 'admin', 'superadmin'] },
@@ -46,9 +56,32 @@ export default function AppLayout({ children }: AppLayoutProps) {
     if (href === '/') {
       return location.pathname === '/';
     }
-    // Exact match for paths to prevent parent paths from being highlighted
-    return location.pathname === href;
+    if (href === '/admin') {
+      // Avoid highlighting Admin on deeper admin pages like /admin/feedback
+      return location.pathname === '/admin';
+    }
+    return location.pathname === href || location.pathname.startsWith(href + '/');
   };
+
+  const toggleExpand = (name: string) => {
+    setExpandedItem(expandedItem === name ? null : name);
+  };
+
+  // Keep the relevant parent menu expanded based on current route
+  useEffect(() => {
+    const parentWithMatch = filteredNavigation.find(
+      (item: any) =>
+        item.subItems &&
+        item.subItems.some(
+          (sub: any) =>
+            location.pathname === sub.href ||
+            location.pathname.startsWith(sub.href + '/')
+        )
+    );
+    if (parentWithMatch) {
+      setExpandedItem(parentWithMatch.name);
+    }
+  }, [location.pathname, filteredNavigation]);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -62,9 +95,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 transition-transform duration-300 ease-in-out border-r border-gray-200`}
+        className={`fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } lg:translate-x-0 transition-transform duration-300 ease-in-out border-r border-gray-200`}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
@@ -90,29 +122,67 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
           {/* Navigation */}
           <nav className="flex-1 px-4 pb-6 space-y-2 overflow-y-auto">
-            {filteredNavigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group ${
-                  isActive(item.href)
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                }`}
-              >
-                <span className="mr-3 text-xl group-hover:scale-110 transition-transform">{item.icon}</span>
-                <span className="flex-1">{item.name}</span>
-                {item.badge && item.badge > 0 && (
-                  <span className={`ml-2 px-2 py-0.5 text-xs font-semibold rounded-full ${
-                    isActive(item.href) 
-                      ? 'bg-white text-blue-600' 
-                      : 'bg-red-500 text-white'
-                  }`}>
-                    {item.badge > 99 ? '99+' : item.badge}
-                  </span>
+            {filteredNavigation.map((item: any) => (
+              <div key={item.name}>
+                {item.subItems ? (
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => toggleExpand(item.name)}
+                      className={`w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors text-gray-700 hover:bg-blue-50 hover:text-blue-600`}
+                    >
+                      <div className="flex items-center">
+                        <span className="mr-3 text-xl">{item.icon}</span>
+                        <span>{item.name}</span>
+                      </div>
+                      <svg
+                        className={`w-4 h-4 transition-transform ${expandedItem === item.name ? 'transform rotate-180' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    {expandedItem === item.name && (
+                      <div className="pl-12 space-y-1">
+                        {item.subItems.filter((sub: any) => hasRole(sub.roles)).map((subItem: any) => (
+                          <Link
+                            key={subItem.name}
+                            to={subItem.href}
+                            onClick={() => setSidebarOpen(false)}
+                            className={`block px-4 py-2 text-sm font-medium rounded-lg transition-colors ${location.pathname === subItem.href
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                              }`}
+                          >
+                            {subItem.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    to={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group ${isActive(item.href)
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                      }`}
+                  >
+                    <span className="mr-3 text-xl group-hover:scale-110 transition-transform">{item.icon}</span>
+                    <span className="flex-1">{item.name}</span>
+                    {item.badge && item.badge > 0 && (
+                      <span className={`ml-2 px-2 py-0.5 text-xs font-semibold rounded-full ${isActive(item.href)
+                          ? 'bg-white text-blue-600'
+                          : 'bg-red-500 text-white'
+                        }`}>
+                        {item.badge > 99 ? '99+' : item.badge}
+                      </span>
+                    )}
+                  </Link>
                 )}
-              </Link>
+              </div>
             ))}
           </nav>
 

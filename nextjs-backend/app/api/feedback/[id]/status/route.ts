@@ -6,6 +6,7 @@ import { formatDate } from '@/lib/utils';
 import { handleApiError, handleNotFoundError } from '@/lib/errors';
 import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
 import { sendFeedbackNotification } from '@/lib/mail';
+import { computeSlaStatus, computeSlaMeta } from '../../route';
 
 export async function OPTIONS(request: NextRequest) {
   return handleCorsPreflightRequest(request);
@@ -79,12 +80,18 @@ export async function PATCH(
       }
     }
 
+    const slaMeta = computeSlaMeta(updated);
+
     const response = {
       id: updated.id,
       title: updated.title,
       description: updated.description,
       category: updated.category,
       status: updated.status,
+      priority: updated.priority,
+      sla_status: slaMeta.status,
+      sla_seconds_to_breach: slaMeta.seconds_to_breach,
+      sla_seconds_since_breach: slaMeta.seconds_since_breach,
       is_anonymous: updated.isAnonymous,
       submitted_by: updated.submittedBy,
       submitted_by_name: feedback.isAnonymous ? undefined : feedback.submitter.fullName,
@@ -92,6 +99,7 @@ export async function PATCH(
       assigned_to_name: updated.assignedTo ? (await db.user.findUnique({ where: { id: updated.assignedTo } }))?.fullName : undefined,
       created_at: formatDate(updated.createdAt),
       updated_at: formatDate(updated.updatedAt),
+      ai_analysis: updated.aiAnalysis,
     };
 
     return corsResponse(response, { request, status: 200 });

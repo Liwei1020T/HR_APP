@@ -90,6 +90,10 @@ export interface FeedbackItem {
   description: string;
   category: string;
   status: string;
+  priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  sla_status?: 'NORMAL' | 'WARNING' | 'BREACHED';
+  sla_seconds_to_breach?: number | null;
+  sla_seconds_since_breach?: number | null;
   is_anonymous: boolean;
   submitted_by: number;
   submitted_by_name?: string;
@@ -105,6 +109,10 @@ export interface Feedback {
   content: string;
   category: 'workplace' | 'benefits' | 'management' | 'culture' | 'compensation' | 'training' | 'other';
   status: 'pending' | 'reviewed' | 'resolved' | 'closed';
+  priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  sla_status?: 'NORMAL' | 'WARNING' | 'BREACHED';
+  sla_seconds_to_breach?: number | null;
+  sla_seconds_since_breach?: number | null;
   is_anonymous: boolean;
   submitted_by: number;
   assigned_to?: number;
@@ -114,6 +122,12 @@ export interface Feedback {
   assignee_name?: string;
   comment_count: number;
   attachments?: FileUpload[];
+}
+
+export interface AISuggestionResponse {
+  suggestedReply: string;
+  tone: string;
+  feedbackTitle: string;
 }
 
 export interface FeedbackComment {

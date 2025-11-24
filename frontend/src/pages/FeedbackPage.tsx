@@ -1,13 +1,16 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
-import { useAuth } from '../contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { feedbackApi } from '../lib/api-client';
-import type { FeedbackItem, FeedbackCreate } from '../lib/types';
+import type { FeedbackCreate } from '../lib/types';
 import { useAttachmentUpload, AttachmentPreviewList } from '../components/AttachmentUploader';
 
 const STATUS_OPTIONS = ['all', 'SUBMITTED', 'UNDER_REVIEW', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const;
+const PRIORITY_OPTIONS = ['all', 'URGENT', 'HIGH', 'MEDIUM', 'LOW'] as const;
+const SORT_OPTIONS = ['latest', 'oldest', 'priority_desc', 'priority_asc'] as const;
+const ASSIGNED_OPTIONS = ['all', 'assigned', 'unassigned'] as const;
+const SLA_OPTIONS = ['all', 'NORMAL', 'WARNING', 'BREACHED'] as const;
 
 const formatStatusLabel = (status: string) =>
   status === 'all' ? 'ALL' : status.replace(/_/g, ' ').toUpperCase();
@@ -28,12 +31,43 @@ const getStatusBadgeClasses = (status: string) => {
   }
 };
 
+const getPriorityBadgeClasses = (priority?: string) => {
+  switch (priority) {
+    case 'URGENT':
+      return 'bg-red-100 text-red-800';
+    case 'HIGH':
+      return 'bg-orange-100 text-orange-800';
+    case 'MEDIUM':
+      return 'bg-blue-100 text-blue-800';
+    case 'LOW':
+      return 'bg-gray-100 text-gray-800';
+    default:
+      return 'bg-gray-100 text-gray-500';
+  }
+};
+
+const getSlaBadgeClasses = (sla?: string) => {
+  switch (sla) {
+    case 'BREACHED':
+      return 'bg-red-100 text-red-800';
+    case 'WARNING':
+      return 'bg-yellow-100 text-yellow-800';
+    default:
+      return 'bg-gray-100 text-gray-600';
+  }
+};
+
 export default function FeedbackPage() {
-  const { hasRole } = useAuth();
   const queryClient = useQueryClient();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<typeof STATUS_OPTIONS[number]>('all');
-  const [selectedFeedback, setSelectedFeedback] = useState<FeedbackItem | null>(null);
+  const [selectedPriority, setSelectedPriority] = useState<typeof PRIORITY_OPTIONS[number]>('all');
+  const [sortBy, setSortBy] = useState<typeof SORT_OPTIONS[number]>('latest');
+  const [assignedFilter, setAssignedFilter] = useState<typeof ASSIGNED_OPTIONS[number]>('all');
+  const [slaFilter, setSlaFilter] = useState<typeof SLA_OPTIONS[number]>('all');
+  const [onlyAtRisk, setOnlyAtRisk] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const showAdvancedFilters = false; // My Feedback page: hide advanced filters; keep them for All Feedback page separately
 
   const attachmentUpload = useAttachmentUpload(4);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -47,9 +81,16 @@ export default function FeedbackPage() {
 
   // Fetch feedback
   const { data: feedbackData, isLoading } = useQuery({
-    queryKey: ['feedback', selectedStatus],
+    queryKey: ['feedback', selectedStatus, assignedFilter, slaFilter, onlyAtRisk, searchTerm],
     queryFn: () =>
-      feedbackApi.getAll(selectedStatus !== 'all' ? { status: selectedStatus } : undefined),
+      feedbackApi.getAll({
+        ...(selectedStatus !== 'all' ? { status: selectedStatus } : {}),
+        my_feedback: true,
+        ...(assignedFilter !== 'all' ? { assigned: assignedFilter } : {}),
+        ...(slaFilter !== 'all' ? { sla: slaFilter } : {}),
+        ...(onlyAtRisk ? { sla: 'AT_RISK' } : {}),
+        ...(searchTerm ? { q: searchTerm } : {}),
+      }),
   });
 
   // Create feedback mutation
@@ -63,16 +104,6 @@ export default function FeedbackPage() {
    },
  });
 
-  // Update status mutation (HR/Admin only)
-  const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: number; status: string }) =>
-      feedbackApi.updateStatus(id, status),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['feedback'] });
-      setSelectedFeedback(null);
-    },
-  });
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
       createMutation.mutate({
@@ -82,8 +113,43 @@ export default function FeedbackPage() {
       });
     };
 
-  const filteredFeedback = feedbackData?.feedback || [];
-  const canManage = hasRole(['hr', 'admin', 'superadmin']);
+  const rawFeedback = feedbackData?.feedback || [];
+
+  const priorityRank: Record<string, number> = {
+    URGENT: 4,
+    HIGH: 3,
+    MEDIUM: 2,
+    LOW: 1,
+  };
+
+  const filteredFeedback = rawFeedback
+    .filter((item: any) =>
+      selectedPriority === 'all' ? true : item.priority === selectedPriority
+    )
+    .filter((item: any) =>
+      onlyAtRisk ? item.sla_status === 'WARNING' || item.sla_status === 'BREACHED' : true
+    )
+    .filter((item: any) =>
+      slaFilter === 'all' ? true : item.sla_status === slaFilter
+    )
+    .slice()
+    .sort((a: any, b: any) => {
+      if (sortBy === 'oldest') {
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      }
+      if (sortBy === 'latest') {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+      const aRank = priorityRank[a.priority] || 0;
+      const bRank = priorityRank[b.priority] || 0;
+      if (sortBy === 'priority_desc') {
+        return bRank - aRank;
+      }
+      if (sortBy === 'priority_asc') {
+        return aRank - bRank;
+      }
+      return 0;
+    });
 
   return (
     <AppLayout>
@@ -211,13 +277,13 @@ export default function FeedbackPage() {
         )}
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex space-x-2">
+        <div className="bg-white rounded-lg shadow p-4 space-y-3">
+          <div className="flex flex-wrap gap-2">
             {STATUS_OPTIONS.map((status) => (
               <button
                 key={status}
                 onClick={() => setSelectedStatus(status)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`px-4 py-2 rounded-lg text-sm transition-colors ${
                   selectedStatus === status
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -227,6 +293,80 @@ export default function FeedbackPage() {
               </button>
             ))}
           </div>
+          {showAdvancedFilters && (
+            <div className="flex flex-wrap items-center gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search title or description..."
+                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white w-64"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600">Priority:</span>
+                <select
+                  value={selectedPriority}
+                  onChange={(e) => setSelectedPriority(e.target.value as typeof PRIORITY_OPTIONS[number])}
+                  className="border border-gray-300 rounded-lg px-2 py-1 text-sm bg-white"
+                >
+                  {PRIORITY_OPTIONS.map((p) => (
+                    <option key={p} value={p}>
+                      {p === 'all' ? 'All' : p}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600">Assigned:</span>
+                <select
+                  value={assignedFilter}
+                  onChange={(e) => setAssignedFilter(e.target.value as typeof ASSIGNED_OPTIONS[number])}
+                  className="border border-gray-300 rounded-lg px-2 py-1 text-sm bg-white"
+                >
+                  <option value="all">All</option>
+                  <option value="assigned">Assigned</option>
+                  <option value="unassigned">Unassigned</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600">SLA:</span>
+                <select
+                  value={slaFilter}
+                  onChange={(e) => setSlaFilter(e.target.value as typeof SLA_OPTIONS[number])}
+                  className="border border-gray-300 rounded-lg px-2 py-1 text-sm bg-white"
+                >
+                  <option value="all">All</option>
+                  <option value="NORMAL">Normal</option>
+                  <option value="WARNING">Warning</option>
+                  <option value="BREACHED">Breached</option>
+                </select>
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={onlyAtRisk}
+                  onChange={(e) => setOnlyAtRisk(e.target.checked)}
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                />
+                <span>SLA Warning/Breached only</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600">Sort by:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as typeof SORT_OPTIONS[number])}
+                  className="border border-gray-300 rounded-lg px-2 py-1 text-sm bg-white"
+                >
+                  <option value="latest">Latest first</option>
+                  <option value="oldest">Oldest first</option>
+                  <option value="priority_desc">Priority: URGENT → LOW</option>
+                  <option value="priority_asc">Priority: LOW → URGENT</option>
+                </select>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Feedback List */}
@@ -234,7 +374,23 @@ export default function FeedbackPage() {
           {isLoading ? (
             <div className="p-8 text-center text-gray-500">Loading feedback...</div>
           ) : filteredFeedback.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">No feedback found.</div>
+            <div className="p-8 text-center text-gray-500 space-y-2">
+              <div className="text-lg font-semibold text-gray-700">No feedback to show here</div>
+              <div className="text-sm text-gray-500">Try clearing filters or submit a new feedback.</div>
+              <button
+                onClick={() => {
+                  setSelectedStatus('all');
+                  setSelectedPriority('all');
+                  setAssignedFilter('all');
+                  setSlaFilter('all');
+                  setOnlyAtRisk(false);
+                  setSearchTerm('');
+                }}
+                className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Clear filters
+              </button>
+            </div>
           ) : (
             <div className="divide-y divide-gray-200">
               {filteredFeedback.map((feedback: any) => (
@@ -250,6 +406,26 @@ export default function FeedbackPage() {
                         >
                           {formatStatusLabel(feedback.status)}
                         </span>
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityBadgeClasses(
+                            feedback.priority
+                          )}`}
+                        >
+                          {feedback.priority || 'MEDIUM'}
+                        </span>
+                        {feedback.sla_status && (
+                          <span
+                            className={`px-2 py-1 text-xs font-medium rounded-full ${getSlaBadgeClasses(
+                              feedback.sla_status
+                            )}`}
+                          >
+                            {feedback.sla_status === 'BREACHED'
+                              ? 'SLA Breached'
+                              : feedback.sla_status === 'WARNING'
+                                ? 'SLA Warning'
+                                : 'SLA Normal'}
+                          </span>
+                        )}
                         <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
                           {feedback.category}
                         </span>
@@ -277,52 +453,12 @@ export default function FeedbackPage() {
                         </Link>
                       </div>
                     </div>
-                    {canManage && (
-                      <button
-                        onClick={() => setSelectedFeedback(feedback)}
-                        className="ml-4 px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                      >
-                        Manage
-                      </button>
-                    )}
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
-
-        {/* Status Update Modal */}
-        {selectedFeedback && canManage && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Update Status</h3>
-              <p className="text-sm text-gray-600 mb-4">{selectedFeedback.title}</p>
-              <div className="space-y-2">
-                {STATUS_OPTIONS.filter((status) => status !== 'all').map((status) => (
-                  <button
-                    key={status}
-                    onClick={() =>
-                      updateStatusMutation.mutate({ id: selectedFeedback.id, status })
-                    }
-                    disabled={updateStatusMutation.isPending}
-                    className="w-full px-4 py-2 text-left border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-                  >
-                    {formatStatusLabel(status)}
-                  </button>
-                ))}
-              </div>
-              <div className="flex justify-end pt-4">
-                <button
-                  onClick={() => setSelectedFeedback(null)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </AppLayout>
   );

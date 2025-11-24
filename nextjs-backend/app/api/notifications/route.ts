@@ -5,6 +5,7 @@ import { formatDate, getPaginationParams, parseQueryBoolean } from '@/lib/utils'
 import { handleApiError } from '@/lib/errors';
 import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
 
+
 export async function OPTIONS(request: NextRequest) {
   return handleCorsPreflightRequest(request);
 }
@@ -16,11 +17,13 @@ export async function GET(request: NextRequest) {
     const { skip, limit } = getPaginationParams(searchParams);
     const unreadOnly = parseQueryBoolean(searchParams.get('unread_only'));
 
+    // Build base where clause
+    const baseWhere = { userId: authUser.id };
+    const queryWhere = unreadOnly ? { ...baseWhere, isRead: false } : baseWhere;
+
+    // Fetch notifications with optimized query
     const notifications = await db.notification.findMany({
-      where: {
-        userId: authUser.id,
-        ...(unreadOnly && { isRead: false }),
-      },
+      where: queryWhere,
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
@@ -46,15 +49,16 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    const total = await db.notification.count({ where: { userId: authUser.id } });
-    const unread_count = await db.notification.count({ 
-      where: { userId: authUser.id, isRead: false } 
+    // Optimized: Count queries without OFFSET - Prisma was incorrectly adding OFFSET to COUNT
+    const total = await db.notification.count({ where: baseWhere });
+    const unread_count = await db.notification.count({
+      where: { ...baseWhere, isRead: false }
     });
 
-    return corsResponse({ 
-      notifications: formatted, 
-      total, 
-      unread_count 
+    return corsResponse({
+      notifications: formatted,
+      total,
+      unread_count
     }, { request, status: 200 });
   } catch (error) {
     return handleApiError(error);
