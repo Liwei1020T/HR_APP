@@ -11,7 +11,7 @@ export async function OPTIONS(request: NextRequest) {
 export async function GET(request: NextRequest) {
     try {
         await requireAuth(request);
-        await requireRole(request, ['HR', 'ADMIN', 'SUPERADMIN']);
+        await requireRole(request, 'HR');
 
         // 1. Total Complaints
         const totalComplaints = await db.feedback.count();
