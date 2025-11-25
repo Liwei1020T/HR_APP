@@ -77,3 +77,6 @@ uploads/
 
 # OS
 Thumbs.db
+
+# Local DB
+postgres18/

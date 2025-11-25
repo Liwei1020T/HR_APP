@@ -6,6 +6,19 @@ import { formatDate, getPaginationParams } from '@/lib/utils';
 import { handleApiError } from '@/lib/errors';
 import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
 
+async function generateJoinCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const make = () =>
+    Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+
+  let code = make();
+  // Ensure uniqueness
+  while (await db.channel.findFirst({ where: { joinCode: code } })) {
+    code = make();
+  }
+  return code;
+}
+
 export async function OPTIONS(request: NextRequest) {
   return handleCorsPreflightRequest(request);
 }
@@ -49,6 +62,7 @@ export async function GET(request: NextRequest) {
       description: ch.description,
       channel_type: ch.channelType,
       is_private: ch.isPrivate,
+      join_code: ch.joinCode,
       created_by: ch.createdBy,
       created_at: formatDate(ch.createdAt),
       updated_at: formatDate(ch.updatedAt),
@@ -74,6 +88,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validated = createChannelSchema.parse(body);
 
+    const joinCode = await generateJoinCode();
+
     const channel = await db.channel.create({
       data: {
         name: validated.name,
@@ -81,6 +97,7 @@ export async function POST(request: NextRequest) {
         channelType: validated.channel_type || 'general',
         isPrivate: validated.is_private || false,
         createdBy: authUser.id,
+        joinCode,
       },
       include: {
         creator: {
@@ -108,6 +125,7 @@ export async function POST(request: NextRequest) {
       description: channel.description,
       channel_type: channel.channelType,
       is_private: channel.isPrivate,
+      join_code: channel.joinCode,
       created_by: channel.createdBy,
       created_at: formatDate(channel.createdAt),
       updated_at: formatDate(channel.updatedAt),

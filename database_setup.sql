@@ -56,6 +56,7 @@ CREATE TABLE channels (
     description TEXT,
     channel_type TEXT DEFAULT 'general' NOT NULL,
     is_private BOOLEAN DEFAULT false NOT NULL,
+    join_code TEXT UNIQUE NOT NULL,
     created_by INTEGER NOT NULL,
     created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(3) NOT NULL,
@@ -164,19 +165,28 @@ CREATE TABLE feedback (
     status TEXT DEFAULT 'SUBMITTED' NOT NULL,
     priority TEXT DEFAULT 'MEDIUM' NOT NULL,
     ai_analysis TEXT,
+    is_vendor_related BOOLEAN DEFAULT false NOT NULL,
+    vendor_assigned_to INTEGER,
+    vendor_due_at TIMESTAMP(3),
+    vendor_last_response_at TIMESTAMP(3),
+    vendor_status TEXT DEFAULT 'NONE' NOT NULL,
     is_anonymous BOOLEAN DEFAULT false NOT NULL,
     submitted_by INTEGER NOT NULL,
     assigned_to INTEGER,
     created_at TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMP(3) NOT NULL,
     CONSTRAINT feedback_submitted_by_fkey FOREIGN KEY (submitted_by) REFERENCES users(id) ON DELETE CASCADE,
-    CONSTRAINT feedback_assigned_to_fkey FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL
+    CONSTRAINT feedback_assigned_to_fkey FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT feedback_vendor_assigned_to_fkey FOREIGN KEY (vendor_assigned_to) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE INDEX feedback_submitted_by_idx ON feedback(submitted_by);
 CREATE INDEX feedback_assigned_to_idx ON feedback(assigned_to);
 CREATE INDEX feedback_status_idx ON feedback(status);
 CREATE INDEX feedback_priority_idx ON feedback(priority);
+CREATE INDEX feedback_vendor_assigned_to_idx ON feedback(vendor_assigned_to);
+CREATE INDEX feedback_vendor_status_idx ON feedback(vendor_status);
+CREATE INDEX feedback_vendor_due_at_idx ON feedback(vendor_due_at);
 
 -- ============================================
 -- TABLE: feedback_comments
@@ -334,17 +344,20 @@ INSERT INTO users (email, password, full_name, role, department, employee_id, da
 ('hr@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'HR Manager', 'HR', 'Human Resources', 'EMP-HR-001', '1987-04-05', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('john.doe@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'John Doe', 'EMPLOYEE', 'Engineering', 'EMP-ENG-001', '1992-08-12', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('jane.smith@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'Jane Smith', 'EMPLOYEE', 'Marketing', 'EMP-MKT-001', '1991-06-25', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('mike.wilson@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'Mike Wilson', 'EMPLOYEE', 'Sales', 'EMP-SLS-001', '1989-12-03', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+('mike.wilson@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'Mike Wilson', 'EMPLOYEE', 'Sales', 'EMP-SLS-001', '1989-12-03', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+-- Vendor demo accounts (password: vendor123)
+('vendor.facility@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'Facility Vendor', 'VENDOR', 'Facilities Vendor', 'VEN-FAC-001', '1985-07-15', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('vendor.it@company.com',        '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'IT Support Vendor', 'VENDOR', 'IT Vendor',        'VEN-IT-001',  '1983-11-02', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- ============================================
 -- DEMO DATA - CHANNELS
 -- ============================================
 INSERT INTO channels (name, description, channel_type, is_private, created_by, created_at, updated_at) VALUES
-('General', 'General company-wide discussions', 'general', false, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Engineering Team', 'Engineering department channel', 'department', false, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('HR Announcements', 'Official HR announcements and updates', 'announcement', false, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Sales Team', 'Sales department discussions', 'department', false, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Random', 'Off-topic conversations and fun', 'social', false, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+('General', 'General company-wide discussions', 'general', false, 'GENERAL01', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Engineering Team', 'Engineering department channel', 'department', false, 'ENGTEAM1', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('HR Announcements', 'Official HR announcements and updates', 'announcement', false, 'HRANN01', 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Sales Team', 'Sales department discussions', 'department', false, 'SALESTE1', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Random', 'Off-topic conversations and fun', 'social', false, 'RANDOM01', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- ============================================
 -- DEMO DATA - CHANNEL MEMBERS

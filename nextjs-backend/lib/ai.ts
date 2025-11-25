@@ -106,6 +106,43 @@ export interface AdminReportResponse {
     insights: string[];
 }
 
+export async function classifyVendorIssue(title: string, description: string): Promise<boolean> {
+    if (!process.env.GROQ_API_KEY) {
+        console.warn('GROQ_API_KEY is not set. Defaulting vendor-related to false.');
+        return false;
+    }
+
+    try {
+        const prompt = `
+Decide if this feedback should be handled by an external vendor (e.g., facilities, maintenance, hardware supplier).
+
+Title: "${title}"
+Description: "${description}"
+
+Respond ONLY with JSON:
+{"vendor_related": true|false}
+`;
+
+        const completion = await groq.chat.completions.create({
+            messages: [
+                { role: 'system', content: 'You are a classifier. Respond with JSON only.' },
+                { role: 'user', content: prompt },
+            ],
+            model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+            temperature: 0.1,
+            response_format: { type: 'json_object' },
+        });
+
+        const content = completion.choices[0]?.message?.content;
+        if (!content) throw new Error('No content from Groq');
+        const result = JSON.parse(content);
+        return Boolean(result.vendor_related);
+    } catch (error) {
+        console.error('Error classifying vendor issue:', error);
+        return false;
+    }
+}
+
 export async function generateAdminReport(data: AdminReportRequest): Promise<AdminReportResponse> {
     if (!process.env.GROQ_API_KEY) {
         console.warn('GROQ_API_KEY is not set. Cannot generate admin report.');

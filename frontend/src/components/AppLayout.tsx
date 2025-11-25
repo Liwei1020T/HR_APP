@@ -48,6 +48,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { name: 'Notifications', href: '/notifications', icon: '🔔', roles: ['employee', 'hr', 'admin', 'superadmin'], badge: unreadCount },
     { name: 'Admin', href: '/admin', icon: '⚙️', roles: ['hr', 'admin', 'superadmin'], attribute: true },
     { name: 'Birthdays', href: '/admin/birthdays', icon: '🎂', roles: ['hr', 'admin', 'superadmin'], attribute: true },
+    { name: 'Vendor', href: '/vendor/feedback', icon: '🛠️', roles: ['vendor'], attribute: true },
   ];
 
   const filteredNavigation = navigation.filter(item => hasRole(item.roles));

@@ -16,25 +16,20 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validated = joinChannelSchema.parse(body);
 
-    // Check if channel exists
+    // Find by join code
     const channel = await db.channel.findUnique({
-      where: { id: validated.channel_id },
+      where: { joinCode: validated.channel_code },
     });
 
     if (!channel) {
       return handleNotFoundError('Channel');
     }
 
-    // Cannot join private channels (must be invited)
-    if (channel.isPrivate) {
-      return handleForbiddenError('Cannot join private channel');
-    }
-
     // Check if already a member
     const existing = await db.channelMember.findFirst({
       where: {
         userId: authUser.id,
-        channelId: validated.channel_id,
+        channelId: channel.id,
       },
     });
 
@@ -46,7 +41,7 @@ export async function POST(request: NextRequest) {
     const membership = await db.channelMember.create({
       data: {
         userId: authUser.id,
-        channelId: validated.channel_id,
+        channelId: channel.id,
         role: 'MEMBER',
       },
       include: {

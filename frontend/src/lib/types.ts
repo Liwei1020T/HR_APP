@@ -43,6 +43,7 @@ export interface Channel {
   description: string;
   channel_type: string;
   is_private: boolean;
+  join_code?: string;
   created_by: number;
   created_at: string;
   creator_name: string;
@@ -94,6 +95,11 @@ export interface FeedbackItem {
   sla_status?: 'NORMAL' | 'WARNING' | 'BREACHED';
   sla_seconds_to_breach?: number | null;
   sla_seconds_since_breach?: number | null;
+  is_vendor_related?: boolean;
+  vendor_status?: string;
+  vendor_due_at?: string | null;
+  vendor_last_response_at?: string | null;
+  vendor_assigned_to?: number | null;
   is_anonymous: boolean;
   submitted_by: number;
   submitted_by_name?: string;
@@ -113,6 +119,11 @@ export interface Feedback {
   sla_status?: 'NORMAL' | 'WARNING' | 'BREACHED';
   sla_seconds_to_breach?: number | null;
   sla_seconds_since_breach?: number | null;
+  is_vendor_related?: boolean;
+  vendor_status?: string;
+  vendor_due_at?: string | null;
+  vendor_last_response_at?: string | null;
+  vendor_assigned_to?: number | null;
   is_anonymous: boolean;
   submitted_by: number;
   assigned_to?: number;

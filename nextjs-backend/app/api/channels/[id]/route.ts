@@ -58,6 +58,7 @@ export async function GET(
       description: channel.description,
       channel_type: channel.channelType,
       is_private: channel.isPrivate,
+      join_code: channel.joinCode,
       created_by: channel.createdBy,
       created_at: formatDate(channel.createdAt),
       updated_at: formatDate(channel.updatedAt),

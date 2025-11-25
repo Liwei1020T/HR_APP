@@ -6,7 +6,12 @@ import { formatDate, getPaginationParams, parseQueryBoolean } from '@/lib/utils'
 import { handleApiError } from '@/lib/errors';
 import { handleCorsPreflightRequest, corsResponse } from '@/lib/cors';
 import { assignFilesToEntity, getAttachmentsByEntity } from '@/lib/files';
-import { analyzeFeedback } from '@/lib/ai';
+import { analyzeFeedback, classifyVendorIssue } from '@/lib/ai';
+import { runVendorSlaSweep } from '@/lib/vendor-sla';
+import { ensureVendorSlaScheduler } from '@/lib/scheduler';
+
+// Start background vendor SLA checks when the API layer initializes.
+ensureVendorSlaScheduler();
 
 // Preferred assignee roles per category (fallback order applied when no direct match)
 const CATEGORY_ASSIGNEE_ROLES: Record<string, UserRole[]> = {
@@ -88,7 +93,19 @@ export function computeSlaMeta(feedback: any) {
     };
   }
 
-  return { status, seconds_to_breach: null, seconds_since_breach: null };
+  // For other active statuses (e.g. IN_PROGRESS), reuse the UNDER_REVIEW window
+  if (!['RESOLVED', 'CLOSED'].includes(feedback.status)) {
+    const elapsedSeconds = (now.getTime() - updatedAt.getTime()) / 1000;
+    const limitSeconds = UNDER_REVIEW_SLA_DAYS * 24 * 3600;
+    return {
+      status,
+      seconds_to_breach: Math.max(0, Math.round(limitSeconds - elapsedSeconds)),
+      seconds_since_breach: 0,
+    };
+  }
+
+  // For resolved/closed items, no remaining SLA time
+  return { status, seconds_to_breach: 0, seconds_since_breach: 0 };
 }
 
 // Map departments to visible categories (fallback to assignment if none match)
@@ -109,6 +126,14 @@ export function getAllowedCategoriesForUser(department?: string | null) {
   return DEPARTMENT_CATEGORY_MAP[key] || [];
 }
 
+// Light-weight hook: ensure vendor SLA sweep runs for admin-like roles.
+async function checkVendorSlaNotifications(user: any) {
+  if (user?.role === 'ADMIN' || user?.role === 'HR' || user?.role === 'SUPERADMIN') {
+    await runVendorSlaSweep();
+  }
+}
+
+
 export async function OPTIONS(request: NextRequest) {
   return handleCorsPreflightRequest(request);
 }
@@ -116,6 +141,7 @@ export async function OPTIONS(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const authUser = await requireAuth(request);
+    await checkVendorSlaNotifications(authUser);
     const { searchParams } = new URL(request.url);
     const { skip, limit } = getPaginationParams(searchParams);
     const statusFilter = searchParams.get('status');
@@ -126,6 +152,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('q');
     const assignedFilter = searchParams.get('assigned'); // "assigned" | "unassigned"
     const slaFilter = searchParams.get('sla'); // "NORMAL" | "WARNING" | "BREACHED"
+    const vendorStatusFilter = searchParams.get('vendor_status');
 
     const where: any = {};
     const orConditions: any[] = [];
@@ -143,6 +170,10 @@ export async function GET(request: NextRequest) {
     // Filter by priority
     if (priorityFilter) {
       where.priority = priorityFilter;
+    }
+
+    if (vendorStatusFilter) {
+      where.vendorStatus = vendorStatusFilter;
     }
 
     // Search in title/description
@@ -168,6 +199,9 @@ export async function GET(request: NextRequest) {
     } else if (authUser.role === 'HR' || authUser.role === 'ADMIN') {
       // HR/Admin see only items assigned to themselves (unless my_feedback/my_assigned already applied)
       where.assignedTo = authUser.id;
+    } else if (authUser.role === 'VENDOR') {
+      // Vendors only see feedback assigned to them via vendorAssignedTo
+      where.vendorAssignedTo = authUser.id;
     } else if (!hasRole(authUser, 'HR')) {
       // Regular employees only see their own feedback
       where.submittedBy = authUser.id;
@@ -205,6 +239,13 @@ export async function GET(request: NextRequest) {
 
     let formatted = feedback.map((f) => {
       const slaMeta = computeSlaMeta(f);
+      const vendorSlaStatus = (() => {
+        if (!f.vendorDueAt) return 'NORMAL';
+        const now = new Date();
+        const due = f.vendorDueAt instanceof Date ? f.vendorDueAt : new Date(f.vendorDueAt);
+        if (now > due && f.vendorStatus !== 'APPROVED' && f.vendorStatus !== 'REJECTED') return 'BREACHED';
+        return 'NORMAL';
+      })();
       return ({
       id: f.id,
       title: f.title,
@@ -216,7 +257,13 @@ export async function GET(request: NextRequest) {
       sla_status: slaMeta.status,
       sla_seconds_to_breach: slaMeta.seconds_to_breach,
       sla_seconds_since_breach: slaMeta.seconds_since_breach,
+      vendor_sla_status: vendorSlaStatus,
       is_anonymous: f.isAnonymous,
+      is_vendor_related: f.isVendorRelated,
+      vendor_status: f.vendorStatus,
+      vendor_due_at: f.vendorDueAt ? f.vendorDueAt.toISOString() : null,
+      vendor_last_response_at: f.vendorLastResponseAt ? f.vendorLastResponseAt.toISOString() : null,
+      vendor_assigned_to: f.vendorAssignedTo,
       submitted_by: f.submittedBy,
       submitted_by_name: f.isAnonymous ? undefined : f.submitter.fullName,
       assigned_to: f.assignedTo,
@@ -279,6 +326,7 @@ export async function POST(request: NextRequest) {
 
     // Analyze feedback with AI
     const aiResult = await analyzeFeedback(validated.title, validated.description);
+    const isVendorRelated = await classifyVendorIssue(validated.title, validated.description);
     const resolvedCategory = (aiResult.category || validated.category || 'GENERAL').toUpperCase();
 
     // Auto-assign to the best matching admin/HR based on detected category
@@ -295,6 +343,8 @@ export async function POST(request: NextRequest) {
         aiAnalysis: aiResult.analysis, // Added aiAnalysis
         submittedBy: authUser.id,
         assignedTo: autoAssignee?.id || null,
+        isVendorRelated,
+        vendorStatus: 'NONE',
       },
       include: {
         submitter: {

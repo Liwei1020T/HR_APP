@@ -13,6 +13,7 @@ export default function ChannelDetailPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { hasRole } = useAuth();
+  const [copied, setCopied] = useState(false);
   const [message, setMessage] = useState('');
   const [sendAsAnnouncement, setSendAsAnnouncement] = useState(false);
   const {
@@ -105,6 +106,22 @@ export default function ChannelDetailPage() {
               <div className="flex flex-wrap gap-3 text-sm text-gray-500 mt-4">
                 <span>Type: {channelQuery.data.channel_type}</span>
                 <span>Members: {channelQuery.data.member_count ?? '--'}</span>
+                {channelQuery.data.join_code && (
+                  <div className="flex items-center gap-2 bg-gray-100 text-gray-800 px-3 py-1 rounded">
+                    <span className="font-semibold">Join code:</span>
+                    <span className="font-mono">{channelQuery.data.join_code}</span>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(channelQuery.data.join_code || '');
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 1500);
+                      }}
+                      className="text-blue-600 text-xs font-semibold hover:underline"
+                    >
+                      {copied ? 'Copied!' : 'Copy'}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -114,12 +131,17 @@ export default function ChannelDetailPage() {
               ) : (
                 <>
                   {pinnedMessages.length > 0 && (
-                    <div className="border-b border-gray-200 p-4 space-y-2 bg-yellow-25">
-                      <div className="text-xs font-semibold uppercase text-gray-500">Pinned</div>
+                    <div className="border-b-2 border-yellow-300 p-4 space-y-3 bg-yellow-50">
+                      <div className="flex items-center gap-2">
+                        <svg className="h-4 w-4 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+                        </svg>
+                        <span className="text-sm font-bold uppercase text-yellow-700">Pinned Messages</span>
+                      </div>
                       {pinnedMessages.map((msg: any) => (
                         <div
                           key={'pinned-' + String(msg.id)}
-                          className="flex flex-col rounded-lg border border-yellow-200 bg-yellow-50 p-3"
+                          className="flex flex-col rounded-lg border-2 border-yellow-300 bg-white p-4 shadow-sm"
                         >
                           <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-gray-900">
                             <span>{msg.user.full_name}</span>
@@ -128,11 +150,11 @@ export default function ChannelDetailPage() {
                             </span>
                             {msg.is_announcement && (
                               <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700">
-                                Announcement
+                                📢 Announcement
                               </span>
                             )}
-                            <span className="rounded-full bg-yellow-200 px-2 py-0.5 text-xs font-semibold text-yellow-800">
-                              Pinned
+                            <span className="rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-bold text-yellow-800 border border-yellow-300">
+                              📌 Pinned
                             </span>
                             {hasRole(['hr', 'admin', 'superadmin']) && (
                               <button
@@ -140,13 +162,13 @@ export default function ChannelDetailPage() {
                                   pinMessageMutation.mutate({ messageId: msg.id, isPinned: false })
                                 }
                                 disabled={pinMessageMutation.isPending}
-                                className="text-xs text-blue-600 hover:text-blue-800"
+                                className="ml-auto text-xs text-blue-600 hover:text-blue-800 font-medium"
                               >
                                 Unpin
                               </button>
                             )}
                           </div>
-                          <div className="mt-1 whitespace-pre-line text-gray-800">{msg.content}</div>
+                          <div className="mt-2 whitespace-pre-line text-gray-800">{msg.content}</div>
                           <AttachmentList attachments={msg.attachments} />
                         </div>
                       ))}

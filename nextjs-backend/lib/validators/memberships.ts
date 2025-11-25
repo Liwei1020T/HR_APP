@@ -5,7 +5,7 @@ export type MemberRole = 'MEMBER' | 'MODERATOR';
 
 // Join channel request
 export const joinChannelSchema = z.object({
-  channel_id: z.number().int().positive(),
+  channel_code: z.string().min(4).max(12),
 });
 
 export type JoinChannelRequest = z.infer<typeof joinChannelSchema>;

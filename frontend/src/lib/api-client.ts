@@ -149,8 +149,8 @@ export const channelsApi = {
 
 // ===== Memberships API =====
 export const membershipsApi = {
-  join: async (channelId: number): Promise<ChannelMember> => {
-    const response = await api.post<ChannelMember>('/memberships/join', { channel_id: channelId });
+  join: async (channelCode: string): Promise<ChannelMember> => {
+    const response = await api.post<ChannelMember>('/memberships/join', { channel_code: channelCode });
     return response.data;
   },
 
@@ -175,6 +175,7 @@ export const feedbackApi = {
     q?: string;
     my_assigned?: boolean;
     my_feedback?: boolean;
+    vendor_status?: string;
   }): Promise<{ feedback: Feedback[]; total: number }> => {
     const response = await api.get('/feedback', { params });
     return response.data;
@@ -209,6 +210,17 @@ export const feedbackApi = {
     data: { comment: string; is_internal?: boolean; attachments?: number[] }
   ): Promise<FeedbackComment> => {
     const response = await api.post<FeedbackComment>(`/feedback/${id}/comments`, data);
+    return response.data;
+  },
+  getVendorThread: async (id: number): Promise<{ comments: FeedbackComment[]; total: number }> => {
+    const response = await api.get(`/feedback/${id}/vendor-thread`);
+    return response.data;
+  },
+  addVendorMessage: async (
+    id: number,
+    data: { comment: string; attachments?: number[] }
+  ): Promise<FeedbackComment> => {
+    const response = await api.post<FeedbackComment>(`/feedback/${id}/vendor-thread`, data);
     return response.data;
   },
 
@@ -424,7 +436,7 @@ export const adminApi = {
   },
 
   getAllUsers: async (): Promise<{ users: User[]; total: number }> => {
-    const response = await api.get('/admin/users');
+    const response = await api.get('/users');
     return response.data;
   },
 
@@ -442,6 +454,22 @@ export const adminApi = {
 
   updateUserRole: async (userId: number, role: string): Promise<User> => {
     const response = await api.patch<User>(`/admin/users/${userId}/role`, { role });
+    return response.data;
+  },
+
+  requestSuperadminReview: async (feedbackId: number, message?: string): Promise<any> => {
+    const response = await api.post(`/admin/feedback/${feedbackId}/request-approval`, {
+      message,
+    });
+    return response.data;
+  },
+
+  forwardFeedbackToVendor: async (feedbackId: number, vendorId: number, dueDays = 7, message: string): Promise<any> => {
+    const response = await api.post(`/admin/feedback/${feedbackId}/forward-vendor`, {
+      vendor_id: vendorId,
+      due_days: dueDays,
+      message,
+    });
     return response.data;
   },
 
@@ -463,6 +491,31 @@ export const adminApi = {
     priority?: string;
   }): Promise<{ summary: string; insights: string[]; stats: any }> => {
     const response = await api.post('/admin/ai-report', data);
+    return response.data;
+  },
+
+  approveVendorReply: async (feedbackId: number, action: 'approve' | 'reject', comment?: string): Promise<any> => {
+    const response = await api.post(`/superadmin/feedback/${feedbackId}/vendor-approve`, {
+      action,
+      comment,
+    });
+    return response.data;
+  },
+
+  runVendorSlaSweep: async (): Promise<{ message: string }> => {
+    const response = await api.post('/admin/vendor-sla-sweep');
+    return response.data;
+  },
+};
+
+// ===== Vendor API =====
+export const vendorApi = {
+  getMyFeedback: async (): Promise<{ feedback: Feedback[] }> => {
+    const response = await api.get('/vendor/feedback');
+    return response.data;
+  },
+  reply: async (id: number, reply: string): Promise<any> => {
+    const response = await api.post(`/vendor/feedback/${id}/reply`, { reply });
     return response.data;
   },
 };

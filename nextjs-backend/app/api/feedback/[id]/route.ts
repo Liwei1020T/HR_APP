@@ -47,6 +47,7 @@ export async function GET(
     // Access control:
     // - Submitter can view
     // - HR/Admin can view only if assigned to them
+    // - Vendor can view if assigned to vendor
     // - Superadmin can view all
     if (feedback.submittedBy !== authUser.id) {
       if (authUser.role === 'SUPERADMIN') {
@@ -56,12 +57,23 @@ export async function GET(
         if (!assignedToSelf) {
           return handleForbiddenError('Access denied');
         }
+      } else if (authUser.role === 'VENDOR') {
+        if (feedback.vendorAssignedTo !== authUser.id) {
+          return handleForbiddenError('Access denied');
+        }
       } else {
         return handleForbiddenError('Access denied');
       }
     }
 
     const slaMeta = computeSlaMeta(feedback);
+    const vendorSlaStatus = (() => {
+      if (!feedback.vendorDueAt) return 'NORMAL';
+      const now = new Date();
+      const due = feedback.vendorDueAt instanceof Date ? feedback.vendorDueAt : new Date(feedback.vendorDueAt);
+      if (now > due && feedback.vendorStatus !== 'APPROVED' && feedback.vendorStatus !== 'REJECTED') return 'BREACHED';
+      return 'NORMAL';
+    })();
 
     const response = {
       id: feedback.id,
@@ -73,6 +85,12 @@ export async function GET(
       sla_status: slaMeta.status,
       sla_seconds_to_breach: slaMeta.seconds_to_breach,
       sla_seconds_since_breach: slaMeta.seconds_since_breach,
+      vendor_sla_status: vendorSlaStatus,
+      is_vendor_related: feedback.isVendorRelated,
+      vendor_status: feedback.vendorStatus,
+      vendor_due_at: feedback.vendorDueAt ? feedback.vendorDueAt.toISOString() : null,
+      vendor_last_response_at: feedback.vendorLastResponseAt ? feedback.vendorLastResponseAt.toISOString() : null,
+      vendor_assigned_to: feedback.vendorAssignedTo,
       is_anonymous: feedback.isAnonymous,
       submitted_by: feedback.submittedBy,
       submitted_by_name: feedback.isAnonymous && authUser.id !== feedback.submittedBy ? undefined : feedback.submitter.fullName,

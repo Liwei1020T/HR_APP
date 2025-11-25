@@ -5,7 +5,7 @@ import { User } from '@prisma/client';
 import { db } from './db';
 
 // Define UserRole as a type since SQLite doesn't support enums
-export type UserRole = 'EMPLOYEE' | 'HR' | 'ADMIN' | 'SUPERADMIN';
+export type UserRole = 'EMPLOYEE' | 'HR' | 'ADMIN' | 'SUPERADMIN' | 'VENDOR';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const JWT_ALGORITHM = (process.env.JWT_ALGORITHM || 'HS256') as jwt.Algorithm;
@@ -151,6 +151,7 @@ export function hasRole(user: AuthUser, requiredRole: UserRole): boolean {
     'HR': 2,
     'ADMIN': 3,
     'SUPERADMIN': 4,
+    'VENDOR': 1,
   };
 
   return roleHierarchy[user.role] >= roleHierarchy[requiredRole];

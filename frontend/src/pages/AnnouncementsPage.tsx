@@ -69,6 +69,22 @@ export default function AnnouncementsPage() {
     },
   });
 
+  const updateAnnouncement = useMutation({
+    mutationFn: (vars: { id: number; data: Partial<Announcement> }) =>
+      announcementsApi.update(vars.id, vars.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['announcements'] });
+    },
+  });
+
+  const deleteAnnouncement = useMutation({
+    mutationFn: (id: number) => announcementsApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['announcements'] });
+      setSelectedAnnouncement(null);
+    },
+  });
+
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createAnnouncement.mutate({
@@ -333,6 +349,41 @@ export default function AnnouncementsPage() {
             <div className="text-gray-800 whitespace-pre-line">{selectedAnnouncement.content}</div>
             <AttachmentList attachments={selectedAnnouncement.attachments} />
             <div className="flex justify-end pt-6">
+              {canManage && (
+                <div className="flex items-center gap-2 mr-auto">
+                  <button
+                    onClick={() => {
+                      if (!selectedAnnouncement) return;
+                      updateAnnouncement.mutate({
+                        id: selectedAnnouncement.id,
+                        data: { is_pinned: !selectedAnnouncement.is_pinned },
+                      });
+                      setSelectedAnnouncement({
+                        ...selectedAnnouncement,
+                        is_pinned: !selectedAnnouncement.is_pinned,
+                      });
+                    }}
+                    disabled={updateAnnouncement.isPending}
+                    className="px-3 py-2 bg-yellow-100 text-yellow-800 rounded-lg hover:bg-yellow-200 disabled:opacity-50"
+                  >
+                    {selectedAnnouncement?.is_pinned ? 'Unpin' : 'Pin'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!selectedAnnouncement) return;
+                      const first = window.confirm('Delete this announcement?');
+                      const second = first && window.confirm('Are you sure? This cannot be undone.');
+                      if (second) {
+                        deleteAnnouncement.mutate(selectedAnnouncement.id);
+                      }
+                    }}
+                    disabled={deleteAnnouncement.isPending}
+                    className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 disabled:opacity-50"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
               <button
                 onClick={() => setSelectedAnnouncement(null)}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"

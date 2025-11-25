@@ -7,7 +7,7 @@ import { channelsApi, membershipsApi } from '../lib/api-client';
 import type { ChannelCreate } from '../lib/types';
 
 export default function ChannelsPage() {
-  const { hasRole } = useAuth();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState<ChannelCreate>({
@@ -17,6 +17,7 @@ export default function ChannelsPage() {
     is_private: false,
   });
   const [banner, setBanner] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [joinCode, setJoinCode] = useState('');
   const bannerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const showBanner = (type: 'success' | 'error', text: string) => {
@@ -35,12 +36,6 @@ export default function ChannelsPage() {
     };
   }, []);
 
-  // Fetch all channels
-  const { data: channelsData, isLoading } = useQuery({
-    queryKey: ['channels'],
-    queryFn: () => channelsApi.getAll(),
-  });
-
   // Fetch user's memberships
   const { data: myChannelsData } = useQuery({
     queryKey: ['my-channels'],
@@ -50,29 +45,30 @@ export default function ChannelsPage() {
   // Create channel mutation
   const createMutation = useMutation({
     mutationFn: (data: ChannelCreate) => channelsApi.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['channels'] });
+    onSuccess: (created) => {
+      queryClient.invalidateQueries({ queryKey: ['my-channels'] });
       setShowCreateForm(false);
       setFormData({ name: '', description: '', channel_type: 'general', is_private: false });
+      showBanner('success', `Channel created. Join code: ${created.join_code || 'N/A'}`);
     },
+    onError: () => showBanner('error', 'Unable to create channel.'),
   });
 
   // Join channel mutation
   const joinMutation = useMutation({
-    mutationFn: ({ id }: { id: number; name: string }) => membershipsApi.join(id),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['channels'] });
+    mutationFn: (code: string) => membershipsApi.join(code),
+    onSuccess: (membership) => {
       queryClient.invalidateQueries({ queryKey: ['my-channels'] });
-      showBanner('success', `Joined ${variables.name} channel`);
+      setJoinCode('');
+      showBanner('success', `Joined ${membership.channel?.name || 'channel'}`);
     },
-    onError: () => showBanner('error', 'Unable to join channel. Please try again.'),
+    onError: () => showBanner('error', 'Invalid code or unable to join.'),
   });
 
   // Leave channel mutation
   const leaveMutation = useMutation({
     mutationFn: ({ id }: { id: number; name: string }) => membershipsApi.leave(id),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['channels'] });
       queryClient.invalidateQueries({ queryKey: ['my-channels'] });
       showBanner('success', `Left ${variables.name} channel`);
     },
@@ -84,7 +80,6 @@ export default function ChannelsPage() {
     createMutation.mutate(formData);
   };
 
-  const channels = channelsData?.channels || [];
   const myMemberships = Array.isArray(myChannelsData)
     ? myChannelsData
     : myChannelsData?.channels || [];
@@ -97,7 +92,7 @@ export default function ChannelsPage() {
         membership.channel?.channel_id
     )
   );
-  const canCreateChannel = hasRole(['hr', 'admin', 'superadmin']);
+  const canCreateChannel = true;
 
   return (
     <AppLayout>
@@ -213,90 +208,79 @@ export default function ChannelsPage() {
           </div>
         )}
 
-        {/* Channels Grid */}
-        {isLoading ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-            Loading channels...
+        {/* Join by code */}
+        <div className="bg-white rounded-lg shadow p-6 space-y-3">
+          <h3 className="text-lg font-semibold text-gray-900">Join a channel with a code</h3>
+          <p className="text-sm text-gray-600">Enter the join code shared with you to access a channel.</p>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="text"
+              value={joinCode}
+              onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+              placeholder="e.g. ABCD1234"
+              className="flex-1 border border-gray-300 rounded px-3 py-2"
+            />
+            <button
+              onClick={() => joinMutation.mutate(joinCode.trim())}
+              disabled={!joinCode.trim() || joinMutation.isPending}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            >
+              {joinMutation.isPending ? 'Joining...' : 'Join'}
+            </button>
           </div>
-        ) : channels.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-            No channels yet. {canCreateChannel && 'Create one to get started!'}
+        </div>
+
+        {/* Create channel */}
+        <div className="bg-white rounded-lg shadow p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Create a channel</h3>
+              <p className="text-sm text-gray-600">Share the generated join code with teammates.</p>
+            </div>
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Create
+            </button>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {channels.map((channel: any) => {
-              const getChannelIcon = (type: string) => {
-                switch (type) {
-                  case 'general':
-                    return '💬';
-                  case 'department':
-                    return '🏢';
-                  case 'project':
-                    return '🧩';
-                  case 'announcement':
-                    return '📢';
-                  case 'social':
-                    return '🎉';
-                  default:
-                    return '💡';
-                }
-              };
-              const isMember = userChannelIds.has(channel.id);
-              return (
-                <div key={channel.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-2xl">
-                          {getChannelIcon(channel.channel_type)}
-                        </span>
-                        <h3 className="text-lg font-semibold text-gray-900">{channel.name}</h3>
+        </div>
+
+        {/* My channels */}
+        <div className="bg-white rounded-lg shadow p-6 space-y-3">
+          <h3 className="text-lg font-semibold text-gray-900">Your channels</h3>
+          {myMemberships.length === 0 ? (
+            <p className="text-sm text-gray-600">You have not joined any channels yet.</p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {myMemberships.map((membership: any) => {
+                const channelId = membership.channel_id || membership.channel?.id || membership.id;
+                const channelName = membership.channel?.name || membership.name || 'Channel';
+                const description = membership.channel?.description || membership.description || '';
+                return (
+                  <div key={channelId} className="border rounded-lg p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-base font-semibold text-gray-900">{channelName}</h4>
+                        <p className="text-xs text-gray-600">{description || 'No description'}</p>
                       </div>
-                      {channel.is_private && (
-                        <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded"> Private</span>
-                      )}
+                      <Link to={`/channels/${channelId}`} className="text-blue-600 text-sm hover:underline">
+                        Open
+                      </Link>
                     </div>
-
-                    {channel.description && (
-                      <p className="text-sm text-gray-600 mb-4 line-clamp-2">{channel.description}</p>
-                    )}
-
-                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                      <span>{channel.member_count || 0} members</span>
-                      <span className="capitalize">{channel.channel_type}</span>
-                    </div>
-
-                    {isMember ? (
-                      <div className="space-y-3">
-                        <Link
-                          to={`/channels/${channel.id}`}
-                          className="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                          Open Channel
-                        </Link>
-                        <button
-                          onClick={() => leaveMutation.mutate({ id: channel.id, name: channel.name })}
-                          disabled={leaveMutation.isPending}
-                          className="w-full px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50"
-                        >
-                          {leaveMutation.isPending ? 'Leaving...' : ' Leave Channel'}
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => joinMutation.mutate({ id: channel.id, name: channel.name })}
-                        disabled={joinMutation.isPending}
-                        className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-                      >
-                        {joinMutation.isPending ? 'Joining...' : ' Join Channel'}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => leaveMutation.mutate({ id: channelId, name: channelName })}
+                      disabled={leaveMutation.isPending}
+                      className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 disabled:opacity-50"
+                    >
+                      Leave
+                    </button>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </AppLayout>
   );

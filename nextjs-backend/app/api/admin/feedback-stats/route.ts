@@ -10,10 +10,13 @@ export async function OPTIONS(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
     try {
-        await requireAuth(request);
         const authUser = await requireRole(request, 'HR');
 
-        const baseWhere = { assignedTo: authUser.id };
+        // For SUPERADMIN, show stats across all feedback.
+        // For HR/Admin, stats are scoped to items assigned to them.
+        const baseWhere = authUser.role === 'SUPERADMIN'
+            ? {}
+            : { assignedTo: authUser.id };
         const now = new Date();
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(now.getDate() - 7);

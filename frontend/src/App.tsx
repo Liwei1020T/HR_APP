@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { queryClient } from './lib/queryClient';
 import { ProtectedRoute, PublicRoute, RoleProtectedRoute } from './components/ProtectedRoute';
 
@@ -21,6 +21,16 @@ import BirthdayRsvpPage from './pages/BirthdayRsvpPage';
 import ProfilePage from './pages/ProfilePage';
 import DirectMessagesPage from './pages/DirectMessagesPage';
 import AdminFeedbackDashboard from './pages/AdminFeedbackDashboard';
+import VendorFeedbackPage from './pages/VendorFeedbackPage';
+import VendorConversationPage from './pages/VendorConversationPage';
+
+const DashboardOrRedirect = () => {
+  const { user } = useAuth();
+  if (user?.role?.toUpperCase() === 'VENDOR') {
+    return <Navigate to="/vendor/feedback" replace />;
+  }
+  return <DashboardPage />;
+};
 
 function App() {
   return (
@@ -36,9 +46,7 @@ function App() {
 
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/feedback" element={<FeedbackPage />} />
-              <Route path="/feedback/:id" element={<FeedbackDetailPage />} />
+              <Route path="/" element={<DashboardOrRedirect />} />
               <Route path="/channels" element={<ChannelsPage />} />
               <Route path="/channels/:id" element={<ChannelDetailPage />} />
               <Route path="/direct-messages" element={<DirectMessagesPage />} />
@@ -48,12 +56,28 @@ function App() {
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
 
+            {/* Non-vendor feedback routes */}
+            <Route element={<RoleProtectedRoute roles={['EMPLOYEE', 'HR', 'ADMIN', 'SUPERADMIN']} />}>
+              <Route path="/feedback" element={<FeedbackPage />} />
+              <Route path="/feedback/:id" element={<FeedbackDetailPage />} />
+            </Route>
+
             {/* Admin-only routes */}
             <Route element={<RoleProtectedRoute roles={['HR', 'ADMIN', 'SUPERADMIN']} />}>
               <Route path="/admin" element={<AdminPage />} />
               <Route path="/admin/feedback" element={<AdminFeedbackDashboard />} />
               <Route path="/admin/birthdays" element={<BirthdayAdminPage />} />
               <Route path="/admin/birthdays/:eventId" element={<BirthdayEventDetailPage />} />
+            </Route>
+
+            {/* Vendor routes */}
+            <Route element={<RoleProtectedRoute roles={['VENDOR']} />}>
+              <Route path="/vendor/feedback" element={<VendorFeedbackPage />} />
+            </Route>
+
+            {/* Vendor conversation (HR/Admin/Superadmin/Vendor) */}
+            <Route element={<RoleProtectedRoute roles={['HR', 'ADMIN', 'SUPERADMIN', 'VENDOR']} />}>
+              <Route path="/vendor-conversation/:id" element={<VendorConversationPage />} />
             </Route>
 
             {/* Catch all */}

@@ -49,6 +49,7 @@ model Channel {
   description String?
   channelType String   @default("general") @map("channel_type") // general, department, project, social, announcement
   isPrivate   Boolean  @default(false) @map("is_private")
+  joinCode    String   @unique @map("join_code")
   createdBy   Int      @map("created_by")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -160,6 +161,11 @@ model Feedback {
   priority    String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
   aiAnalysis  String?  @map("ai_analysis")
   isAnonymous Boolean  @default(false) @map("is_anonymous")
+  isVendorRelated Boolean @default(false) @map("is_vendor_related")
+  vendorAssignedTo Int?   @map("vendor_assigned_to")
+  vendorDueAt     DateTime? @map("vendor_due_at")
+  vendorLastResponseAt DateTime? @map("vendor_last_response_at")
+  vendorStatus   String  @default("NONE") @map("vendor_status") // NONE, FORWARDED, VENDOR_REPLIED, PAST_DUE, APPROVED, REJECTED
   submittedBy Int      @map("submitted_by")
   assignedTo  Int?     @map("assigned_to")
   createdAt   DateTime @default(now()) @map("created_at")
@@ -173,6 +179,8 @@ model Feedback {
 
   @@index([submittedBy])
   @@index([assignedTo])
+  @@index([vendorAssignedTo])
+  @@index([vendorStatus])
   @@index([status])
   @@index([priority])
   @@map("feedback")

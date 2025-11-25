@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { requireAuth, requireRole } from '@/lib/auth';
+import { requireAuth, hasRole } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { updateAnnouncementSchema } from '@/lib/validators/announcements';
 import { formatDate } from '@/lib/utils';
@@ -68,7 +68,10 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    await requireRole(request, 'HR');
+    const user = await requireAuth(request);
+    if (!hasRole(user, 'HR') && !hasRole(user, 'ADMIN') && !hasRole(user, 'SUPERADMIN')) {
+      throw new Error('Insufficient permissions');
+    }
     const announcementId = parseInt(params.id);
     const body = await request.json();
     const validated = updateAnnouncementSchema.parse(body);
@@ -119,7 +122,10 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await requireRole(request, 'ADMIN');
+    const user = await requireAuth(request);
+    if (!hasRole(user, 'HR') && !hasRole(user, 'ADMIN') && !hasRole(user, 'SUPERADMIN')) {
+      throw new Error('Insufficient permissions');
+    }
     const announcementId = parseInt(params.id);
 
     const announcement = await db.announcement.findUnique({
