@@ -120,6 +120,17 @@ export async function POST(
       },
     });
 
+    // Audit log: comment added
+    await db.auditLog.create({
+      data: {
+        userId: authUser.id,
+        action: isInternal ? 'ADD_INTERNAL_COMMENT' : 'ADD_COMMENT',
+        entityType: 'feedback',
+        entityId: feedbackId,
+        details: `Comment added by ${authUser.fullName}${isInternal ? ' (internal)' : ''}`,
+      },
+    });
+
     // Notify feedback submitter (if not internal and commenter is not submitter)
     if (!isInternal && authUser.id !== feedback.submittedBy) {
       await db.notification.create({

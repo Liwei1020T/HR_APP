@@ -15,7 +15,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    await requireRole(request, 'HR');
+    const authUser = await requireRole(request, 'HR');
     const feedbackId = parseInt(params.id);
     const body = await request.json();
     const validated = assignFeedbackSchema.parse(body);
@@ -41,6 +41,17 @@ export async function PATCH(
       data: {
         assignedTo: validated.assigned_to,
         status: 'UNDER_REVIEW',
+      },
+    });
+
+    // Audit log: feedback assigned
+    await db.auditLog.create({
+      data: {
+        userId: authUser.id,
+        action: 'ASSIGN_FEEDBACK',
+        entityType: 'feedback',
+        entityId: feedbackId,
+        details: `Assigned to user #${validated.assigned_to} (status UNDER_REVIEW)`,
       },
     });
 

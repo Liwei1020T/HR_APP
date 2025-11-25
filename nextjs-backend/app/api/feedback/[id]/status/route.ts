@@ -17,7 +17,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    await requireRole(request, 'HR');
+    const authUser = await requireRole(request, 'HR');
     const feedbackId = parseInt(params.id);
     const body = await request.json();
     const validated = updateFeedbackStatusSchema.parse(body);
@@ -38,6 +38,19 @@ export async function PATCH(
       data: {
         status: validated.status,
         ...(validated.assigned_to && { assignedTo: validated.assigned_to }),
+      },
+    });
+
+    // Audit log: status change (and optional reassignment)
+    await db.auditLog.create({
+      data: {
+        userId: authUser.id,
+        action: 'UPDATE_STATUS',
+        entityType: 'feedback',
+        entityId: feedbackId,
+        details: `Status changed to ${validated.status}${
+          validated.assigned_to ? `, assigned to user #${validated.assigned_to}` : ''
+        }`,
       },
     });
 

@@ -41,6 +41,17 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       },
     });
 
+    // Audit log: forwarded to vendor
+    await db.auditLog.create({
+      data: {
+        userId: authUser.id,
+        action: 'FORWARD_VENDOR',
+        entityType: 'feedback',
+        entityId: feedbackId,
+        details: `Forwarded to vendor user #${vendorId} with due date ${dueAt.toISOString()}`,
+      },
+    });
+
     // Log an internal comment with the instructions sent to the vendor
     await db.feedbackComment.create({
       data: {

@@ -31,6 +31,17 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     const hasReply = replyText && replyText.trim().length > 0;
 
+    // Audit log: vendor replied
+    await db.auditLog.create({
+      data: {
+        userId: vendorUser.id,
+        action: 'VENDOR_REPLIED',
+        entityType: 'feedback',
+        entityId: feedbackId,
+        details: hasReply ? 'Vendor submitted a reply' : 'Vendor marked as replied',
+      },
+    });
+
     if (hasReply) {
       await db.feedbackComment.create({
         data: {

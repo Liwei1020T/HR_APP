@@ -30,6 +30,19 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       },
     });
 
+    // Audit log: requested superadmin approval
+    await db.auditLog.create({
+      data: {
+        userId: authUser.id,
+        action: 'REQUEST_SUPERADMIN_REVIEW',
+        entityType: 'feedback',
+        entityId: feedbackId,
+        details: message
+          ? `Requested superadmin review with note: ${message}`
+          : 'Requested superadmin review',
+      },
+    });
+
     if (message) {
       await db.feedbackComment.create({
         data: {

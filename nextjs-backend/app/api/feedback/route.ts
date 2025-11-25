@@ -377,6 +377,17 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Audit log: feedback created
+    await db.auditLog.create({
+      data: {
+        userId: authUser.id,
+        action: 'CREATE_FEEDBACK',
+        entityType: 'feedback',
+        entityId: feedback.id,
+        details: `Feedback created with status ${feedback.status} and priority ${feedback.priority}`,
+      },
+    });
+
     const notificationTargets = autoAssignee
       ? hrUsers.filter((u) => u.id === autoAssignee.id)
       : hrUsers;

@@ -90,6 +90,7 @@ export default function FeedbackDetailPage() {
   const queryClient = useQueryClient();
   const { user, hasRole } = useAuth();
   const isHr = hasRole(['hr', 'admin', 'superadmin']);
+  const canViewTimeline = !!user && (user.role || '').toLowerCase() !== 'employee';
 
   const [comment, setComment] = useState('');
   const [isInternal, setIsInternal] = useState(false);
@@ -128,6 +129,11 @@ export default function FeedbackDetailPage() {
 
   const comments = commentsQuery.data?.comments ?? [];
   const feedback = feedbackQuery.data;
+  const timelineQuery = useQuery({
+    queryKey: ['feedback-timeline', feedbackId],
+    queryFn: () => feedbackApi.getTimeline(feedbackId),
+    enabled: Number.isFinite(feedbackId) && canViewTimeline,
+  });
   const vendorsQuery = useQuery({
     queryKey: ['vendor-users'],
     queryFn: () => adminApi.getAllUsers(),
@@ -374,6 +380,42 @@ export default function FeedbackDetailPage() {
                   <p className="text-sm text-gray-500 mt-1">Status: {formatStatus(feedback.status)}</p>
                 </div>
               </div>
+              {canViewTimeline && (
+                <div className="mt-6 border-t border-gray-200 pt-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Activity timeline</h3>
+                  {timelineQuery.isLoading ? (
+                    <p className="text-sm text-gray-500">Loading activity…</p>
+                  ) : !timelineQuery.data || timelineQuery.data.total === 0 ? (
+                    <p className="text-sm text-gray-500">No activity recorded yet.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {timelineQuery.data.events.map((event: any) => (
+                        <div key={event.id} className="flex items-start gap-3">
+                          <div className="mt-1 h-2 w-2 rounded-full bg-blue-500" />
+                          <div className="flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-sm font-semibold text-gray-900">
+                                {event.user?.full_name || 'System'}
+                              </span>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 uppercase tracking-wide">
+                                {event.action}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {event.created_at}
+                              </span>
+                            </div>
+                            {event.details && (
+                              <p className="text-sm text-gray-700 mt-1 whitespace-pre-line">
+                                {event.details}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               {(isHr || (user && user.role?.toUpperCase() === 'SUPERADMIN')) && (
                 <div className="rounded-lg border border-blue-100 bg-blue-50 p-4 space-y-2">
                   <div className="flex items-center justify-between gap-3">

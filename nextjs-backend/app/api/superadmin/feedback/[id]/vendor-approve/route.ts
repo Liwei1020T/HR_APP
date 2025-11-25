@@ -36,6 +36,19 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       },
     });
 
+    // Audit log: superadmin decision
+    await db.auditLog.create({
+      data: {
+        userId: superAdmin.id,
+        action: `VENDOR_${action}`,
+        entityType: 'feedback',
+        entityId: feedbackId,
+        details: comment
+          ? `Superadmin ${action.toLowerCase()} with comment: ${comment}`
+          : `Superadmin ${action.toLowerCase()} vendor response`,
+      },
+    });
+
     if (comment) {
       await db.feedbackComment.create({
         data: {

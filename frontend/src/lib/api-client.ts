@@ -231,6 +231,13 @@ export const feedbackApi = {
     return response.data;
   },
 
+  getTimeline: async (
+    id: number
+  ): Promise<{ events: any[]; total: number }> => {
+    const response = await api.get(`/feedback/${id}/timeline`);
+    return response.data;
+  },
+
   updateStatus: async (id: number, status: string): Promise<Feedback> => {
     const response = await api.patch<Feedback>(`/feedback/${id}/status`, { status });
     return response.data;

@@ -101,6 +101,17 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       },
     });
 
+    // Audit log: vendor/admin conversation message
+    await db.auditLog.create({
+      data: {
+        userId: authUser.id,
+        action: 'VENDOR_THREAD_MESSAGE',
+        entityType: 'feedback',
+        entityId: feedbackId,
+        details: 'Message added to vendor conversation thread',
+      },
+    });
+
     const attachmentIds = validated.attachments ?? [];
     if (attachmentIds.length) {
       await assignFilesToEntity({
