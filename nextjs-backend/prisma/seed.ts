@@ -155,6 +155,7 @@ async function main() {
       channelType: 'announcement',
       isPrivate: false,
       createdBy: admin.id,
+      joinCode: 'GENERAL-ANNOUNCE',
     },
   });
 
@@ -165,6 +166,7 @@ async function main() {
       channelType: 'hr',
       isPrivate: false,
       createdBy: hrManager.id,
+      joinCode: 'HR-UPDATES',
     },
   });
 
@@ -175,6 +177,7 @@ async function main() {
       channelType: 'team',
       isPrivate: true,
       createdBy: employee1.id,
+      joinCode: 'ENGINEERING-TEAM',
     },
   });
 
