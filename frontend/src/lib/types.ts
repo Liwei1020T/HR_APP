@@ -66,6 +66,7 @@ export interface ChannelMember {
   joined_at: string;
   user_name: string;
   user_email: string;
+  channel?: Channel;
 }
 
 export interface ChannelMessage {
@@ -152,6 +153,7 @@ export interface FeedbackComment {
     id: number;
     email: string;
     full_name: string;
+    role?: string;
   };
   attachments?: FileUpload[];
 }

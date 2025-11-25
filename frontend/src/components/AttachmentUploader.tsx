@@ -15,11 +15,12 @@ export function useAttachmentUpload(maxFiles: number = 4) {
   const [attachments, setAttachments] = useState<AttachmentState[]>([]);
 
   const addFiles = useCallback(
-    async (fileList: FileList | null) => {
-      if (!fileList) return;
+    async (fileInput: FileList | File[] | null) => {
+      if (!fileInput) return;
       const availableSlots = maxFiles - attachments.length;
       if (availableSlots <= 0) return;
-      const files = Array.from(fileList).slice(0, availableSlots);
+      const filesArray = Array.isArray(fileInput) ? fileInput : Array.from(fileInput);
+      const files = filesArray.slice(0, availableSlots);
 
       for (const file of files) {
         const localId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;

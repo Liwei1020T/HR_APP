@@ -1,13 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
-import { useAuth } from '../contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { channelsApi, membershipsApi } from '../lib/api-client';
 import type { ChannelCreate } from '../lib/types';
 
 export default function ChannelsPage() {
-  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState<ChannelCreate>({
@@ -83,15 +81,6 @@ export default function ChannelsPage() {
   const myMemberships = Array.isArray(myChannelsData)
     ? myChannelsData
     : myChannelsData?.channels || [];
-  const userChannelIds = new Set(
-    myMemberships.map(
-      (membership: any) =>
-        membership.channel_id ??
-        membership.channel?.id ??
-        membership.channelId ??
-        membership.channel?.channel_id
-    )
-  );
   const canCreateChannel = true;
 
   return (

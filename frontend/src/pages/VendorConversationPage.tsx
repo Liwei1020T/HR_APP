@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AppLayout from '../components/AppLayout';
 import { feedbackApi } from '../lib/api-client';
-import { useAuth } from '../contexts/AuthContext';
 import { AttachmentList } from '../components/AttachmentList';
 import { AttachmentPreviewList, useAttachmentUpload } from '../components/AttachmentUploader';
 
@@ -11,7 +10,6 @@ export default function VendorConversationPage() {
   const { id } = useParams();
   const feedbackId = Number(id);
   const queryClient = useQueryClient();
-  const { user } = useAuth();
   const [message, setMessage] = useState('');
   const {
     attachments,
