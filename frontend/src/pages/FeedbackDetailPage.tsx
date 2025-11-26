@@ -197,6 +197,28 @@ export default function FeedbackDetailPage() {
     },
   });
 
+  const requestApprovalMutation = useMutation({
+    mutationFn: () => adminApi.requestSuperadminReview(feedbackId),
+    onSuccess: () => {
+      setToastMessage({ text: 'Approval request sent to Superadmin.', type: 'success' });
+    },
+    onError: () => setToastMessage({ text: 'Failed to send request.', type: 'error' }),
+  });
+
+  const approveVendorMutation = useMutation({
+    mutationFn: ({ action, comment }: { action: 'approve' | 'reject'; comment?: string }) =>
+      adminApi.approveVendorReply(feedbackId, action, comment),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['feedback-detail', feedbackId] });
+      queryClient.invalidateQueries({ queryKey: ['feedback'] });
+      setToastMessage({
+        text: variables.action === 'approve' ? 'Vendor response approved.' : 'Vendor response rejected.',
+        type: 'success',
+      });
+    },
+    onError: () => setToastMessage({ text: 'Failed to process approval.', type: 'error' }),
+  });
+
   const handleGenerateAIReply = async () => {
     if (!feedback) return;
 
@@ -406,6 +428,9 @@ export default function FeedbackDetailPage() {
                     forwardVendorMutation={forwardVendorMutation}
                     formatVendorStatus={formatVendorStatus}
                     canForward={canForwardToVendor}
+                    userRole={user?.role}
+                    requestApprovalMutation={requestApprovalMutation}
+                    approveVendorMutation={approveVendorMutation}
                   />
                 )}
 

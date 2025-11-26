@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AppLayout from '../components/AppLayout';
 import { feedbackApi, authApi } from '../lib/api-client';
@@ -20,6 +20,7 @@ import {
 
 export default function VendorConversationPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const feedbackId = Number(id);
   const queryClient = useQueryClient();
   const [message, setMessage] = useState('');
@@ -96,13 +97,13 @@ export default function VendorConversationPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <Link
-              to="/vendor/feedback"
+            <button
+              onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors mb-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Dashboard
-            </Link>
+              Back
+            </button>
             <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
               <MessageSquare className="h-6 w-6 text-blue-600" />
               Vendor Conversation
