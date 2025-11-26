@@ -70,8 +70,8 @@ export default function FeedbackPage() {
   const [selectedStatus, setSelectedStatus] = useState<typeof STATUS_OPTIONS[number]>('all');
   const [selectedPriority, setSelectedPriority] = useState<typeof PRIORITY_OPTIONS[number]>('all');
   const [sortBy, setSortBy] = useState<typeof SORT_OPTIONS[number]>('latest');
-  const [assignedFilter, setAssignedFilter] = useState<typeof ASSIGNED_OPTIONS[number]>('all');
-  const [slaFilter, setSlaFilter] = useState<typeof SLA_OPTIONS[number]>('all');
+  const [assignedFilter] = useState<typeof ASSIGNED_OPTIONS[number]>('all');
+  const [slaFilter] = useState<typeof SLA_OPTIONS[number]>('all');
   const [onlyAtRisk, setOnlyAtRisk] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);

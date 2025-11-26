@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AppLayout from '../components/AppLayout';
 import { feedbackApi, adminApi } from '../lib/api-client';
@@ -27,7 +27,11 @@ const STATUS_BADGE: Record<string, string> = {
 
 const STATUS_OPTIONS = ['SUBMITTED', 'UNDER_REVIEW', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const;
 
-const formatStatus = (status?: string) => status?.replace(/_/g, ' ').charAt(0) + status?.replace(/_/g, ' ').slice(1).toLowerCase() ?? '';
+const formatStatus = (status?: string) => {
+  if (!status) return '';
+  const normalized = status.replace(/_/g, ' ');
+  return normalized.charAt(0) + normalized.slice(1).toLowerCase();
+};
 
 const getPriorityBadgeStyles = (priority?: string) => {
   switch (priority) {
@@ -69,29 +73,6 @@ const formatVendorStatus = (status?: string) => {
   return status.replace(/_/g, ' ');
 };
 
-const tzOptions: Intl.DateTimeFormatOptions = {
-  timeZone: 'Asia/Shanghai',
-  hour12: false,
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-};
-
-const formatExactBreachTime = (secondsToBreach?: number | null, secondsSinceBreach?: number | null) => {
-  const now = Date.now();
-  if (secondsToBreach !== null && secondsToBreach !== undefined && secondsToBreach >= 0) {
-    const breachAt = new Date(now + secondsToBreach * 1000);
-    return breachAt.toLocaleString(undefined, tzOptions);
-  }
-  if (secondsSinceBreach !== null && secondsSinceBreach !== undefined && secondsSinceBreach >= 0) {
-    const breachAt = new Date(now - secondsSinceBreach * 1000);
-    return breachAt.toLocaleString(undefined, tzOptions);
-  }
-  return '';
-};
-
 export default function FeedbackDetailPage() {
   const { id } = useParams();
   const feedbackId = Number(id);
@@ -110,7 +91,6 @@ export default function FeedbackDetailPage() {
     removeAttachment: removeCommentAttachment,
     resetAttachments: resetCommentAttachments,
     attachmentIds: commentAttachmentIds,
-    isUploading: commentUploading,
   } = useAttachmentUpload(4);
   const commentFileInputRef = useRef<HTMLInputElement | null>(null);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
@@ -118,8 +98,6 @@ export default function FeedbackDetailPage() {
   const [vendorIdInput, setVendorIdInput] = useState<number | ''>('');
   const [vendorDueDays, setVendorDueDays] = useState(7);
   const [vendorMessage, setVendorMessage] = useState('');
-  const [superAdminComment, setSuperAdminComment] = useState('');
-  const [superAdminRequest, setSuperAdminRequest] = useState('');
   const [vendorSearch, setVendorSearch] = useState('');
   const [vendorPage, setVendorPage] = useState(1);
   const VENDOR_PAGE_SIZE = 10;
@@ -210,29 +188,6 @@ export default function FeedbackDetailPage() {
       alert('Forwarded to vendor');
     },
     onError: () => alert('Forward to vendor failed'),
-  });
-
-  const approveVendorMutation = useMutation({
-    mutationFn: (action: 'approve' | 'reject') =>
-      adminApi.approveVendorReply(feedbackId, action, superAdminComment.trim()),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['feedback-detail', feedbackId] });
-      queryClient.invalidateQueries({ queryKey: ['feedback'] });
-      alert('Updated vendor approval status');
-      setSuperAdminComment('');
-    },
-    onError: () => alert('Approval action failed'),
-  });
-
-  const requestSuperadminMutation = useMutation({
-    mutationFn: () => adminApi.requestSuperadminReview(feedbackId, superAdminRequest.trim()),
-    onSuccess: () => {
-      setSuperAdminRequest('');
-      queryClient.invalidateQueries({ queryKey: ['feedback-detail', feedbackId] });
-      queryClient.invalidateQueries({ queryKey: ['feedback'] });
-      alert('Sent to superadmin for review');
-    },
-    onError: () => alert('Failed to send for superadmin review'),
   });
 
   const handleGenerateAIReply = async () => {
@@ -388,7 +343,6 @@ export default function FeedbackDetailPage() {
                     ) : (
                       comments.map((entry: any) => {
                         const isMe = user?.id === entry.user_id;
-                        const isSystem = !entry.user_id; // Assuming system messages have no user_id
 
                         return (
                           <div key={entry.id} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
