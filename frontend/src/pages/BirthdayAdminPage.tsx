@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import { birthdayApi } from '../lib/api-client';
+import { StatusToast } from '../components/StatusToast';
 import {
   Calendar,
   MapPin,
@@ -62,6 +63,7 @@ export default function BirthdayAdminPage() {
     location: '',
     eventDate: '',
   });
+  const [toast, setToast] = useState<{ text: string; type?: 'success' | 'error' } | null>(null);
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -99,7 +101,9 @@ export default function BirthdayAdminPage() {
     mutationFn: birthdayApi.createOrUpdateEvent,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['birthday-events'] });
+      setToast({ text: 'Birthday event saved.', type: 'success' });
     },
+    onError: () => setToast({ text: 'Failed to save birthday event.', type: 'error' }),
   });
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -129,8 +133,21 @@ export default function BirthdayAdminPage() {
     (a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
   );
 
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
   return (
     <AppLayout>
+      {toast && (
+        <StatusToast
+          message={toast.text}
+          variant={toast.type || 'success'}
+          onClose={() => setToast(null)}
+        />
+      )}
       <div className="space-y-8">
         {/* Header Section */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 p-8 shadow-lg">

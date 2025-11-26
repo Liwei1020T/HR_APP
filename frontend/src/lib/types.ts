@@ -114,6 +114,7 @@ export interface Feedback {
   id: number;
   title: string;
   content: string;
+  description?: string;
   category: 'workplace' | 'benefits' | 'management' | 'culture' | 'compensation' | 'training' | 'other';
   status: 'pending' | 'reviewed' | 'resolved' | 'closed';
   priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';

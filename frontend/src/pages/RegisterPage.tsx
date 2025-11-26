@@ -12,7 +12,6 @@ import {
   Lock,
   ArrowRight,
   CheckCircle2,
-  Crown,
   BadgeCheck,
   UserPlus
 } from 'lucide-react';

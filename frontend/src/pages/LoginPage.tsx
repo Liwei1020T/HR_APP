@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Mail, Lock, User, Briefcase, Settings, Crown, ArrowRight, LogIn } from 'lucide-react';
+import { Mail, Lock, User, Briefcase, Settings, Crown, LogIn } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');

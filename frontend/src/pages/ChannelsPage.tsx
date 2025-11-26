@@ -4,6 +4,7 @@ import AppLayout from '../components/AppLayout';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { channelsApi, membershipsApi } from '../lib/api-client';
 import type { ChannelCreate } from '../lib/types';
+import { StatusToast } from '../components/StatusToast';
 import {
   Hash,
   Plus,
@@ -27,25 +28,19 @@ export default function ChannelsPage() {
     channel_type: 'general',
     is_private: false,
   });
-  const [banner, setBanner] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [joinCode, setJoinCode] = useState('');
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [lastJoinCode, setLastJoinCode] = useState('');
   const bannerTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showBanner = (type: 'success' | 'error', text: string) => {
-    if (bannerTimeoutRef.current) {
-      clearTimeout(bannerTimeoutRef.current);
-    }
-    setBanner({ type, text });
-    bannerTimeoutRef.current = setTimeout(() => setBanner(null), 3000);
-  };
-
   useEffect(() => {
+    if (!toast) return;
+    if (bannerTimeoutRef.current) clearTimeout(bannerTimeoutRef.current);
+    bannerTimeoutRef.current = setTimeout(() => setToast(null), 3000);
     return () => {
-      if (bannerTimeoutRef.current) {
-        clearTimeout(bannerTimeoutRef.current);
-      }
+      if (bannerTimeoutRef.current) clearTimeout(bannerTimeoutRef.current);
     };
-  }, []);
+  }, [toast]);
 
   // Fetch user's memberships
   const { data: myChannelsData } = useQuery({
@@ -60,9 +55,11 @@ export default function ChannelsPage() {
       queryClient.invalidateQueries({ queryKey: ['my-channels'] });
       setShowCreateForm(false);
       setFormData({ name: '', description: '', channel_type: 'general', is_private: false });
-      showBanner('success', `Channel created. Join code: ${created.join_code || 'N/A'}`);
+      const code = created.join_code || 'N/A';
+      setLastJoinCode(code);
+      setToast({ type: 'success', text: `Channel created. Join code: ${code}` });
     },
-    onError: () => showBanner('error', 'Unable to create channel.'),
+    onError: () => setToast({ type: 'error', text: 'Unable to create channel.' }),
   });
 
   // Join channel mutation
@@ -71,9 +68,9 @@ export default function ChannelsPage() {
     onSuccess: (membership) => {
       queryClient.invalidateQueries({ queryKey: ['my-channels'] });
       setJoinCode('');
-      showBanner('success', `Joined ${membership.channel?.name || 'channel'}`);
+      setToast({ type: 'success', text: `Joined ${membership.channel?.name || 'channel'}` });
     },
-    onError: () => showBanner('error', 'Invalid code or unable to join.'),
+    onError: () => setToast({ type: 'error', text: 'Invalid code or unable to join.' }),
   });
 
   // Leave channel mutation
@@ -81,9 +78,9 @@ export default function ChannelsPage() {
     mutationFn: ({ id }: { id: number; name: string }) => membershipsApi.leave(id),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['my-channels'] });
-      showBanner('success', `Left ${variables.name} channel`);
+      setToast({ type: 'success', text: `Left ${variables.name} channel` });
     },
-    onError: () => showBanner('error', 'Unable to leave channel. Please try again.'),
+    onError: () => setToast({ type: 'error', text: 'Unable to leave channel. Please try again.' }),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -100,24 +97,12 @@ export default function ChannelsPage() {
 
   return (
     <AppLayout>
-      {banner && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pointer-events-none">
-          <div
-            className={`mt-6 px-6 py-3 rounded-xl shadow-lg backdrop-blur-md transition-all duration-300 transform translate-y-0 ${banner.type === 'success'
-              ? 'bg-green-500/90 text-white'
-              : 'bg-red-500/90 text-white'
-              }`}
-          >
-            <div className="flex items-center gap-2 font-medium">
-              {banner.type === 'success' ? (
-                <div className="p-1 bg-white/20 rounded-full"><ArrowRight className="h-4 w-4" /></div>
-              ) : (
-                <div className="p-1 bg-white/20 rounded-full"><X className="h-4 w-4" /></div>
-              )}
-              {banner.text}
-            </div>
-          </div>
-        </div>
+      {toast && (
+        <StatusToast
+          message={toast.text}
+          variant={toast.type}
+          onClose={() => setToast(null)}
+        />
       )}
 
       <div className="space-y-8">
@@ -202,6 +187,25 @@ export default function ChannelsPage() {
               >
                 Create new channel <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </button>
+              {lastJoinCode && (
+                <div className="mt-4 p-3 bg-white border border-indigo-100 rounded-lg text-sm text-gray-700 flex items-center justify-between gap-3">
+                  <span className="font-medium">Last join code: {lastJoinCode}</span>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(lastJoinCode);
+                        setToast({ type: 'success', text: 'Join code copied.' });
+                      } catch {
+                        setToast({ type: 'error', text: 'Copy failed.' });
+                      }
+                    }}
+                    className="px-3 py-1 text-xs font-semibold bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 

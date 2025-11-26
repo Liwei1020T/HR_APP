@@ -101,6 +101,7 @@ CREATE TABLE channel_messages (
 
 CREATE INDEX channel_messages_channel_id_idx ON channel_messages(channel_id);
 CREATE INDEX channel_messages_user_id_idx ON channel_messages(user_id);
+CREATE INDEX channel_messages_channel_id_created_at_idx ON channel_messages(channel_id, created_at);
 
 -- ============================================
 -- TABLE: direct_conversations
@@ -204,6 +205,7 @@ CREATE TABLE feedback_comments (
 
 CREATE INDEX feedback_comments_feedback_id_idx ON feedback_comments(feedback_id);
 CREATE INDEX feedback_comments_user_id_idx ON feedback_comments(user_id);
+CREATE INDEX feedback_comments_feedback_id_created_at_idx ON feedback_comments(feedback_id, created_at);
 
 -- ============================================
 -- TABLE: notifications
@@ -349,10 +351,9 @@ INSERT INTO users (email, password, full_name, role, department, employee_id, da
 ('vendor.facility@company.com', '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'Facility Vendor', 'VENDOR', 'Facilities Vendor', 'VEN-FAC-001', '1985-07-15', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('vendor.it@company.com',        '$2b$10$/GRRydnbO/9KD0FWrHLcJ.C48Mi8Kc4UjUTHMOsCE90zJYVQ84Z8G', 'IT Support Vendor', 'VENDOR', 'IT Vendor',        'VEN-IT-001',  '1983-11-02', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
--- ============================================
 -- DEMO DATA - CHANNELS
 -- ============================================
-INSERT INTO channels (name, description, channel_type, is_private, created_by, created_at, updated_at) VALUES
+INSERT INTO channels (name, description, channel_type, is_private, join_code, created_by, created_at, updated_at) VALUES
 ('General', 'General company-wide discussions', 'general', false, 'GENERAL01', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('Engineering Team', 'Engineering department channel', 'department', false, 'ENGTEAM1', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('HR Announcements', 'Official HR announcements and updates', 'announcement', false, 'HRANN01', 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AppLayout from '../components/AppLayout';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import type { Announcement, AnnouncementCreate } from '../lib/types';
 import { AttachmentPreviewList, useAttachmentUpload } from '../components/AttachmentUploader';
 import { AttachmentList } from '../components/AttachmentList';
+import { StatusToast } from '../components/StatusToast';
 
 import {
   Megaphone,
@@ -51,6 +52,13 @@ export default function AnnouncementsPage() {
   });
   const announcementAttachments = useAttachmentUpload(4);
   const attachmentInputRef = useRef<HTMLInputElement | null>(null);
+  const [toast, setToast] = useState<{ text: string; type?: 'success' | 'error' } | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   const { hasRole } = useAuth();
   const canManage = hasRole(['hr', 'admin', 'superadmin']);
@@ -79,7 +87,9 @@ export default function AnnouncementsPage() {
         is_pinned: false,
       });
       announcementAttachments.resetAttachments();
+      setToast({ text: 'Announcement created.', type: 'success' });
     },
+    onError: () => setToast({ text: 'Failed to create announcement.', type: 'error' }),
   });
 
   const updateAnnouncement = useMutation({
@@ -87,7 +97,9 @@ export default function AnnouncementsPage() {
       announcementsApi.update(vars.id, vars.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['announcements'] });
+      setToast({ text: 'Announcement updated.', type: 'success' });
     },
+    onError: () => setToast({ text: 'Failed to update announcement.', type: 'error' }),
   });
 
   const deleteAnnouncement = useMutation({
@@ -95,7 +107,9 @@ export default function AnnouncementsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['announcements'] });
       setSelectedAnnouncement(null);
+      setToast({ text: 'Announcement deleted.', type: 'success' });
     },
+    onError: () => setToast({ text: 'Failed to delete announcement.', type: 'error' }),
   });
 
   const handleCreateSubmit = (e: React.FormEvent) => {
@@ -185,6 +199,13 @@ export default function AnnouncementsPage() {
 
   return (
     <AppLayout>
+      {toast && (
+        <StatusToast
+          message={toast.text}
+          variant={toast.type || 'success'}
+          onClose={() => setToast(null)}
+        />
+      )}
       <div className="space-y-8">
         {/* Header Section */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 p-8 shadow-lg">
@@ -442,58 +463,78 @@ export default function AnnouncementsPage() {
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <div className="fixed inset-0 bg-gray-900/75 backdrop-blur-sm transition-opacity" onClick={() => setSelectedAnnouncement(null)}></div>
 
-            <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl">
-              <div className="bg-white px-4 pb-4 pt-5 sm:p-8 sm:pb-8">
-                <div className="flex justify-between items-start mb-6">
-                  <div className="flex items-start gap-4">
-                    <div className={`p-3 rounded-xl ${getCategoryMeta(selectedAnnouncement.category).bgColor} ${getCategoryMeta(selectedAnnouncement.category).color}`}>
+            <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-3xl border border-gray-100">
+              {/* Modal Header */}
+              <div className={`relative px-6 py-8 ${getCategoryMeta(selectedAnnouncement.category).bgColor} overflow-hidden`}>
+                <div className="absolute top-0 right-0 -mt-10 -mr-10 h-40 w-40 rounded-full bg-white/20 blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 -mb-10 -ml-10 h-40 w-40 rounded-full bg-white/20 blur-3xl"></div>
+
+                <div className="relative flex justify-between items-start z-10">
+                  <div className="flex items-start gap-5">
+                    <div className={`p-3.5 rounded-2xl bg-white shadow-sm ${getCategoryMeta(selectedAnnouncement.category).color}`}>
                       {(() => {
                         const Icon = getCategoryMeta(selectedAnnouncement.category).icon;
                         return <Icon className="h-8 w-8" />;
                       })()}
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2">{selectedAnnouncement.title}</h3>
-                      <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
-                        <span className={`px-2.5 py-0.5 rounded-full font-medium ${getCategoryMeta(selectedAnnouncement.category).bgColor} ${getCategoryMeta(selectedAnnouncement.category).color}`}>
+                      <div className="flex flex-wrap items-center gap-3 mb-3">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-white/60 backdrop-blur-sm ${getCategoryMeta(selectedAnnouncement.category).color}`}>
                           {getCategoryMeta(selectedAnnouncement.category).label}
                         </span>
-                        <span className="flex items-center gap-1">
-                          <User className="h-4 w-4" />
-                          {formatCreatorName(selectedAnnouncement)}
-                        </span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          {new Date(selectedAnnouncement.created_at).toLocaleString()}
-                        </span>
+                        {selectedAnnouncement.is_pinned && (
+                          <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold border border-amber-200">
+                            <Pin className="h-3 w-3 fill-amber-700" />
+                            Pinned
+                          </span>
+                        )}
                       </div>
+                      <h3 className="text-3xl font-bold text-gray-900 leading-tight">{selectedAnnouncement.title}</h3>
                     </div>
                   </div>
                   <button
                     onClick={() => setSelectedAnnouncement(null)}
-                    className="text-gray-400 hover:text-gray-500 transition-colors p-2 hover:bg-gray-100 rounded-lg"
+                    className="p-2 bg-white/50 hover:bg-white rounded-full text-gray-500 hover:text-gray-700 transition-all shadow-sm hover:shadow-md"
                   >
-                    <X className="h-6 w-6" />
+                    <X className="h-5 w-5" />
                   </button>
                 </div>
+              </div>
 
-                <div className="prose prose-blue max-w-none mb-8">
-                  <p className="text-gray-700 whitespace-pre-line text-base leading-relaxed">
-                    {selectedAnnouncement.content}
-                  </p>
+              {/* Modal Content */}
+              <div className="px-8 py-6">
+                {/* Metadata Bar */}
+                <div className="flex items-center gap-6 text-sm text-gray-500 pb-6 border-b border-gray-100 mb-6">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-sm">
+                      <User className="h-4 w-4" />
+                    </div>
+                    <span className="font-medium text-gray-900">{formatCreatorName(selectedAnnouncement)}</span>
+                  </div>
+                  <div className="h-4 w-px bg-gray-200"></div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-gray-400" />
+                    <span>{new Date(selectedAnnouncement.created_at).toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' })}</span>
+                  </div>
+                </div>
+
+                <div className="prose prose-lg prose-blue max-w-none mb-8 text-gray-600 leading-relaxed">
+                  <p className="whitespace-pre-line">{selectedAnnouncement.content}</p>
                 </div>
 
                 {selectedAnnouncement.attachments && selectedAnnouncement.attachments.length > 0 && (
-                  <div className="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-gray-500" />
-                      Attachments
+                  <div className="mb-8">
+                    <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-blue-600" />
+                      Attachments ({selectedAnnouncement.attachments.length})
                     </h4>
-                    <AttachmentList attachments={selectedAnnouncement.attachments} />
+                    <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                      <AttachmentList attachments={selectedAnnouncement.attachments} />
+                    </div>
                   </div>
                 )}
 
+                {/* Footer Actions */}
                 <div className="flex items-center justify-between pt-6 border-t border-gray-100">
                   {canManage ? (
                     <div className="flex items-center gap-3">
@@ -510,14 +551,15 @@ export default function AnnouncementsPage() {
                           });
                         }}
                         disabled={updateAnnouncement.isPending}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${selectedAnnouncement.is_pinned
-                          ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm border ${selectedAnnouncement.is_pinned
+                          ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                          : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
                           }`}
                       >
                         <Pin className={`h-4 w-4 ${selectedAnnouncement.is_pinned ? 'fill-amber-700' : ''}`} />
-                        {selectedAnnouncement.is_pinned ? 'Unpin' : 'Pin'}
+                        {selectedAnnouncement.is_pinned ? 'Unpin Announcement' : 'Pin to Top'}
                       </button>
+
                       <button
                         onClick={() => {
                           if (!selectedAnnouncement) return;
@@ -528,7 +570,7 @@ export default function AnnouncementsPage() {
                           }
                         }}
                         disabled={deleteAnnouncement.isPending}
-                        className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors"
+                        className="flex items-center gap-2 px-4 py-2.5 bg-white text-red-600 border border-red-200 rounded-xl text-sm font-semibold hover:bg-red-50 hover:border-red-300 transition-all shadow-sm"
                       >
                         <Trash2 className="h-4 w-4" />
                         Delete
@@ -539,7 +581,7 @@ export default function AnnouncementsPage() {
                   )}
                   <button
                     onClick={() => setSelectedAnnouncement(null)}
-                    className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                    className="px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                   >
                     Close
                   </button>

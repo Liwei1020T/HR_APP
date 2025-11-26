@@ -6,6 +6,7 @@ import { channelsApi } from '../lib/api-client';
 import { useAuth } from '../contexts/AuthContext';
 import { AttachmentList } from '../components/AttachmentList';
 import { AttachmentPreviewList, useAttachmentUpload } from '../components/AttachmentUploader';
+import { StatusToast } from '../components/StatusToast';
 
 export default function ChannelDetailPage() {
   const { id } = useParams();
@@ -16,6 +17,7 @@ export default function ChannelDetailPage() {
   const [copied, setCopied] = useState(false);
   const [message, setMessage] = useState('');
   const [sendAsAnnouncement, setSendAsAnnouncement] = useState(false);
+  const [toast, setToast] = useState<{ text: string; type?: 'success' | 'error' } | null>(null);
   const {
     attachments: chatAttachments,
     addFiles: addChatFiles,
@@ -26,6 +28,11 @@ export default function ChannelDetailPage() {
   } = useAttachmentUpload(4);
   const chatFileInputRef = useRef<HTMLInputElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   const channelQuery = useQuery({
     queryKey: ['channel', channelId],
@@ -51,7 +58,9 @@ export default function ChannelDetailPage() {
       setSendAsAnnouncement(false);
       queryClient.invalidateQueries({ queryKey: ['channel-messages', channelId] });
       resetChatAttachments();
+      setToast({ text: 'Message sent.', type: 'success' });
     },
+    onError: () => setToast({ text: 'Failed to send message.', type: 'error' }),
   });
 
   const pinMessageMutation = useMutation({
@@ -59,7 +68,9 @@ export default function ChannelDetailPage() {
       channelsApi.pinMessage(channelId, messageId, isPinned),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['channel-messages', channelId] });
+      setToast({ text: 'Pinned status updated.', type: 'success' });
     },
+    onError: () => setToast({ text: 'Failed to update pin.', type: 'error' }),
   });
 
   useEffect(() => {
@@ -84,6 +95,13 @@ export default function ChannelDetailPage() {
 
   return (
     <AppLayout>
+      {toast && (
+        <StatusToast
+          message={toast.text}
+          variant={toast.type || 'success'}
+          onClose={() => setToast(null)}
+        />
+      )}
       <div className="space-y-6 max-w-5xl mx-auto">
         <button
           onClick={() => navigate('/channels')}
@@ -114,6 +132,7 @@ export default function ChannelDetailPage() {
                       onClick={() => {
                         navigator.clipboard.writeText(channelQuery.data.join_code || '');
                         setCopied(true);
+                        setToast({ text: 'Join code copied.', type: 'success' });
                         setTimeout(() => setCopied(false), 1500);
                       }}
                       className="text-blue-600 text-xs font-semibold hover:underline"

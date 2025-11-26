@@ -1,13 +1,16 @@
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AppLayout from '../components/AppLayout';
 import { birthdayApi } from '../lib/api-client';
+import { StatusToast } from '../components/StatusToast';
 
 export default function BirthdayRsvpPage() {
   const { eventId } = useParams();
   const numericEventId = Number(eventId);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [toast, setToast] = useState<{ text: string; type?: 'success' | 'error' } | null>(null);
 
   const eventQuery = useQuery({
     queryKey: ['birthday-event', numericEventId, 'rsvp'],
@@ -20,8 +23,16 @@ export default function BirthdayRsvpPage() {
       birthdayApi.submitRsvp(numericEventId, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['birthday-event', numericEventId, 'rsvp'] });
+      setToast({ text: 'RSVP updated.', type: 'success' });
     },
+    onError: () => setToast({ text: 'Failed to update RSVP.', type: 'error' }),
   });
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   if (!Number.isFinite(numericEventId)) {
     return (
@@ -37,6 +48,13 @@ export default function BirthdayRsvpPage() {
 
   return (
     <AppLayout>
+      {toast && (
+        <StatusToast
+          message={toast.text}
+          variant={toast.type || 'success'}
+          onClose={() => setToast(null)}
+        />
+      )}
       <div className="max-w-3xl mx-auto space-y-6">
         <button
           onClick={() => navigate(-1)}
