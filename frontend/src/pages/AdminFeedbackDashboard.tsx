@@ -161,7 +161,10 @@ export default function AdminFeedbackDashboard() {
                 {/* Navigation Tabs */}
                 <div className="bg-white rounded-lg shadow">
                     <div className="border-b border-gray-200">
-                        <nav className="flex space-x-4 px-6" aria-label="Tabs">
+                        <nav
+                            className="flex space-x-3 px-4 sm:px-6 overflow-x-auto no-scrollbar"
+                            aria-label="Tabs"
+                        >
                             {[
                                 { id: 'dashboard', label: 'Dashboard', icon: <BarChart className="w-4 h-4 mr-2" /> },
                                 { id: 'complaints', label: 'All Complaints', icon: <MessageSquare className="w-4 h-4 mr-2" /> },
@@ -174,7 +177,7 @@ export default function AdminFeedbackDashboard() {
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id as any)}
-                                    className={`py-4 px-3 border-b-2 font-medium text-sm transition-colors flex items-center ${activeTab === tab.id
+                                    className={`py-4 px-3 border-b-2 font-medium text-sm transition-colors flex items-center flex-shrink-0 ${activeTab === tab.id
                                         ? 'border-blue-600 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                         }`}
