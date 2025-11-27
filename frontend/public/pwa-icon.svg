@@ -1,0 +1,16 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Jabil Icon">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b3f6f" />
+      <stop offset="100%" stop-color="#155b9a" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)" />
+  <g transform="translate(64,180) scale(0.9)">
+    <path fill="#ffffff" d="M28 0h48c28 0 44 13 44 38 0 15-6 27-17 33l20 49h-36l-16-41h-9v41H28V0zm36 51h12c8 0 13-4 13-13 0-8-5-12-13-12H64v25z" />
+    <path fill="#ffffff" d="M135 0h36l26 82h2l26-82h35l-47 120h-31L135 0z" />
+    <path fill="#0f9a6c" d="M228 66 300 41 228 15v51z" />
+    <path fill="#ffffff" d="M318 0h36v120h-36V0z" />
+    <path fill="#ffffff" d="M376 0h36v90h46v30h-82V0z" />
+  </g>
+</svg>

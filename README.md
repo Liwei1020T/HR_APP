@@ -2,6 +2,19 @@
 
 A production-ready HR management system deployed on Render with React (TypeScript) frontend and Next.js 14 API backend.
 
+## 📑 Table of Contents
+- [Live Demo](#-live-demo)
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [Page Guide](#-page-guide)
+- [How to Use](#-how-to-use)
+- [Architecture](#-architecture)
+- [Tech Stack](#-tech-stack)
+- [Getting Started](#-getting-started)
+- [API Documentation](#-api-documentation)
+- [Database Schema](#-database-schema)
+
+
 ## 🌐 Live Demo
 
 **Production Deployment:**
@@ -75,6 +88,12 @@ This is a comprehensive HR management system designed to streamline organization
 - File type validation
 - Metadata tracking
 
+### 🤝 Vendor Management
+- **Vendor Feedback Dashboard**: Dedicated view for managing vendor-related feedback.
+- **Vendor Conversations**: Secure, threaded discussions between Admins and Vendors.
+- **Attachment Support**: Share documents and images within vendor conversations.
+- **Status Tracking**: Monitor vendor response times and resolution status.
+
 ### 👥 Admin Dashboard
 - System metrics and analytics
 - User management (view all users with roles and status)
@@ -108,7 +127,12 @@ This is a comprehensive HR management system designed to streamline organization
 
 ### 🛡️ Administration
 - **Admin Dashboard (`/admin`)**: Comprehensive control panel for user management, system metrics, and audit logs.
+- **Admin Feedback Dashboard (`/admin/feedback-dashboard`)**: Specialized dashboard for high-level feedback oversight.
 - **Birthday Management (`/admin/birthdays`)**: Tools for HR to create and manage birthday events.
+
+### 🤝 Vendor Management
+- **Vendor Feedback (`/vendor/feedback`)**: Dashboard for tracking vendor-specific issues.
+- **Vendor Conversation (`/vendor/conversation/:id`)**: Detailed view for communicating on specific vendor feedback items.
 
 ## 💡 How to Use
 
@@ -139,46 +163,49 @@ nextjs-backend/
 ├── app/
 │   └── api/                # API Routes (Next.js 14 App Router)
 │       ├── admin/          # Admin endpoints
-│       │   ├── metrics/
-│       │   ├── users/
-│       │   ├── audit-logs/
-│       │   └── feedback/
 │       ├── announcements/  # Announcements endpoints
 │       ├── auth/           # Authentication endpoints
 │       ├── birthday/       # Birthday celebration endpoints
 │       ├── channels/       # Channel management
+│       ├── direct-conversations/ # Direct messaging
 │       ├── feedback/       # Feedback system
 │       ├── files/          # File management
+│       ├── health/         # Health check
 │       ├── memberships/    # Channel memberships
 │       ├── notifications/  # Notifications
+│       ├── superadmin/     # Superadmin endpoints
 │       ├── users/          # User management
-│       ├── health/         # Health check
+│       ├── vendor/         # Vendor management
 │       └── version/        # API version
+├── docs/                   # Documentation & Postman collections
 ├── lib/                    # Core utilities
+│   ├── birthday/           # Birthday logic
+│   ├── validators/         # Zod validation schemas
+│   ├── ai.ts               # AI integration
 │   ├── auth.ts             # JWT authentication & RBAC
 │   ├── cors.ts             # CORS configuration
 │   ├── db.ts               # Prisma client singleton
 │   ├── errors.ts           # Error handling
+│   ├── files.ts            # File handling logic
 │   ├── mail.ts             # Email utilities
-│   ├── storage.ts          # File storage
+│   ├── scheduler.ts        # Scheduled tasks
+│   ├── storage.ts          # Storage provider logic
 │   ├── utils.ts            # Helper functions
-│   └── validators/         # Zod validation schemas
-│       ├── admin.ts
-│       ├── announcements.ts
-│       ├── auth.ts
-│       ├── channels.ts
-│       ├── feedback.ts
-│       ├── files.ts
-│       ├── memberships.ts
-│       ├── notifications.ts
-│       └── users.ts
+│   └── vendor-sla.ts       # Vendor SLA logic
 ├── prisma/                 # Database layer
+│   ├── migrations/         # Database migrations
 │   ├── schema.prisma       # Prisma schema
-│   ├── seed.ts             # Database seeding
-│   └── migrations/         # Database migrations
-├── storage/                # File uploads
+│   └── seed.ts             # Database seeding
+├── storage/                # Local file storage
+├── tests/                  # Test suites
+│   ├── integration/
+│   └── unit/
 ├── .env                    # Environment variables
-└── package.json            # Dependencies
+├── Dockerfile              # Container configuration
+├── middleware.ts           # Next.js middleware
+├── next.config.mjs         # Next.js configuration
+├── package.json            # Dependencies
+└── tsconfig.json           # TypeScript configuration
 ```
 
 **Design Patterns:**
@@ -193,23 +220,40 @@ nextjs-backend/
 frontend/
 ├── src/
 │   ├── components/         # Reusable components
+│   │   ├── feedback/       # Feedback specific components
 │   │   ├── AppLayout.tsx   # Main layout with sidebar navigation
-│   │   └── ProtectedRoute.tsx # Route guards with RBAC
+│   │   ├── AttachmentList.tsx # File attachment display
+│   │   ├── AttachmentUploader.tsx # File upload component
+│   │   ├── ProtectedRoute.tsx # Route guards with RBAC
+│   │   ├── StatusToast.tsx # Toast notifications
+│   │   └── VendorFeedbackCard.tsx # Vendor feedback card
 │   ├── contexts/           # React contexts
 │   │   └── AuthContext.tsx # Authentication state management
 │   ├── lib/                # Core libraries
 │   │   ├── api.ts          # Axios instance with JWT interceptors
 │   │   ├── api-client.ts   # Type-safe API client functions
 │   │   ├── queryClient.ts  # TanStack Query configuration
-│   │   └── types.ts        # TypeScript type definitions
+│   │   ├── types.ts        # TypeScript type definitions
+│   │   └── utils.ts        # Frontend helpers
 │   ├── pages/              # Page components
-│   │   ├── LoginPage.tsx           # Login with demo accounts
-│   │   ├── DashboardPage.tsx       # System overview
-│   │   ├── FeedbackPage.tsx        # Feedback management
-│   │   ├── ChannelsPage.tsx        # Channel management & chat
-│   │   ├── AnnouncementsPage.tsx   # Announcements
-│   │   ├── NotificationsPage.tsx   # Notifications center
+│   │   ├── AdminFeedbackDashboard.tsx # Admin feedback overview
 │   │   ├── AdminPage.tsx           # Admin dashboard
+│   │   ├── AnnouncementsPage.tsx   # Announcements
+│   │   ├── BirthdayAdminPage.tsx   # Birthday management
+│   │   ├── BirthdayEventDetailPage.tsx # Birthday event details
+│   │   ├── BirthdayRsvpPage.tsx    # Birthday RSVP
+│   │   ├── ChannelDetailPage.tsx   # Channel chat view
+│   │   ├── ChannelsPage.tsx        # Channel list
+│   │   ├── DashboardPage.tsx       # System overview
+│   │   ├── DirectMessagesPage.tsx  # 1-on-1 messaging
+│   │   ├── FeedbackDetailPage.tsx  # Feedback details & chat
+│   │   ├── FeedbackPage.tsx        # Feedback list
+│   │   ├── LoginPage.tsx           # Login page
+│   │   ├── NotificationsPage.tsx   # Notifications center
+│   │   ├── ProfilePage.tsx         # User profile
+│   │   ├── RegisterPage.tsx        # User registration
+│   │   ├── VendorConversationPage.tsx # Vendor chat
+│   │   └── VendorFeedbackPage.tsx  # Vendor feedback list
 │   ├── App.tsx             # Routing configuration
 │   ├── main.tsx            # Application entry point
 │   └── index.css           # Tailwind CSS styles
@@ -245,9 +289,9 @@ frontend/
 - **Styling**: Tailwind CSS 3.4.15
 - **State Management**: TanStack React Query 5.8.4
 - **HTTP Client**: Axios 1.6.2
-- **Routing**: React Router DOM 6.28.0
+- **Routing**: React Router DOM 6.20.0
 - **Forms**: React Hook Form 7.48.2
-- **Icons**: Lucide React 0.454.0
+- **Icons**: Lucide React 0.554.0
 
 ## 🚀 Getting Started
 
