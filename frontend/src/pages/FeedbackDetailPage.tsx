@@ -77,7 +77,8 @@ export default function FeedbackDetailPage() {
   const queryClient = useQueryClient();
   const { user, hasRole } = useAuth();
   const isHr = hasRole(['hr', 'admin', 'superadmin']);
-  const canViewTimeline = !!user && (user.role || '').toLowerCase() !== 'employee';
+   const isEmployee = !!user && (user.role || '').toLowerCase() === 'employee';
+  const canViewTimeline = !!user && !isEmployee;
 
   const [comment, setComment] = useState('');
   const [isInternal, setIsInternal] = useState(false);
@@ -111,8 +112,10 @@ export default function FeedbackDetailPage() {
     queryFn: () => feedbackApi.getComments(feedbackId),
     enabled: Number.isFinite(feedbackId),
   });
-
-  const comments = commentsQuery.data?.comments ?? [];
+  const allComments = commentsQuery.data?.comments ?? [];
+  const comments = isEmployee
+    ? allComments.filter((entry: any) => !entry.is_internal)
+    : allComments;
   const feedback = feedbackQuery.data;
   const vendorStatus = ((feedback as any)?.vendor_status || '').toUpperCase();
   const canForwardToVendor = vendorStatus !== 'FORWARDED';

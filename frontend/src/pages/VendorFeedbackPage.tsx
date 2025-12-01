@@ -24,6 +24,9 @@ export default function VendorFeedbackPage() {
 
   // Ensure we have an array even if data is undefined
   const feedback = (data?.feedback || []) as Feedback[];
+  const activeFeedbackCount = feedback.filter(
+    (item) => item.status?.toUpperCase() !== 'RESOLVED'
+  ).length;
 
   const [replyText, setReplyText] = useState<Record<number, string>>({});
   const [toast, setToast] = useState<{ text: string; type?: 'success' | 'error' } | null>(null);
@@ -87,7 +90,7 @@ export default function VendorFeedbackPage() {
             </div>
             <div className="flex items-center gap-3">
               <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/20 text-white text-sm font-medium">
-                {feedback.length} Assigned Items
+                {activeFeedbackCount} Active Items
               </div>
             </div>
           </div>

@@ -64,7 +64,7 @@ export function VendorFeedbackCard({
                                 <Calendar className="h-4 w-4 text-gray-400" />
                                 Created: {new Date(item.created_at).toLocaleDateString()}
                             </span>
-                            {item.vendor_due_at && (
+                            {item.vendor_due_at && item.status?.toUpperCase() !== 'RESOLVED' && (
                                 <span className="flex items-center gap-1.5 text-amber-600 font-medium">
                                     <Clock className="h-4 w-4" />
                                     Due: {new Date(item.vendor_due_at).toLocaleDateString()}
