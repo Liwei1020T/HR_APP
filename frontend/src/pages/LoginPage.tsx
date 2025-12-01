@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Mail, Lock, User, Briefcase, Settings, Crown, LogIn } from 'lucide-react';
+import { Mail, Lock, User, Briefcase, Settings, Crown, LogIn, Wrench } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -148,7 +148,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-4 gap-2">
+            <div className="mt-6 grid grid-cols-5 gap-2">
               <button
                 onClick={() => quickLogin('user@demo.local', 'P@ssw0rd!')}
                 disabled={loading}
@@ -195,6 +195,18 @@ export default function LoginPage() {
                   <Crown className="w-4 h-4" />
                 </div>
                 <span className="text-[10px] font-medium text-gray-600">Super</span>
+              </button>
+
+              <button
+                onClick={() => quickLogin('vendor.facility@company.com', 'password123')}
+                disabled={loading}
+                title="Vendor Demo"
+                className="flex flex-col items-center justify-center p-2 border border-gray-200 rounded-xl hover:bg-green-50 hover:border-green-200 transition-all group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center group-hover:bg-green-600 group-hover:text-white transition-colors mb-1">
+                  <Wrench className="w-4 h-4" />
+                </div>
+                <span className="text-[10px] font-medium text-gray-600">Vendor</span>
               </button>
             </div>
           </div>
