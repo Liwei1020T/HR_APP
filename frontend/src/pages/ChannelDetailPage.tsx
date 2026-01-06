@@ -105,7 +105,7 @@ export default function ChannelDetailPage() {
       <div className="space-y-6 max-w-5xl mx-auto">
         <button
           onClick={() => navigate('/channels')}
-          className="text-sm text-blue-600 hover:text-blue-800"
+          className="text-sm text-[#1a4f9c] hover:text-blue-800"
         >
           ← Back to Channels
         </button>
@@ -126,7 +126,7 @@ export default function ChannelDetailPage() {
                 <span>Members: {channelQuery.data.member_count ?? '--'}</span>
                 {channelQuery.data.join_code && (
                   <div className="flex items-center gap-2 bg-gray-100 text-gray-800 px-3 py-1 rounded">
-                    <span className="font-semibold">Join code:</span>
+                    <span className="font-bold">Join code:</span>
                     <span className="font-mono">{channelQuery.data.join_code}</span>
                     <button
                       onClick={() => {
@@ -135,7 +135,7 @@ export default function ChannelDetailPage() {
                         setToast({ text: 'Join code copied.', type: 'success' });
                         setTimeout(() => setCopied(false), 1500);
                       }}
-                      className="text-blue-600 text-xs font-semibold hover:underline"
+                      className="text-[#1a4f9c] text-xs font-bold hover:underline"
                     >
                       {copied ? 'Copied!' : 'Copy'}
                     </button>
@@ -162,13 +162,13 @@ export default function ChannelDetailPage() {
                           key={'pinned-' + String(msg.id)}
                           className="flex flex-col rounded-lg border-2 border-yellow-300 bg-white p-4 shadow-sm"
                         >
-                          <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-gray-900">
+                          <div className="flex flex-wrap items-center gap-2 text-sm font-bold text-gray-900">
                             <span>{msg.user.full_name}</span>
                             <span className="text-xs text-gray-500">
                               {new Date(msg.created_at).toLocaleString()}
                             </span>
                             {msg.is_announcement && (
-                              <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700">
+                              <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-bold text-purple-700">
                                 📢 Announcement
                               </span>
                             )}
@@ -181,7 +181,7 @@ export default function ChannelDetailPage() {
                                   pinMessageMutation.mutate({ messageId: msg.id, isPinned: false })
                                 }
                                 disabled={pinMessageMutation.isPending}
-                                className="ml-auto text-xs text-blue-600 hover:text-blue-800 font-medium"
+                                className="ml-auto text-xs text-[#1a4f9c] hover:text-blue-800 font-bold"
                               >
                                 Unpin
                               </button>
@@ -197,13 +197,13 @@ export default function ChannelDetailPage() {
                     {regularMessages.length ? (
                       regularMessages.map((msg: any) => (
                         <div key={msg.id} className="flex flex-col rounded-lg bg-gray-100 p-3">
-                          <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-gray-900">
+                          <div className="flex flex-wrap items-center gap-2 text-sm font-bold text-gray-900">
                             <span>{msg.user.full_name}</span>
                             <span className="text-xs text-gray-500">
                               {new Date(msg.created_at).toLocaleString()}
                             </span>
                             {msg.is_announcement && (
-                              <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700">
+                              <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-bold text-purple-700">
                                 Announcement
                               </span>
                             )}
@@ -213,7 +213,7 @@ export default function ChannelDetailPage() {
                                   pinMessageMutation.mutate({ messageId: msg.id, isPinned: true })
                                 }
                                 disabled={pinMessageMutation.isPending}
-                                className="text-xs text-blue-600 hover:text-blue-800"
+                                className="text-xs text-[#1a4f9c] hover:text-blue-800"
                               >
                                 Pin
                               </button>
@@ -237,7 +237,7 @@ export default function ChannelDetailPage() {
                       type="checkbox"
                       checked={sendAsAnnouncement}
                       onChange={(e) => setSendAsAnnouncement(e.target.checked)}
-                      className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                      className="h-4 w-4 text-[#1a4f9c] border-gray-300 rounded"
                     />
                     Send as announcement (notifies all members)
                   </label>
@@ -254,7 +254,7 @@ export default function ChannelDetailPage() {
                     <button
                       type="button"
                       onClick={() => chatFileInputRef.current?.click()}
-                      className="absolute bottom-2 right-2 rounded-full p-2 text-gray-500 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="absolute bottom-2 right-2 rounded-full p-2 text-gray-500 hover:text-[#1a4f9c] focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       📎
                     </button>
@@ -277,7 +277,7 @@ export default function ChannelDetailPage() {
                       sendMessageMutation.isPending ||
                       chatUploading
                     }
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    className="px-6 py-2 bg-[#1a4f9c] text-white rounded-lg hover:bg-[#1a4f9c] disabled:opacity-50"
                   >
                     Send
                   </button>

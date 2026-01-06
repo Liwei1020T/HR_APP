@@ -191,16 +191,16 @@ export default function DirectMessagesPage() {
     <AppLayout>
       <div className="h-[calc(100vh-7rem)] grid gap-6 lg:grid-cols-[24rem,1fr]">
         {/* Sidebar */}
-        <div className="flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="flex flex-col bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-4 border-b border-gray-100 bg-gray-50/50">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-blue-600" />
+                <MessageSquare className="h-5 w-5 text-[#1a4f9c]" />
                 Messages
               </h2>
               <button
                 onClick={() => setShowNewChatModal(true)}
-                className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                className="p-2 bg-[#1a4f9c] text-white rounded-lg hover:bg-[#1a4f9c] transition-colors shadow-sm"
                 title="New Chat"
               >
                 <Plus className="h-5 w-5" />
@@ -213,7 +213,7 @@ export default function DirectMessagesPage() {
             {conversationsQuery.isLoading ? (
               <div className="flex flex-col gap-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />
+                  <div key={i} className="h-16 bg-gray-100 rounded-md animate-pulse" />
                 ))}
               </div>
             ) : hasConversations ? (
@@ -226,29 +226,29 @@ export default function DirectMessagesPage() {
                   <button
                     key={conversation.id}
                     onClick={() => setSelectedConversationId(conversation.id)}
-                    className={`flex w-full items-center gap-3 p-3 rounded-xl text-left transition-all duration-200 ${isSelected
+                    className={`flex w-full items-center gap-3 p-3 rounded-md text-left transition-all duration-200 ${isSelected
                       ? 'bg-blue-50 border-blue-100 shadow-sm ring-1 ring-blue-200'
                       : 'hover:bg-gray-50 border border-transparent'
                       }`}
                   >
-                    <div className={`flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold ${isSelected ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'
+                    <div className={`flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold ${isSelected ? 'bg-[#1a4f9c] text-white' : 'bg-gray-100 text-gray-600'
                       }`}>
                       {title.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-0.5">
-                        <p className={`text-sm font-semibold truncate ${isSelected ? 'text-blue-900' : 'text-gray-900'}`}>
+                        <p className={`text-sm font-bold truncate ${isSelected ? 'text-blue-900' : 'text-gray-900'}`}>
                           {title}
                         </p>
                         {conversation.has_unread && (
-                          <span className="h-2.5 w-2.5 rounded-full bg-blue-600 ring-2 ring-white" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-[#1a4f9c] ring-2 ring-white" />
                         )}
                       </div>
                       <div className="flex items-center justify-between">
-                        <p className={`text-xs truncate max-w-[140px] ${isSelected ? 'text-blue-700' : 'text-gray-500'}`}>
+                        <p className={`text-xs truncate max-w-[140px] ${isSelected ? 'text-[#1a4f9c]' : 'text-gray-500'}`}>
                           {lastMessagePreview}
                         </p>
-                        <span className={`text-[10px] ${isSelected ? 'text-blue-600' : 'text-gray-400'}`}>
+                        <span className={`text-[10px] ${isSelected ? 'text-[#1a4f9c]' : 'text-gray-400'}`}>
                           {formatTimestamp(conversation.last_message_at || conversation.updated_at)}
                         </span>
                       </div>
@@ -261,7 +261,7 @@ export default function DirectMessagesPage() {
                 <div className="p-3 bg-gray-50 rounded-full mb-3">
                   <MessageSquare className="h-6 w-6 text-gray-400" />
                 </div>
-                <p className="text-sm font-medium text-gray-900">No messages yet</p>
+                <p className="text-sm font-bold text-gray-900">No messages yet</p>
                 <p className="text-xs text-gray-500 mt-1">Start a conversation with a coworker.</p>
               </div>
             )}
@@ -269,11 +269,11 @@ export default function DirectMessagesPage() {
         </div>
 
         {/* Chat Area */}
-        <div className="flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-full">
+        <div className="flex flex-col bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden h-full">
           {!selectedConversationId ? (
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-gray-50/50">
               <div className="w-24 h-24 bg-white rounded-full shadow-sm flex items-center justify-center mb-6">
-                <MessageSquare className="h-10 w-10 text-blue-600" />
+                <MessageSquare className="h-10 w-10 text-[#1a4f9c]" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Direct Chat</h3>
               <p className="text-gray-500 max-w-sm">
@@ -281,7 +281,7 @@ export default function DirectMessagesPage() {
               </p>
               <button
                 onClick={() => setShowNewChatModal(true)}
-                className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+                className="mt-6 px-6 py-3 bg-[#1a4f9c] text-white rounded-md font-bold hover:bg-[#1a4f9c] transition-colors shadow-sm border border-gray-200 shadow-blue-200"
               >
                 Start New Conversation
               </button>
@@ -291,7 +291,7 @@ export default function DirectMessagesPage() {
               {/* Chat Header */}
               <div className="px-6 py-4 border-b border-gray-100 bg-white flex items-center justify-between shadow-sm z-10">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md">
+                  <div className="h-10 w-10 rounded-full bg-[#1a4f9c] flex items-center justify-center text-white font-bold shadow-md">
                     {selectedConversation
                       ? getConversationTitle(selectedConversation, user?.id).charAt(0).toUpperCase()
                       : 'C'}
@@ -340,13 +340,13 @@ export default function DirectMessagesPage() {
                       >
                         <div className={`flex items-end gap-2 max-w-[80%] ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
                           {!isMine && (
-                            <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-600 flex-shrink-0">
+                            <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600 flex-shrink-0">
                               {msg.sender.full_name.charAt(0)}
                             </div>
                           )}
                           <div
-                            className={`rounded-2xl px-5 py-3 shadow-sm ${isMine
-                              ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-tr-none'
+                            className={`rounded-md px-5 py-3 shadow-sm ${isMine
+                              ? 'bg-[#1a4f9c] text-white rounded-tr-none'
                               : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none'
                               }`}
                           >
@@ -375,7 +375,7 @@ export default function DirectMessagesPage() {
               <div className="p-4 bg-white border-t border-gray-100">
                 <form onSubmit={handleSendMessage} className="flex flex-col gap-3">
                   <AttachmentPreviewList attachments={attachments} onRemove={removeAttachment} />
-                  <div className="flex items-end gap-3 bg-gray-50 p-2 rounded-xl border border-gray-200 focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-50 transition-all duration-200">
+                  <div className="flex items-end gap-3 bg-gray-50 p-2 rounded-md border border-gray-200 focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-50 transition-all duration-200">
                     <div className="flex items-center gap-1 pb-2 pl-2">
                       <input
                         type="file"
@@ -392,14 +392,14 @@ export default function DirectMessagesPage() {
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-gray-400 hover:text-[#1a4f9c] hover:bg-blue-50 rounded-lg transition-colors"
                         title="Attach files"
                       >
                         <Paperclip className="h-5 w-5" />
                       </button>
                       <button
                         type="button"
-                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-gray-400 hover:text-[#1a4f9c] hover:bg-blue-50 rounded-lg transition-colors"
                         title="Add image"
                       >
                         <ImageIcon className="h-5 w-5" />
@@ -431,7 +431,7 @@ export default function DirectMessagesPage() {
                       disabled={isSendDisabled}
                       className={`p-3 rounded-lg mb-1 transition-all duration-200 ${isSendDisabled
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg'
+                        : 'bg-[#1a4f9c] text-white hover:bg-[#1a4f9c] shadow-md hover:shadow-sm border border-gray-200'
                         }`}
                     >
                       {sendMessageMutation.isPending ? (
@@ -442,7 +442,7 @@ export default function DirectMessagesPage() {
                     </button>
                   </div>
                   {isUploading && (
-                    <p className="text-xs text-blue-600 animate-pulse pl-2">Uploading attachments...</p>
+                    <p className="text-xs text-[#1a4f9c] animate-pulse pl-2">Uploading attachments...</p>
                   )}
                 </form>
               </div>
@@ -454,13 +454,13 @@ export default function DirectMessagesPage() {
       {showNewChatModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <div className="fixed inset-0 bg-gray-900/75 backdrop-blur-sm transition-opacity" onClick={() => setShowNewChatModal(false)}></div>
+            <div className="fixed inset-0 bg-gray-900/75   transition-opacity" onClick={() => setShowNewChatModal(false)}></div>
 
-            <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+            <div className="relative transform overflow-hidden rounded-md bg-white text-left shadow-md transition-all sm:my-8 sm:w-full sm:max-w-lg">
               <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                 <div className="flex items-center justify-between mb-5">
                   <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                    <div className="p-2 bg-blue-100 rounded-lg text-[#1a4f9c]">
                       <MessageSquare className="h-5 w-5" />
                     </div>
                     Start Conversation
@@ -475,7 +475,7 @@ export default function DirectMessagesPage() {
 
                 <form onSubmit={handleStartConversation} className="space-y-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    <label className="block text-sm font-bold text-gray-700 mb-1.5">
                       Search Coworkers
                     </label>
                     <div className="relative">
@@ -492,7 +492,7 @@ export default function DirectMessagesPage() {
                     </div>
                   </div>
 
-                  <div className="max-h-60 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50/50">
+                  <div className="max-h-60 overflow-y-auto rounded-md border border-gray-200 bg-gray-50/50">
                     {recipientsQuery.isLoading ? (
                       <div className="p-8 text-center">
                         <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
@@ -507,16 +507,16 @@ export default function DirectMessagesPage() {
                               }`}
                           >
                             <div className="flex items-center gap-3">
-                              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">
+                              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-[#1a4f9c] font-bold text-xs">
                                 {recipient.full_name.charAt(0)}
                               </div>
                               <div>
-                                <p className="font-medium text-gray-900 text-sm">{recipient.full_name}</p>
+                                <p className="font-bold text-gray-900 text-sm">{recipient.full_name}</p>
                                 <p className="text-xs text-gray-500">{recipient.email}</p>
                               </div>
                             </div>
                             <div className={`h-5 w-5 rounded border flex items-center justify-center transition-colors ${selectedRecipientIds.includes(recipient.id)
-                              ? 'bg-blue-600 border-blue-600'
+                              ? 'bg-[#1a4f9c] border-blue-600'
                               : 'border-gray-300 bg-white'
                               }`}>
                               {selectedRecipientIds.includes(recipient.id) && (
@@ -549,7 +549,7 @@ export default function DirectMessagesPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    <label className="block text-sm font-bold text-gray-700 mb-1.5">
                       Topic <span className="text-gray-400 font-normal">(Optional)</span>
                     </label>
                     <input
@@ -569,14 +569,14 @@ export default function DirectMessagesPage() {
                         setSelectedRecipientIds([]);
                         setRecipientSearch('');
                       }}
-                      className="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                      className="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={selectedRecipientIds.length === 0 || startConversationMutation.isPending}
-                      className="px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="px-6 py-2.5 bg-[#1a4f9c] text-white rounded-lg text-sm font-bold hover:bg-[#1a4f9c] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       {startConversationMutation.isPending ? 'Starting...' : 'Start Chat'}
                     </button>

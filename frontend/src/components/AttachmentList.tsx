@@ -44,7 +44,7 @@ export function AttachmentList({ attachments }: { attachments?: FileUpload[] }) 
                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-black/0 transition group-hover:bg-black/10" />
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 transition group-hover:opacity-100">
+                <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 opacity-0 transition group-hover:opacity-100">
                   <p className="truncate text-xs text-white">{image.original_filename}</p>
                 </div>
               </div>
@@ -61,7 +61,7 @@ export function AttachmentList({ attachments }: { attachments?: FileUpload[] }) 
                 href={resolveFileUrl(attachment.storage_path)}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 transition hover:bg-blue-100"
+                className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold text-[#1a4f9c] transition hover:bg-blue-100"
               >
                 <svg
                   className="mr-1.5 h-3.5 w-3.5"

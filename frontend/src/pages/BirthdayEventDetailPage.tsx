@@ -48,7 +48,7 @@ export default function BirthdayEventDetailPage() {
       <div className="space-y-6">
         <button
           onClick={() => navigate('/admin/birthdays')}
-          className="text-sm text-blue-600 hover:text-blue-800 transition"
+          className="text-sm text-[#1a4f9c] hover:text-blue-800 transition"
         >
           ← Back to events
         </button>
@@ -72,7 +72,7 @@ export default function BirthdayEventDetailPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-gray-500">Event date</p>
-                  <p className="text-lg font-semibold text-gray-900">
+                  <p className="text-lg font-bold text-gray-900">
                     {new Date(eventQuery.data.event_date).toLocaleString()}
                   </p>
                   <p className="text-sm text-gray-600 mt-1">
@@ -88,9 +88,9 @@ export default function BirthdayEventDetailPage() {
                   { label: 'Pending', value: eventQuery.data.summary.pending_count },
                   { label: 'Not going', value: eventQuery.data.summary.not_going_count },
                 ].map((card) => (
-                  <div key={card.label} className="rounded-xl bg-gray-50 p-4 border border-gray-100">
+                  <div key={card.label} className="rounded-md bg-gray-50 p-4 border border-gray-100">
                     <p className="text-sm text-gray-500">{card.label}</p>
-                    <p className="text-2xl font-semibold text-gray-900">{card.value}</p>
+                    <p className="text-2xl font-bold text-gray-900">{card.value}</p>
                   </div>
                 ))}
               </div>
@@ -98,7 +98,7 @@ export default function BirthdayEventDetailPage() {
 
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">Registrations</h2>
+                <h2 className="text-xl font-bold text-gray-900">Registrations</h2>
                 <span className="text-sm text-gray-500">{registrations.length} records</span>
               </div>
 
@@ -111,16 +111,16 @@ export default function BirthdayEventDetailPage() {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                        <th className="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">
                           Name
                         </th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                        <th className="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">
                           Department
                         </th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                        <th className="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">
                           RSVP Status
                         </th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                        <th className="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">
                           RSVP Time
                         </th>
                       </tr>
@@ -136,7 +136,7 @@ export default function BirthdayEventDetailPage() {
                           </td>
                           <td className="px-4 py-2 text-sm">
                             <span
-                              className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-2 py-1 rounded-full text-xs font-bold ${
                                 statusBadges[registration.rsvp_status]
                               }`}
                             >

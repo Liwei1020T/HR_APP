@@ -58,7 +58,7 @@ export default function BirthdayRsvpPage() {
       <div className="max-w-3xl mx-auto space-y-6">
         <button
           onClick={() => navigate(-1)}
-          className="text-sm text-blue-600 hover:text-blue-800 transition"
+          className="text-sm text-[#1a4f9c] hover:text-blue-800 transition"
         >
           ← Back
         </button>
@@ -76,7 +76,7 @@ export default function BirthdayRsvpPage() {
             You are not listed for this month&apos;s celebration.
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow p-6 space-y-6">
+          <div className="bg-white rounded-md shadow p-6 space-y-6">
             <div>
               <p className="text-sm text-gray-500 uppercase tracking-wide">
                 Monthly Birthday Celebration
@@ -86,15 +86,15 @@ export default function BirthdayRsvpPage() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-xl bg-blue-50 p-4">
-                <p className="text-sm text-blue-700">Date & Time</p>
-                <p className="text-xl font-semibold text-blue-900">
+              <div className="rounded-md bg-blue-50 p-4">
+                <p className="text-sm text-[#1a4f9c]">Date & Time</p>
+                <p className="text-xl font-bold text-blue-900">
                   {new Date(event.event_date).toLocaleString()}
                 </p>
               </div>
-              <div className="rounded-xl bg-purple-50 p-4">
+              <div className="rounded-md bg-purple-50 p-4">
                 <p className="text-sm text-purple-700">Location</p>
-                <p className="text-xl font-semibold text-purple-900">
+                <p className="text-xl font-bold text-purple-900">
                   {event.location || 'To be announced'}
                 </p>
               </div>
@@ -102,7 +102,7 @@ export default function BirthdayRsvpPage() {
 
             <div className="rounded-lg border border-gray-200 p-4">
               <p className="text-sm text-gray-500 mb-1">Your RSVP</p>
-              <p className="text-lg font-semibold text-gray-900 capitalize">
+              <p className="text-lg font-bold text-gray-900 capitalize">
                 {currentStatus.replace('_', ' ')}
               </p>
               {viewerRegistration.rsvp_at && (
@@ -116,7 +116,7 @@ export default function BirthdayRsvpPage() {
               <button
                 onClick={() => rsvpMutation.mutate('going')}
                 disabled={rsvpMutation.isPending}
-                className={`flex-1 rounded-lg px-4 py-3 text-white font-medium transition ${
+                className={`flex-1 rounded-lg px-4 py-3 text-white font-bold transition ${
                   currentStatus === 'going'
                     ? 'bg-green-600'
                     : 'bg-green-500 hover:bg-green-600'
@@ -127,7 +127,7 @@ export default function BirthdayRsvpPage() {
               <button
                 onClick={() => rsvpMutation.mutate('not_going')}
                 disabled={rsvpMutation.isPending}
-                className={`flex-1 rounded-lg px-4 py-3 font-medium transition ${
+                className={`flex-1 rounded-lg px-4 py-3 font-bold transition ${
                   currentStatus === 'not_going'
                     ? 'bg-red-600 text-white'
                     : 'bg-red-50 text-red-600 hover:bg-red-100'

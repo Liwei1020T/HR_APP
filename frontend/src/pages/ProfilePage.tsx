@@ -90,37 +90,37 @@ export default function ProfilePage() {
         ) : (
           <>
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Account Details</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Account Details</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-700">
                 <div>
-                  <p className="font-medium">Full Name</p>
+                  <p className="font-bold">Full Name</p>
                   <p>{user.full_name}</p>
                 </div>
                 <div>
-                  <p className="font-medium">Email</p>
+                  <p className="font-bold">Email</p>
                   <p>{user.email}</p>
                 </div>
                 <div>
-                  <p className="font-medium">Employee ID</p>
+                  <p className="font-bold">Employee ID</p>
                   <p>{user.employee_id || '—'}</p>
                 </div>
                 <div>
-                  <p className="font-medium">Role</p>
+                  <p className="font-bold">Role</p>
                   <p>{user.role}</p>
                 </div>
                 <div>
-                  <p className="font-medium">Department</p>
+                  <p className="font-bold">Department</p>
                   <p>{user.department || '—'}</p>
                 </div>
                 <div>
-                  <p className="font-medium">Date of Birth</p>
+                  <p className="font-bold">Date of Birth</p>
                   <p>{user.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString() : '—'}</p>
                 </div>
               </div>
             </div>
 
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Update Profile</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Update Profile</h2>
               {profileMessage && (
                 <div className="mb-4 text-sm px-4 py-2 rounded border">
                   {profileMessage}
@@ -129,7 +129,7 @@ export default function ProfilePage() {
               <form className="space-y-4" onSubmit={handleProfileSubmit}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                    <label className="block text-sm font-bold text-gray-700">Full Name</label>
                     <input
                       type="text"
                       name="full_name"
@@ -139,7 +139,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Department</label>
+                    <label className="block text-sm font-bold text-gray-700">Department</label>
                     <input
                       type="text"
                       name="department"
@@ -149,7 +149,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
+                    <label className="block text-sm font-bold text-gray-700">Date of Birth</label>
                     <input
                       type="date"
                       name="date_of_birth"
@@ -162,7 +162,7 @@ export default function ProfilePage() {
                 <button
                   type="submit"
                   disabled={updateProfileMutation.isPending}
-                  className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="px-6 py-2 rounded-md bg-[#1a4f9c] text-white hover:bg-[#1a4f9c] disabled:opacity-50"
                 >
                   {updateProfileMutation.isPending ? 'Saving...' : 'Save changes'}
                 </button>
@@ -170,7 +170,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Change Password</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Change Password</h2>
               {passwordMessage && (
                 <div className="mb-4 text-sm px-4 py-2 rounded border">
                   {passwordMessage}
@@ -178,7 +178,7 @@ export default function ProfilePage() {
               )}
               <form className="space-y-4" onSubmit={handlePasswordSubmit}>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Current Password</label>
+                  <label className="block text-sm font-bold text-gray-700">Current Password</label>
                   <input
                     type="password"
                     name="current_password"
@@ -189,7 +189,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">New Password</label>
+                    <label className="block text-sm font-bold text-gray-700">New Password</label>
                     <input
                       type="password"
                       name="new_password"
@@ -199,7 +199,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                    <label className="block text-sm font-bold text-gray-700">Confirm New Password</label>
                     <input
                       type="password"
                       name="confirm_password"
@@ -212,7 +212,7 @@ export default function ProfilePage() {
                 <button
                   type="submit"
                   disabled={changePasswordMutation.isPending}
-                  className="px-6 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="px-6 py-2 rounded-md bg-[#1a4f9c] text-white hover:bg-[#1a4f9c] disabled:opacity-50"
                 >
                   {changePasswordMutation.isPending ? 'Updating...' : 'Change password'}
                 </button>

@@ -80,7 +80,7 @@ export default function VendorConversationPage() {
           </div>
           <h2 className="text-xl font-bold text-gray-900">Invalid Feedback ID</h2>
           <p className="text-gray-500 mt-2">The requested feedback item could not be found.</p>
-          <Link to="/vendor/feedback" className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors">
+          <Link to="/vendor/feedback" className="mt-6 px-6 py-2 bg-[#1a4f9c] text-white rounded-md font-bold hover:bg-[#1a4f9c] transition-colors">
             Return to Dashboard
           </Link>
         </div>
@@ -99,13 +99,13 @@ export default function VendorConversationPage() {
           <div>
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors mb-2"
+              className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-[#1a4f9c] transition-colors mb-2"
             >
               <ArrowLeft className="h-4 w-4" />
               Back
             </button>
             <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-              <MessageSquare className="h-6 w-6 text-blue-600" />
+              <MessageSquare className="h-6 w-6 text-[#1a4f9c]" />
               Vendor Conversation
             </h1>
           </div>
@@ -114,8 +114,8 @@ export default function VendorConversationPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column: Feedback Details */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="p-6 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100">
+            <div className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-6 bg-gray-50 border-b border-gray-100">
                 <h3 className="text-lg font-bold text-gray-900 mb-1">Feedback Details</h3>
                 <p className="text-xs text-gray-500">Reference #{feedbackId}</p>
               </div>
@@ -128,8 +128,8 @@ export default function VendorConversationPage() {
               ) : feedback ? (
                 <div className="p-6 space-y-6">
                   <div>
-                    <h4 className="text-sm font-semibold text-gray-900 mb-2">{feedback.title}</h4>
-                    <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 p-3 rounded-xl border border-gray-100">
+                    <h4 className="text-sm font-bold text-gray-900 mb-2">{feedback.title}</h4>
+                    <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 p-3 rounded-md border border-gray-100">
                       {feedback.description || feedback.content}
                     </p>
                   </div>
@@ -139,7 +139,7 @@ export default function VendorConversationPage() {
                       <span className="text-gray-500 flex items-center gap-2">
                         <Tag className="h-4 w-4" /> Category
                       </span>
-                      <span className="font-medium text-gray-900">{feedback.category}</span>
+                      <span className="font-bold text-gray-900">{feedback.category}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-500 flex items-center gap-2">
@@ -156,13 +156,13 @@ export default function VendorConversationPage() {
                       <span className="text-gray-500 flex items-center gap-2">
                         <CheckCircle2 className="h-4 w-4" /> Status
                       </span>
-                      <span className="font-medium text-gray-900">{feedback.status}</span>
+                      <span className="font-bold text-gray-900">{feedback.status}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-500 flex items-center gap-2">
                         <Calendar className="h-4 w-4" /> Created
                       </span>
-                      <span className="font-medium text-gray-900">
+                      <span className="font-bold text-gray-900">
                         {new Date(feedback.created_at).toLocaleDateString()}
                       </span>
                     </div>
@@ -177,7 +177,7 @@ export default function VendorConversationPage() {
           </div>
 
           {/* Right Column: Conversation Thread */}
-          <div className="lg:col-span-2 flex flex-col h-[600px] bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="lg:col-span-2 flex flex-col h-[600px] bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
               <h3 className="font-bold text-gray-900">Discussion Thread</h3>
               <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-md border border-gray-200">
@@ -204,12 +204,12 @@ export default function VendorConversationPage() {
                     <div key={c.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                       <div className={`flex items-end gap-2 max-w-[85%] ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
                         <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm
-                          ${isMe ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-600'}`}>
+                          ${isMe ? 'bg-blue-100 text-[#1a4f9c]' : 'bg-gray-200 text-gray-600'}`}>
                           {c.user?.full_name?.charAt(0) || <User className="h-4 w-4" />}
                         </div>
-                        <div className={`rounded-2xl px-5 py-3 shadow-sm
+                        <div className={`rounded-md px-5 py-3 shadow-sm
                           ${isMe
-                            ? 'bg-blue-600 text-white rounded-tr-none'
+                            ? 'bg-[#1a4f9c] text-white rounded-tr-none'
                             : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none'
                           }`}>
                           <div className="flex items-center justify-between gap-4 mb-1">
@@ -241,10 +241,10 @@ export default function VendorConversationPage() {
             <div className="p-4 bg-white border-t border-gray-100">
               <div className="flex flex-col gap-3">
                 <AttachmentPreviewList attachments={attachments} onRemove={removeAttachment} />
-                <div className="flex items-end gap-2 bg-gray-50 p-2 rounded-xl border border-gray-200 focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-50 transition-all">
+                <div className="flex items-end gap-2 bg-gray-50 p-2 rounded-md border border-gray-200 focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-50 transition-all">
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    className="p-2 text-gray-400 hover:text-[#1a4f9c] hover:bg-blue-50 rounded-lg transition-colors"
                     title="Attach files"
                   >
                     <Paperclip className="h-5 w-5" />
@@ -271,7 +271,7 @@ export default function VendorConversationPage() {
                   <button
                     onClick={() => addMessageMutation.mutate()}
                     disabled={(!message.trim() && attachmentIds.length === 0) || addMessageMutation.isPending || isUploading}
-                    className="p-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-all shadow-sm"
+                    className="p-2.5 bg-[#1a4f9c] text-white rounded-lg hover:bg-[#1a4f9c] disabled:opacity-50 disabled:hover:bg-[#1a4f9c] transition-all shadow-sm"
                   >
                     {addMessageMutation.isPending ? (
                       <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -280,7 +280,7 @@ export default function VendorConversationPage() {
                     )}
                   </button>
                 </div>
-                {isUploading && <span className="text-xs text-blue-600 animate-pulse pl-2">Uploading attachments...</span>}
+                {isUploading && <span className="text-xs text-[#1a4f9c] animate-pulse pl-2">Uploading attachments...</span>}
               </div>
             </div>
           </div>

@@ -80,3 +80,6 @@ Thumbs.db
 
 # Local DB
 postgres18/
+
+# macOS Resource Forks
+._*

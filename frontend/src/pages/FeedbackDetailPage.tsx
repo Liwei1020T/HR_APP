@@ -15,7 +15,7 @@ import { ArrowLeft, ShieldAlert } from 'lucide-react';
 
 const STATUS_BADGE: Record<string, string> = {
   RESOLVED: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  IN_PROGRESS: 'bg-blue-50 text-blue-700 border-blue-200',
+  IN_PROGRESS: 'bg-blue-50 text-[#1a4f9c] border-blue-200',
   UNDER_REVIEW: 'bg-amber-50 text-amber-700 border-amber-200',
   CLOSED: 'bg-slate-100 text-slate-600 border-slate-200',
   SUBMITTED: 'bg-gray-50 text-gray-600 border-gray-200',
@@ -36,7 +36,7 @@ const getPriorityBadgeStyles = (priority?: string) => {
     case 'HIGH':
       return 'bg-orange-50 text-orange-700 border-orange-200';
     case 'MEDIUM':
-      return 'bg-blue-50 text-blue-700 border-blue-200';
+      return 'bg-blue-50 text-[#1a4f9c] border-blue-200';
     case 'LOW':
       return 'bg-slate-50 text-slate-600 border-slate-200';
     default:
@@ -240,7 +240,7 @@ export default function FeedbackDetailPage() {
   if (!Number.isFinite(feedbackId)) {
     return (
       <AppLayout>
-        <div className="bg-white rounded-xl shadow-sm p-8 text-center text-red-600">
+        <div className="bg-white rounded-md shadow-sm p-8 text-center text-red-600">
           Invalid feedback identifier.
         </div>
       </AppLayout>
@@ -250,11 +250,11 @@ export default function FeedbackDetailPage() {
   if (feedbackQuery.isError) {
     return (
       <AppLayout>
-        <div className="bg-white rounded-xl shadow-sm p-8 text-center text-red-600 space-y-3">
+        <div className="bg-white rounded-md shadow-sm p-8 text-center text-red-600 space-y-3">
           <p>Failed to load feedback details.</p>
           <button
             onClick={() => feedbackQuery.refetch()}
-            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-bold bg-[#1a4f9c] text-white rounded-lg hover:bg-[#1a4f9c] transition-colors"
           >
             Retry
           </button>
@@ -306,22 +306,22 @@ export default function FeedbackDetailPage() {
         </button>
 
         {feedbackQuery.isLoading ? (
-          <div className="bg-white rounded-xl shadow-sm p-12 text-center text-gray-500">
+          <div className="bg-white rounded-md shadow-sm p-12 text-center text-gray-500">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
             Loading feedback details...
           </div>
         ) : !feedback ? (
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center text-red-600">
+          <div className="bg-white rounded-md shadow-sm p-8 text-center text-red-600">
             Feedback not found or you no longer have access.
           </div>
         ) : (
           <>
             {/* Urgent Alert */}
             {(feedback as any).priority === 'URGENT' && (feedback as any).sla_status === 'BREACHED' && (
-              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl shadow-sm flex items-start gap-3 animate-in slide-in-from-top-2">
+              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-md shadow-sm flex items-start gap-3 animate-in slide-in-from-top-2">
                 <ShieldAlert className="h-5 w-5 shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-semibold">URGENT SLA Breached</div>
+                  <div className="font-bold">URGENT SLA Breached</div>
                   <div className="text-sm opacity-90">
                     This urgent feedback exceeded the response SLA. Please respond or update status immediately.
                   </div>
@@ -333,20 +333,20 @@ export default function FeedbackDetailPage() {
               {/* Main Content Column */}
               <div className="lg:col-span-2 space-y-6">
                 {/* Feedback Card */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-white rounded-md shadow-sm border border-gray-100 overflow-hidden">
                   <div className="p-6 space-y-4">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${STATUS_BADGE[feedback.status] || STATUS_BADGE.SUBMITTED}`}>
+                      <span className={`px-2.5 py-1 text-xs font-bold rounded-full border ${STATUS_BADGE[feedback.status] || STATUS_BADGE.SUBMITTED}`}>
                         {formatStatus(feedback.status)}
                       </span>
-                      <span className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${getPriorityBadgeStyles((feedback as any).priority)}`}>
+                      <span className={`px-2.5 py-1 text-xs font-bold rounded-full border ${getPriorityBadgeStyles((feedback as any).priority)}`}>
                         {((feedback as any).priority || 'MEDIUM')} Priority
                       </span>
-                      <span className="px-2.5 py-1 text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 rounded-full">
+                      <span className="px-2.5 py-1 text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 rounded-full">
                         {feedback.category}
                       </span>
                       {(feedback as any).sla_status && (
-                        <span className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${getSlaBadgeStyles((feedback as any).sla_status)}`}>
+                        <span className={`px-2.5 py-1 text-xs font-bold rounded-full border ${getSlaBadgeStyles((feedback as any).sla_status)}`}>
                           {(feedback as any).sla_status === 'BREACHED' ? 'SLA Breached' : 'SLA Normal'}
                         </span>
                       )}
@@ -359,11 +359,11 @@ export default function FeedbackDetailPage() {
 
                     <div className="flex items-center gap-4 pt-4 border-t border-gray-50 text-sm text-gray-500">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs">
+                        <div className="w-8 h-8 rounded-full bg-[#1a4f9c] flex items-center justify-center text-white font-bold text-xs">
                           {feedback.is_anonymous ? 'A' : (feedback.submitter_name?.charAt(0) || 'E')}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">
+                          <p className="font-bold text-gray-900">
                             {feedback.is_anonymous ? 'Anonymous' : feedback.submitter_name || 'Employee'}
                           </p>
                           <p className="text-xs">Submitted on {new Date(feedback.created_at).toLocaleDateString()}</p>

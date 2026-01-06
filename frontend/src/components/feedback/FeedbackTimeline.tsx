@@ -6,8 +6,8 @@ type FeedbackTimelineProps = {
 
 export function FeedbackTimeline({ timelineQuery }: FeedbackTimelineProps) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-      <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+    <div className="bg-white rounded-md shadow-sm border border-gray-100 p-5">
+      <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
         <History className="h-4 w-4 text-gray-500" />
         Timeline
       </h3>
@@ -20,7 +20,7 @@ export function FeedbackTimeline({ timelineQuery }: FeedbackTimelineProps) {
           <button
             type="button"
             onClick={() => timelineQuery.refetch()}
-            className="px-3 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-3 py-1.5 text-xs font-bold bg-[#1a4f9c] text-white rounded-lg hover:bg-[#1a4f9c] transition-colors"
           >
             Retry
           </button>
@@ -33,7 +33,7 @@ export function FeedbackTimeline({ timelineQuery }: FeedbackTimelineProps) {
             <div key={event.id} className="relative flex gap-4">
               <div className="absolute left-0 ml-2.5 -translate-x-1/2 w-2.5 h-2.5 rounded-full border-2 border-white bg-blue-500 shadow-sm ring-1 ring-blue-100"></div>
               <div className="flex-1 pt-0.5 pl-6">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-bold text-gray-900">
                   {event.action.replace(/_/g, ' ')}
                 </p>
                 <p className="text-xs text-gray-500 mb-1">

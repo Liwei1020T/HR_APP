@@ -84,7 +84,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-600/20">
+          <div className="w-12 h-12 bg-[#1a4f9c] rounded-md flex items-center justify-center shadow-sm border border-gray-200 shadow-blue-600/20">
             <UserPlus className="w-7 h-7 text-white" />
           </div>
         </div>
@@ -97,11 +97,11 @@ export default function RegisterPage() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-xl shadow-gray-200/50 sm:rounded-2xl sm:px-10 border border-gray-100">
+        <div className="bg-white py-8 px-4 shadow-md border border-gray-200 shadow-gray-200/50 sm:rounded-md sm:px-10 border border-gray-100">
           <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
             {(apiError || success) && (
               <div
-                className={`px-4 py-3 rounded-xl text-sm flex items-start gap-2 animate-in slide-in-from-top-2 ${apiError ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-green-50 border border-green-200 text-green-700'
+                className={`px-4 py-3 rounded-md text-sm flex items-start gap-2 animate-in slide-in-from-top-2 ${apiError ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-green-50 border border-green-200 text-green-700'
                   }`}
               >
                 <div className="mt-0.5">{apiError ? '⚠️' : '✅'}</div>
@@ -110,7 +110,7 @@ export default function RegisterPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Employee ID *</label>
+              <label className="block text-sm font-bold text-gray-700">Employee ID *</label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <BadgeCheck className="h-5 w-5 text-gray-400" />
@@ -118,7 +118,7 @@ export default function RegisterPage() {
                 <input
                   type="text"
                   {...register('employee_id')}
-                  className={`block w-full pl-10 pr-3 py-2.5 border rounded-xl focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors ${errors.employee_id ? 'border-red-300' : 'border-gray-300'
+                  className={`block w-full pl-10 pr-3 py-2.5 border rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors ${errors.employee_id ? 'border-red-300' : 'border-gray-300'
                     }`}
                   placeholder="EMP-001"
                 />
@@ -129,7 +129,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Full Name *</label>
+              <label className="block text-sm font-bold text-gray-700">Full Name *</label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <User className="h-5 w-5 text-gray-400" />
@@ -137,7 +137,7 @@ export default function RegisterPage() {
                 <input
                   type="text"
                   {...register('full_name')}
-                  className={`block w-full pl-10 pr-3 py-2.5 border rounded-xl focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors ${errors.full_name ? 'border-red-300' : 'border-gray-300'
+                  className={`block w-full pl-10 pr-3 py-2.5 border rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors ${errors.full_name ? 'border-red-300' : 'border-gray-300'
                     }`}
                   placeholder="Jane Doe"
                 />
@@ -148,7 +148,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Work Email *</label>
+              <label className="block text-sm font-bold text-gray-700">Work Email *</label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-gray-400" />
@@ -156,7 +156,7 @@ export default function RegisterPage() {
                 <input
                   type="email"
                   {...register('email')}
-                  className={`block w-full pl-10 pr-3 py-2.5 border rounded-xl focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors ${errors.email ? 'border-red-300' : 'border-gray-300'
+                  className={`block w-full pl-10 pr-3 py-2.5 border rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors ${errors.email ? 'border-red-300' : 'border-gray-300'
                     }`}
                   placeholder="you@company.com"
                 />
@@ -166,14 +166,14 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Department</label>
+                <label className="block text-sm font-bold text-gray-700">Department</label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Building2 className="h-5 w-5 text-gray-400" />
                   </div>
                   <select
                     {...register('department')}
-                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors appearance-none"
+                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors appearance-none"
                   >
                     <option value="">Select...</option>
                     {DEPARTMENTS.map((dept) => (
@@ -186,7 +186,7 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
+                <label className="block text-sm font-bold text-gray-700">Date of Birth</label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Calendar className="h-5 w-5 text-gray-400" />
@@ -194,7 +194,7 @@ export default function RegisterPage() {
                   <input
                     type="date"
                     {...register('date_of_birth')}
-                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
+                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
                   />
                 </div>
               </div>
@@ -202,7 +202,7 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Password *</label>
+                <label className="block text-sm font-bold text-gray-700">Password *</label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
@@ -210,7 +210,7 @@ export default function RegisterPage() {
                   <input
                     type="password"
                     {...register('password')}
-                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-xl focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors ${errors.password ? 'border-red-300' : 'border-gray-300'
+                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors ${errors.password ? 'border-red-300' : 'border-gray-300'
                       }`}
                     placeholder="••••••••"
                   />
@@ -218,7 +218,7 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Confirm *</label>
+                <label className="block text-sm font-bold text-gray-700">Confirm *</label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
@@ -226,7 +226,7 @@ export default function RegisterPage() {
                   <input
                     type="password"
                     {...register('confirm_password')}
-                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-xl focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors ${errors.confirm_password ? 'border-red-300' : 'border-gray-300'
+                    className={`block w-full pl-10 pr-3 py-2.5 border rounded-md focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors ${errors.confirm_password ? 'border-red-300' : 'border-gray-300'
                       }`}
                     placeholder="••••••••"
                   />
@@ -248,7 +248,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={!isValid || loading}
-              className="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-md hover:scale-[1.01]"
+              className="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-[#1a4f9c] hover:bg-[#1a4f9c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-md hover:scale-[1.01]"
             >
               {loading ? (
                 <>
@@ -268,7 +268,7 @@ export default function RegisterPage() {
             <div className="relative flex justify-center text-sm">
               <span className="px-2 bg-white text-gray-500">
                 Already have an account?{' '}
-                <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                <Link to="/login" className="font-bold text-[#1a4f9c] hover:text-blue-500">
                   Sign in
                 </Link>
               </span>

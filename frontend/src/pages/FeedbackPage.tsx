@@ -27,7 +27,7 @@ const getStatusBadgeStyles = (status: string) => {
     case 'RESOLVED':
       return 'bg-emerald-50 text-emerald-700 border-emerald-200';
     case 'IN_PROGRESS':
-      return 'bg-blue-50 text-blue-700 border-blue-200';
+      return 'bg-blue-50 text-[#1a4f9c] border-blue-200';
     case 'UNDER_REVIEW':
       return 'bg-amber-50 text-amber-700 border-amber-200';
     case 'CLOSED':
@@ -45,7 +45,7 @@ const getPriorityBadgeStyles = (priority?: string) => {
     case 'HIGH':
       return 'bg-orange-50 text-orange-700 border-orange-200';
     case 'MEDIUM':
-      return 'bg-blue-50 text-blue-700 border-blue-200';
+      return 'bg-blue-50 text-[#1a4f9c] border-blue-200';
     case 'LOW':
       return 'bg-slate-50 text-slate-600 border-slate-200';
     default:
@@ -160,7 +160,7 @@ export default function FeedbackPage() {
     <AppLayout>
       <div className="space-y-6">
         {/* Action Bar */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-md shadow-sm border border-gray-100">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <div className="relative flex-1 sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -175,7 +175,7 @@ export default function FeedbackPage() {
             <button
               onClick={() => setIsFiltersOpen(!isFiltersOpen)}
               className={`p-2 rounded-lg border transition-colors ${isFiltersOpen
-                  ? 'bg-blue-50 border-blue-200 text-blue-600'
+                  ? 'bg-blue-50 border-blue-200 text-[#1a4f9c]'
                   : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
                 }`}
             >
@@ -184,18 +184,18 @@ export default function FeedbackPage() {
           </div>
           <button
             onClick={() => setShowCreateForm(true)}
-            className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 flex items-center justify-center gap-2 font-medium text-sm"
+            className="w-full sm:w-auto px-4 py-2 bg-[#1a4f9c] text-white rounded-md hover:bg-blue-800 transition-all shadow-sm flex items-center justify-center gap-2 font-bold text-sm"
           >
             <Plus className="h-4 w-4" />
-            Submit Feedback
+            SUBMIT FEEDBACK
           </button>
         </div>
 
         {/* Filters Panel */}
         {isFiltersOpen && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in slide-in-from-top-2">
+          <div className="bg-white rounded-md shadow-sm border border-gray-100 p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in slide-in-from-top-2">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</label>
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Status</label>
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value as any)}
@@ -207,7 +207,7 @@ export default function FeedbackPage() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Priority</label>
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Priority</label>
               <select
                 value={selectedPriority}
                 onChange={(e) => setSelectedPriority(e.target.value as any)}
@@ -219,7 +219,7 @@ export default function FeedbackPage() {
               </select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sort By</label>
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Sort By</label>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
@@ -237,7 +237,7 @@ export default function FeedbackPage() {
                   type="checkbox"
                   checked={onlyAtRisk}
                   onChange={(e) => setOnlyAtRisk(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  className="w-4 h-4 text-[#1a4f9c] rounded border-gray-300 focus:ring-blue-500"
                 />
                 <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Show At-Risk Only</span>
               </label>
@@ -253,11 +253,11 @@ export default function FeedbackPage() {
               <p>Loading feedback...</p>
             </div>
           ) : filteredFeedback.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+            <div className="bg-white rounded-md shadow-sm border border-gray-100 p-12 text-center">
               <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <FileText className="h-8 w-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">No feedback found</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-1">No feedback found</h3>
               <p className="text-gray-500 mb-6">Try adjusting your filters or submit a new request.</p>
               <button
                 onClick={() => {
@@ -266,7 +266,7 @@ export default function FeedbackPage() {
                   setSearchTerm('');
                   setOnlyAtRisk(false);
                 }}
-                className="text-blue-600 font-medium hover:text-blue-700 hover:underline"
+                className="text-[#1a4f9c] font-bold hover:text-[#1a4f9c] hover:underline"
               >
                 Clear all filters
               </button>
@@ -277,13 +277,13 @@ export default function FeedbackPage() {
                 <Link
                   key={feedback.id}
                   to={`/feedback/${feedback.id}`}
-                  className="block bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-200 transition-all duration-200 group"
+                  className="block bg-white rounded-md shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-200 transition-all duration-200 group"
                 >
                   <div className="p-5">
                     <div className="flex items-start justify-between gap-4 mb-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-lg font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                          <h3 className="text-lg font-bold text-gray-900 truncate group-hover:text-[#1a4f9c] transition-colors">
                             {feedback.title}
                           </h3>
                           {feedback.is_anonymous && (
@@ -295,10 +295,10 @@ export default function FeedbackPage() {
                         <p className="text-gray-600 text-sm line-clamp-2">{feedback.description}</p>
                       </div>
                       <div className="flex flex-col items-end gap-2 shrink-0">
-                        <span className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${getStatusBadgeStyles(feedback.status)}`}>
+                        <span className={`px-2.5 py-1 text-xs font-bold rounded-full border ${getStatusBadgeStyles(feedback.status)}`}>
                           {formatStatusLabel(feedback.status)}
                         </span>
-                        <span className="text-xs text-gray-400 font-medium">
+                        <span className="text-xs text-gray-400 font-bold">
                           {new Date(feedback.created_at).toLocaleDateString()}
                         </span>
                       </div>
@@ -341,8 +341,8 @@ export default function FeedbackPage() {
 
         {/* Create Form Modal */}
         {showCreateForm && (
-          <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="fixed inset-0 bg-gray-900/50   flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-md shadow-md w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
               <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">Submit Feedback</h3>
@@ -362,7 +362,7 @@ export default function FeedbackPage() {
               <form onSubmit={handleSubmit} className="p-6 space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-gray-700">Category</label>
+                    <label className="text-sm font-bold text-gray-700">Category</label>
                     <select
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -378,7 +378,7 @@ export default function FeedbackPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-gray-700">Title</label>
+                    <label className="text-sm font-bold text-gray-700">Title</label>
                     <input
                       type="text"
                       required
@@ -391,7 +391,7 @@ export default function FeedbackPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-semibold text-gray-700">Description</label>
+                  <label className="text-sm font-bold text-gray-700">Description</label>
                   <textarea
                     required
                     rows={5}
@@ -403,10 +403,10 @@ export default function FeedbackPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-sm font-semibold text-gray-700">Attachments</label>
+                  <label className="text-sm font-bold text-gray-700">Attachments</label>
                   <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:bg-gray-50 hover:border-blue-300 transition-all cursor-pointer group"
+                    className="border-2 border-dashed border-gray-200 rounded-md p-6 text-center hover:bg-gray-50 hover:border-blue-300 transition-all cursor-pointer group"
                   >
                     <input
                       ref={fileInputRef}
@@ -420,10 +420,10 @@ export default function FeedbackPage() {
                       className="hidden"
                     />
                     <div className="flex flex-col items-center gap-2">
-                      <div className="p-3 bg-blue-50 text-blue-600 rounded-full group-hover:scale-110 transition-transform">
+                      <div className="p-3 bg-blue-50 text-[#1a4f9c] rounded-full group-  transition-transform">
                         <Plus className="h-5 w-5" />
                       </div>
-                      <p className="text-sm text-gray-600 font-medium">Click to upload files</p>
+                      <p className="text-sm text-gray-600 font-bold">Click to upload files</p>
                       <p className="text-xs text-gray-400">PDF, DOC, Images up to 10MB</p>
                     </div>
                   </div>
@@ -440,7 +440,7 @@ export default function FeedbackPage() {
                         type="checkbox"
                         checked={formData.is_anonymous}
                         onChange={(e) => setFormData({ ...formData, is_anonymous: e.target.checked })}
-                        className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-300 transition-all checked:border-blue-600 checked:bg-blue-600"
+                        className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-300 transition-all checked:border-blue-600 checked:bg-[#1a4f9c]"
                       />
                       <div className="pointer-events-none absolute top-2/4 left-2/4 -translate-x-2/4 -translate-y-2/4 text-white opacity-0 transition-opacity peer-checked:opacity-100">
                         <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
@@ -455,14 +455,14 @@ export default function FeedbackPage() {
                     <button
                       type="button"
                       onClick={() => setShowCreateForm(false)}
-                      className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="px-5 py-2.5 text-sm font-bold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={createMutation.isPending || attachmentUpload.isUploading}
-                      className="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:shadow-lg hover:shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="px-5 py-2.5 text-sm font-bold text-white bg-[#1a4f9c] rounded-lg hover:shadow-sm border border-gray-200 hover:shadow-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       {createMutation.isPending ? 'Submitting...' : 'Submit Feedback'}
                     </button>

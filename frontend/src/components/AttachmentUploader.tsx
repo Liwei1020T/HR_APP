@@ -125,12 +125,12 @@ export function AttachmentPreviewList({
                 className="h-12 w-12 rounded object-cover"
               />
             ) : (
-              <div className="flex h-12 w-12 items-center justify-center rounded bg-white text-sm font-medium text-gray-600">
+              <div className="flex h-12 w-12 items-center justify-center rounded bg-white text-sm font-bold text-gray-600">
                 📄
               </div>
             )}
             <div>
-              <p className="text-sm font-medium text-gray-900">{attachment.filename}</p>
+              <p className="text-sm font-bold text-gray-900">{attachment.filename}</p>
               {attachment.uploading && (
                 <p className="text-xs text-gray-500">Uploading…</p>
               )}
@@ -142,7 +142,7 @@ export function AttachmentPreviewList({
           <button
             type="button"
             onClick={() => onRemove(attachment.localId)}
-            className="text-xs font-medium text-blue-600 hover:text-blue-800"
+            className="text-xs font-bold text-[#1a4f9c] hover:text-blue-800"
           >
             Remove
           </button>

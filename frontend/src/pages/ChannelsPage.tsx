@@ -107,7 +107,7 @@ export default function ChannelsPage() {
 
       <div className="space-y-8">
         {/* Header */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 p-8 shadow-lg">
+        <div className="relative overflow-hidden rounded-md bg-[#1a4f9c] p-8 shadow-sm border border-gray-200">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
               <h2 className="text-3xl font-bold text-white flex items-center gap-3">
@@ -121,7 +121,7 @@ export default function ChannelsPage() {
             {canCreateChannel && (
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="inline-flex items-center justify-center rounded-xl bg-white text-purple-600 px-6 py-3 text-sm font-bold shadow-lg hover:bg-purple-50 hover:scale-105 transition-all duration-200"
+                className="inline-flex items-center justify-center rounded-md bg-white text-purple-600 px-6 py-3 text-sm font-bold shadow-sm border border-gray-200 hover:bg-purple-50 hover:scale-105 transition-all duration-200"
               >
                 <Plus className="h-5 w-5 mr-2" />
                 Create Channel
@@ -129,17 +129,17 @@ export default function ChannelsPage() {
             )}
           </div>
           {/* Decorative circles */}
-          <div className="absolute top-0 right-0 -mt-20 -mr-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 -mb-20 -ml-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
+          
+          
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Join & Create Actions */}
           <div className="space-y-8 lg:col-span-1">
             {/* Join by code */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+            <div className="bg-white rounded-md shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                <div className="p-2 bg-blue-50 rounded-lg text-[#1a4f9c]">
                   <Search className="h-5 w-5" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900">Join with Code</h3>
@@ -163,7 +163,7 @@ export default function ChannelsPage() {
                 <button
                   onClick={() => joinMutation.mutate(joinCode.trim())}
                   disabled={!joinCode.trim() || joinMutation.isPending}
-                  className="w-full flex justify-center items-center px-4 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-full flex justify-center items-center px-4 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-bold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {joinMutation.isPending ? 'Joining...' : 'Join Channel'}
                 </button>
@@ -171,7 +171,7 @@ export default function ChannelsPage() {
             </div>
 
             {/* Quick Create Info */}
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100 p-6">
+            <div className="bg-indigo-50 rounded-md border border-indigo-100 p-6">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-white rounded-lg text-indigo-600 shadow-sm">
                   <Users className="h-5 w-5" />
@@ -183,13 +183,13 @@ export default function ChannelsPage() {
               </p>
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 group"
+                className="text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 group"
               >
                 Create new channel <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </button>
               {lastJoinCode && (
                 <div className="mt-4 p-3 bg-white border border-indigo-100 rounded-lg text-sm text-gray-700 flex items-center justify-between gap-3">
-                  <span className="font-medium">Last join code: {lastJoinCode}</span>
+                  <span className="font-bold">Last join code: {lastJoinCode}</span>
                   <button
                     type="button"
                     onClick={async () => {
@@ -200,7 +200,7 @@ export default function ChannelsPage() {
                         setToast({ type: 'error', text: 'Copy failed.' });
                       }
                     }}
-                    className="px-3 py-1 text-xs font-semibold bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                    className="px-3 py-1 text-xs font-bold bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
                   >
                     Copy
                   </button>
@@ -211,13 +211,13 @@ export default function ChannelsPage() {
 
           {/* Right Column: Your Channels */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
+            <div className="bg-white rounded-md shadow-sm border border-gray-100 flex flex-col h-full">
               <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                 <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                   <Hash className="h-5 w-5 text-gray-400" />
                   Your Channels
                 </h3>
-                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">
                   {myMemberships.length} Joined
                 </span>
               </div>
@@ -228,7 +228,7 @@ export default function ChannelsPage() {
                     <div className="mx-auto h-12 w-12 text-gray-300 mb-3">
                       <MessageSquare className="h-full w-full" />
                     </div>
-                    <h3 className="text-sm font-medium text-gray-900">No channels yet</h3>
+                    <h3 className="text-sm font-bold text-gray-900">No channels yet</h3>
                     <p className="mt-1 text-sm text-gray-500">Join a channel or create one to get started.</p>
                   </div>
                 ) : (
@@ -249,7 +249,7 @@ export default function ChannelsPage() {
                       return (
                         <div
                           key={channelId}
-                          className="group relative bg-gray-50 rounded-xl p-5 border border-gray-200 hover:border-purple-300 hover:shadow-md hover:bg-white transition-all duration-200"
+                          className="group relative bg-gray-50 rounded-md p-5 border border-gray-200 hover:border-purple-300 hover:shadow-md hover:bg-white transition-all duration-200"
                         >
                           <div className="flex justify-between items-start mb-3">
                             <div className={`p-2 rounded-lg ${isPrivate ? 'bg-amber-100 text-amber-600' : 'bg-purple-100 text-purple-600'}`}>
@@ -273,7 +273,7 @@ export default function ChannelsPage() {
                           </Link>
 
                           <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
-                            <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                               {type}
                             </span>
                             <button
@@ -282,7 +282,7 @@ export default function ChannelsPage() {
                                 leaveMutation.mutate({ id: channelId, name: channelName });
                               }}
                               disabled={leaveMutation.isPending}
-                              className="text-xs font-medium text-red-500 hover:text-red-700 flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity"
+                              className="text-xs font-bold text-red-500 hover:text-red-700 flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity"
                             >
                               <LogOut className="h-3 w-3" />
                               Leave
@@ -302,9 +302,9 @@ export default function ChannelsPage() {
         {showCreateForm && (
           <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-              <div className="fixed inset-0 bg-gray-900/75 backdrop-blur-sm transition-opacity" onClick={() => setShowCreateForm(false)}></div>
+              <div className="fixed inset-0 bg-gray-900/75   transition-opacity" onClick={() => setShowCreateForm(false)}></div>
 
-              <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+              <div className="relative transform overflow-hidden rounded-md bg-white text-left shadow-md border border-gray-200 transition-all sm:my-8 sm:w-full sm:max-w-lg">
                 <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -323,7 +323,7 @@ export default function ChannelsPage() {
 
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-sm font-bold text-gray-700 mb-1.5">
                         Channel Name <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
@@ -342,7 +342,7 @@ export default function ChannelsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      <label className="block text-sm font-bold text-gray-700 mb-1.5">
                         Description
                       </label>
                       <textarea
@@ -356,7 +356,7 @@ export default function ChannelsPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5">
                           Channel Type <span className="text-red-500">*</span>
                         </label>
                         <select
@@ -388,14 +388,14 @@ export default function ChannelsPage() {
                       <button
                         type="button"
                         onClick={() => setShowCreateForm(false)}
-                        className="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                        className="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-50 transition-colors"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={createMutation.isPending}
-                        className="px-6 py-2.5 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 shadow-sm disabled:opacity-50 transition-all"
+                        className="px-6 py-2.5 bg-purple-600 text-white rounded-lg text-sm font-bold hover:bg-purple-700 shadow-sm disabled:opacity-50 transition-all"
                       >
                         {createMutation.isPending ? 'Creating...' : 'Create Channel'}
                       </button>

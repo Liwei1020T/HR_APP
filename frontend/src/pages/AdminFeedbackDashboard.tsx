@@ -151,8 +151,8 @@ export default function AdminFeedbackDashboard() {
                         <p className="text-gray-600">AI-Powered Insights & Management</p>
                     </div>
                     <div className="flex space-x-2">
-                        <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium flex items-center">
-                            <div className="w-2 h-2 bg-blue-600 rounded-full mr-2 animate-pulse"></div>
+                        <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-bold flex items-center">
+                            <div className="w-2 h-2 bg-[#1a4f9c] rounded-full mr-2 animate-pulse"></div>
                             AI Analysis Active
                         </span>
                     </div>
@@ -177,8 +177,8 @@ export default function AdminFeedbackDashboard() {
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id as any)}
-                                    className={`py-4 px-3 border-b-2 font-medium text-sm transition-colors flex items-center flex-shrink-0 ${activeTab === tab.id
-                                        ? 'border-blue-600 text-blue-600'
+                                    className={`py-4 px-3 border-b-2 font-bold text-sm transition-colors flex items-center flex-shrink-0 ${activeTab === tab.id
+                                        ? 'border-blue-600 text-[#1a4f9c]'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                         }`}
                                 >
@@ -203,7 +203,7 @@ export default function AdminFeedbackDashboard() {
                                     <StatCard
                                         title="Total Complaints"
                                         value={stats?.totalComplaints || 0}
-                                        icon={<MessageSquare className="w-6 h-6 text-blue-600" />}
+                                        icon={<MessageSquare className="w-6 h-6 text-[#1a4f9c]" />}
                                         trend={formatTrend(stats?.totalTrend)}
                                     />
                                     <StatCard
@@ -231,7 +231,7 @@ export default function AdminFeedbackDashboard() {
                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                     {/* Trend Chart */}
                                     <div className="lg:col-span-2 bg-gray-50 p-4 rounded-lg">
-                                        <h3 className="text-lg font-semibold mb-4">Complaint Trends (Last 7 Days)</h3>
+                                        <h3 className="text-lg font-bold mb-4">Complaint Trends (Last 7 Days)</h3>
                                         <div className="h-64">
                                             <ResponsiveContainer width="100%" height="100%">
                                                 <BarChart data={stats?.trends || []}>
@@ -249,7 +249,7 @@ export default function AdminFeedbackDashboard() {
 
                                     {/* Distribution Chart */}
                                     <div className="bg-gray-50 p-4 rounded-lg">
-                                        <h3 className="text-lg font-semibold mb-4">Status Distribution</h3>
+                                        <h3 className="text-lg font-bold mb-4">Status Distribution</h3>
                                         <div className="h-64">
                                             <ResponsiveContainer width="100%" height="100%">
                                                 <PieChart>
@@ -281,7 +281,7 @@ export default function AdminFeedbackDashboard() {
                         {(activeTab === 'complaints' || activeTab === 'urgent' || activeTab === 'approvals') && (
                             <div>
                                 <div className="flex justify-between items-center mb-4 flex-wrap gap-3">
-                                    <h3 className="text-lg font-semibold">
+                                    <h3 className="text-lg font-bold">
                                         {activeTab === 'urgent'
                                             ? 'Urgent Attention Required'
                                             : activeTab === 'approvals'
@@ -357,7 +357,7 @@ export default function AdminFeedbackDashboard() {
                                                 type="checkbox"
                                                 checked={onlyAtRisk}
                                                 onChange={(e) => setOnlyAtRisk(e.target.checked)}
-                                                className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                                                className="h-4 w-4 text-[#1a4f9c] border-gray-300 rounded"
                                             />
                                             <span className="text-gray-600">SLA Warning/Breached</span>
                                         </label>
@@ -398,14 +398,14 @@ export default function AdminFeedbackDashboard() {
                                     <table className="min-w-full divide-y divide-gray-200 table-fixed">
                                         <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
                                             <tr>
-                                                <th className="w-[10%] px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Priority</th>
-                                                <th className="w-[25%] px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Title</th>
-                                                <th className="w-[10%] px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-                                                <th className="w-[10%] px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                                                <th className="w-[20%] px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">AI Analysis</th>
-                                                <th className="w-[10%] px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Vendor</th>
-                                                <th className="w-[10%] px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                                                <th className="w-[5%] px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
+                                                <th className="w-[10%] px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Priority</th>
+                                                <th className="w-[25%] px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Title</th>
+                                                <th className="w-[10%] px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Category</th>
+                                                <th className="w-[10%] px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                                                <th className="w-[20%] px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">AI Analysis</th>
+                                                <th className="w-[10%] px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Vendor</th>
+                                                <th className="w-[10%] px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
+                                                <th className="w-[5%] px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
@@ -423,7 +423,7 @@ export default function AdminFeedbackDashboard() {
                                                         <PriorityBadge priority={item.priority} />
                                                     </td>
                                                     <td className="px-4 py-3 align-top">
-                                                        <div className="text-sm font-semibold text-gray-900 truncate" title={item.title}>{item.title}</div>
+                                                        <div className="text-sm font-bold text-gray-900 truncate" title={item.title}>{item.title}</div>
                                                         <div className="text-xs text-gray-500 line-clamp-1 mt-0.5">{item.description}</div>
                                                     </td>
                                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 align-top">
@@ -457,11 +457,11 @@ export default function AdminFeedbackDashboard() {
                                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 align-top">
                                                         {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                                     </td>
-                                                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium align-top">
+                                                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-bold align-top">
                                                         <Link
                                                             to={`/feedback/${item.id}`}
                                                             state={{ from: 'admin-feedback' }}
-                                                            className="text-blue-600 hover:text-blue-800 font-medium text-xs border border-blue-200 hover:border-blue-400 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
+                                                            className="text-[#1a4f9c] hover:text-blue-800 font-bold text-xs border border-blue-200 hover:border-blue-400 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition-colors"
                                                         >
                                                             View
                                                         </Link>
@@ -480,9 +480,9 @@ export default function AdminFeedbackDashboard() {
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     <div className="bg-white rounded-lg shadow p-6 space-y-4">
                                         <div className="flex items-center gap-3">
-                                            <FileText className="w-8 h-8 text-blue-600" />
+                                            <FileText className="w-8 h-8 text-[#1a4f9c]" />
                                             <div>
-                                                <h3 className="text-lg font-semibold text-gray-900">AI Report</h3>
+                                                <h3 className="text-lg font-bold text-gray-900">AI Report</h3>
                                                 <p className="text-sm text-gray-500">Generate a concise report for your assigned feedback</p>
                                             </div>
                                         </div>
@@ -555,7 +555,7 @@ export default function AdminFeedbackDashboard() {
                                             <button
                                                 onClick={() => aiReportMutation.mutate()}
                                                 disabled={aiReportMutation.isPending}
-                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                                                className="px-4 py-2 bg-[#1a4f9c] text-white rounded-lg hover:bg-[#1a4f9c] disabled:opacity-50"
                                             >
                                                 {aiReportMutation.isPending ? 'Generating...' : 'Generate AI Report'}
                                             </button>
@@ -566,7 +566,7 @@ export default function AdminFeedbackDashboard() {
                                     </div>
 
                                     <div className="bg-white rounded-lg shadow p-6 space-y-3">
-                                        <h3 className="text-lg font-semibold text-gray-900">Report Output</h3>
+                                        <h3 className="text-lg font-bold text-gray-900">Report Output</h3>
                                         {aiReportMutation.isPending && <p className="text-gray-500">AI is generating your report...</p>}
                                         {!aiReportMutation.isPending && reportResult && (
                                             <div className="space-y-3">
@@ -574,7 +574,7 @@ export default function AdminFeedbackDashboard() {
                                                 <div className="space-y-1">
                                                     {reportResult.insights.map((item, idx) => (
                                                         <div key={idx} className="flex items-start gap-2 text-sm text-gray-700">
-                                                            <span className="mt-1 text-blue-600">•</span>
+                                                            <span className="mt-1 text-[#1a4f9c]">•</span>
                                                             <span>{item}</span>
                                                         </div>
                                                     ))}
@@ -589,7 +589,7 @@ export default function AdminFeedbackDashboard() {
 
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     <div className="bg-white rounded-lg shadow p-4">
-                                        <h4 className="text-sm font-semibold text-gray-800 mb-2">Status Distribution</h4>
+                                        <h4 className="text-sm font-bold text-gray-800 mb-2">Status Distribution</h4>
                                         {reportFeedbackLoading ? (
                                             <p className="text-gray-500 text-sm">Loading...</p>
                                         ) : statusChartData.length === 0 ? (
@@ -612,7 +612,7 @@ export default function AdminFeedbackDashboard() {
                                     </div>
 
                                     <div className="bg-white rounded-lg shadow p-4">
-                                        <h4 className="text-sm font-semibold text-gray-800 mb-2">Priority Breakdown</h4>
+                                        <h4 className="text-sm font-bold text-gray-800 mb-2">Priority Breakdown</h4>
                                         {reportFeedbackLoading ? (
                                             <p className="text-gray-500 text-sm">Loading...</p>
                                         ) : (
@@ -631,7 +631,7 @@ export default function AdminFeedbackDashboard() {
                                     </div>
 
                                     <div className="bg-white rounded-lg shadow p-4 lg:col-span-2">
-                                        <h4 className="text-sm font-semibold text-gray-800 mb-2">Submissions vs Resolved (Trend)</h4>
+                                        <h4 className="text-sm font-bold text-gray-800 mb-2">Submissions vs Resolved (Trend)</h4>
                                         {reportFeedbackLoading ? (
                                             <p className="text-gray-500 text-sm">Loading...</p>
                                         ) : (
@@ -668,14 +668,14 @@ function StatCard({ title, value, icon, trend, subtext, alert }: any) {
                     {icon}
                 </div>
                 {trend && (
-                    <span className={`text-xs font-medium ${trend.includes('+') ? 'text-green-600' : 'text-red-600'}`}>
+                    <span className={`text-xs font-bold ${trend.includes('+') ? 'text-green-600' : 'text-red-600'}`}>
                         {trend}
                     </span>
                 )}
             </div>
-            <h3 className="text-sm font-medium text-gray-500">{title}</h3>
+            <h3 className="text-sm font-bold text-gray-500">{title}</h3>
             <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
-            {subtext && <p className="text-xs text-red-500 mt-1 font-medium">{subtext}</p>}
+            {subtext && <p className="text-xs text-red-500 mt-1 font-bold">{subtext}</p>}
         </div>
     );
 }
@@ -689,7 +689,7 @@ function PriorityBadge({ priority }: { priority: string }) {
     };
 
     return (
-        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ring-1 ring-inset ${styles[priority as keyof typeof styles] || styles.MEDIUM}`}>
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold border ring-1 ring-inset ${styles[priority as keyof typeof styles] || styles.MEDIUM}`}>
             {priority}
         </span>
     );
@@ -697,7 +697,7 @@ function PriorityBadge({ priority }: { priority: string }) {
 
 function StatusBadge({ status }: { status: string }) {
     const styles = {
-        SUBMITTED: 'bg-blue-50 text-blue-700 border-blue-200',
+        SUBMITTED: 'bg-blue-50 text-[#1a4f9c] border-blue-200',
         UNDER_REVIEW: 'bg-purple-50 text-purple-700 border-purple-200',
         IN_PROGRESS: 'bg-yellow-50 text-yellow-700 border-yellow-200',
         RESOLVED: 'bg-green-50 text-green-700 border-green-200',
@@ -705,8 +705,8 @@ function StatusBadge({ status }: { status: string }) {
     };
 
     return (
-        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${styles[status as keyof typeof styles] || styles.SUBMITTED}`}>
-            <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${styles[status as keyof typeof styles]?.replace('bg-', 'bg-').replace('text-', 'bg-').split(' ')[1].replace('text-', 'bg-') || 'bg-blue-600'}`}></span>
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold border ${styles[status as keyof typeof styles] || styles.SUBMITTED}`}>
+            <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${styles[status as keyof typeof styles]?.replace('bg-', 'bg-').replace('text-', 'bg-').split(' ')[1].replace('text-', 'bg-') || 'bg-[#1a4f9c]'}`}></span>
             {status.replace('_', ' ')}
         </span>
     );
@@ -715,7 +715,7 @@ function StatusBadge({ status }: { status: string }) {
 function VendorStatusBadge({ status }: { status?: string }) {
     const styles: Record<string, string> = {
         NONE: 'bg-gray-50 text-gray-500 border-gray-200',
-        FORWARDED: 'bg-blue-50 text-blue-700 border-blue-200',
+        FORWARDED: 'bg-blue-50 text-[#1a4f9c] border-blue-200',
         VENDOR_REPLIED: 'bg-indigo-50 text-indigo-700 border-indigo-200',
         PAST_DUE: 'bg-red-50 text-red-700 border-red-200',
         APPROVED: 'bg-green-50 text-green-700 border-green-200',
@@ -723,7 +723,7 @@ function VendorStatusBadge({ status }: { status?: string }) {
     };
     const label = status ? status.replace('_', ' ') : 'NONE';
     return (
-        <span className={`inline-flex w-fit items-center px-2 py-0.5 rounded-md text-[10px] font-medium border ${styles[status || 'NONE'] || styles.NONE}`}>
+        <span className={`inline-flex w-fit items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${styles[status || 'NONE'] || styles.NONE}`}>
             {label}
         </span>
     );

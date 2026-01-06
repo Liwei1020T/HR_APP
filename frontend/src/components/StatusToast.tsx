@@ -36,10 +36,10 @@ export function StatusToast({ message, variant = 'success', onClose, duration = 
     setTimeout(() => onClose?.(), 300);
   };
 
-  const baseStyles = "fixed top-6 right-6 z-50 flex flex-col rounded-xl shadow-xl backdrop-blur-md border border-white/10 transition-all duration-300 overflow-hidden";
+  const baseStyles = "fixed top-6 right-6 z-50 flex flex-col rounded-md shadow-sm border border-gray-200 border transition-all duration-300 overflow-hidden";
   const variants = {
-    success: "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/20",
-    error: "bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-red-500/20"
+    success: "bg-green-700 text-white border-green-800",
+    error: "bg-red-700 text-white border-red-800"
   };
 
   const Icon = variant === 'success' ? CheckCircle2 : AlertCircle;
@@ -53,16 +53,16 @@ export function StatusToast({ message, variant = 'success', onClose, duration = 
       role="alert"
     >
       <div className="flex items-center gap-3 px-4 py-3">
-        <div className="p-1 bg-white/20 rounded-full">
+        <div className="p-1 bg-white/10 rounded-md">
           <Icon className="w-5 h-5" />
         </div>
-        <div className="flex-1 text-sm font-semibold tracking-wide pr-2">
+        <div className="flex-1 text-sm font-bold pr-2">
           {message}
         </div>
         {onClose && (
           <button
             onClick={handleClose}
-            className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+            className="p-1 hover:bg-white/10 rounded-md transition-colors"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -74,7 +74,7 @@ export function StatusToast({ message, variant = 'success', onClose, duration = 
       {duration > 0 && (
         <div className="h-1 w-full bg-black/10">
           <div
-            className="h-full bg-white/40"
+            className="h-full bg-white/30"
             style={{
               width: `${progress}%`,
               transition: `width ${duration}ms linear`
