@@ -104,7 +104,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }, [location.pathname, filteredNavigation]);
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 overflow-x-hidden">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
@@ -241,7 +241,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       </div>
 
       {/* Main content */}
-      <div className="lg:pl-72 transition-all duration-300">
+      <div className="lg:pl-72 transition-all duration-300 w-full min-w-0">
         {/* Top bar */}
         <div className="sticky top-0 z-10 flex items-center h-20 bg-white/80 backdrop-blur-md border-b border-gray-100 px-4 lg:px-8 shadow-sm">
           <button
@@ -294,7 +294,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </div>
 
         {/* Page content */}
-        <main className="p-4 lg:p-8 max-w-7xl mx-auto">
+        <main className="p-4 lg:p-8 max-w-7xl mx-auto w-full min-w-0">
           {children}
         </main>
       </div>
