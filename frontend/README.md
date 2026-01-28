@@ -9,14 +9,15 @@ React + TypeScript frontend for the HR Management System.
 ## 🛠️ Tech Stack
 
 - **Framework**: React 18.2.0
-- **Language**: TypeScript 5.6.3
+- **Language**: TypeScript 5.2.2
 - **Build Tool**: Vite 5.4.21
-- **Styling**: Tailwind CSS 3.4.15
+- **Styling**: Tailwind CSS 3.3.5
 - **State Management**: TanStack React Query 5.8.4
 - **HTTP Client**: Axios 1.6.2
-- **Routing**: React Router DOM 6.28.0
-- **Forms**: React Hook Form 7.48.2 + Zod 3.23.8
-- **Icons**: Lucide React 0.454.0
+- **Routing**: React Router DOM 6.20.0
+- **Forms**: React Hook Form 7.48.2 + Zod 3.22.4
+- **Icons**: Lucide React 0.554.0
+- **Charts**: Recharts 3.5.0
 
 ## 🚀 Quick Start
 

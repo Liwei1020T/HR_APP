@@ -4,15 +4,15 @@ Complete Next.js API-only backend for the HR Management System. Built with Next.
 
 ## 🌐 Live API
 
-**Production**: https://hr_api.li-wei.net/api/v1  
-**Health Check**: https://hr_api.li-wei.net/api/v1/health  
+**Production**: https://hr_api.li-wei.net/api/v1
+**Health Check**: https://hr_api.li-wei.net/api/health
 **Frontend**: https://hr_app.li-wei.net
 
 ## 🚀 Tech Stack
 
 - **Framework**: Next.js 14.2.18 (App Router, API Routes)
-- **Language**: TypeScript 5.7.2
-- **Database**: PostgreSQL 18.x with Prisma ORM 5.22.0
+- **Language**: TypeScript 5.6.3
+- **Database**: PostgreSQL 16+ with Prisma ORM 5.22.0
 - **Validation**: Zod 3.23.8
 - **Authentication**: JWT (jsonwebtoken 9.0.2 + bcrypt 5.1.1)
 - **File Storage**: Local filesystem / AWS S3 / Vercel Blob
@@ -22,7 +22,7 @@ Complete Next.js API-only backend for the HR Management System. Built with Next.
 
 ## 📋 Features
 
-### Complete API Coverage (52 Endpoints)
+### Complete API Coverage (66+ Endpoints)
 
 #### Authentication (4 endpoints)
 - `POST /api/auth/login` - Login with email/password
