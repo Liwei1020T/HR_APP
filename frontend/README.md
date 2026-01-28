@@ -1,4 +1,4 @@
-# HR APP - Frontend
+# HR App - Frontend
 
 React + TypeScript frontend for the HR Management System.
 
@@ -20,7 +20,16 @@ React + TypeScript frontend for the HR Management System.
 
 ## 🚀 Quick Start
 
-### Development
+### Option 1: Docker (Recommended)
+
+```bash
+# From project root
+./deploy.sh
+
+# Access frontend at http://localhost:5173
+```
+
+### Option 2: Manual Development
 
 ```bash
 # Install dependencies
@@ -45,6 +54,10 @@ npm run preview
 ## ⚙️ Configuration
 
 ### Environment Variables
+
+**For Docker deployment**, see `.env.docker.example` in project root.
+
+**For manual setup:**
 
 Create `.env.production` for production deployment:
 
@@ -112,6 +125,8 @@ frontend/
 │   ├── main.tsx            # Entry point
 │   └── index.css           # Tailwind styles
 ├── public/                 # Static assets
+├── Dockerfile              # Docker image config
+├── nginx.conf              # Nginx server config
 ├── index.html              # HTML template
 ├── vite.config.ts          # Vite configuration
 ├── tailwind.config.js      # Tailwind CSS config
@@ -167,13 +182,29 @@ npm run preview
 npm run lint
 ```
 
+## 🐳 Docker Deployment
+
+The frontend is containerized with nginx for production serving.
+
+**Dockerfile** creates a multi-stage build:
+1. Build stage: Compile React app with Vite
+2. Runtime stage: Serve with nginx
+
+**nginx.conf** handles:
+- SPA routing (all routes → index.html)
+- Static asset caching
+- Gzip compression
+- Security headers
+
+See main README for Docker deployment instructions.
+
 ## 🚀 Deployment to Render
 
 ### Static Site Configuration
 
-**Service Type**: Static Site  
-**Build Command**: `npm install && npm run build`  
-**Publish Directory**: `dist`  
+**Service Type**: Static Site
+**Build Command**: `npm install && npm run build`
+**Publish Directory**: `dist`
 **Root Directory**: `frontend`
 
 ### Environment Variables
@@ -313,7 +344,7 @@ npm run type-check
 - Automatic CSRF protection via SameSite cookies
 - XSS protection via React auto-escaping
 - Input validation with Zod schemas
-- Secure HTTP headers from Vite
+- Secure HTTP headers from nginx
 
 ## 📞 Support
 
@@ -323,5 +354,6 @@ npm run type-check
 
 ---
 
-**Part of HR Management System**  
+**Part of HR Management System**
 **Backend**: https://hr-app-sofb.onrender.com
+**Repository**: https://github.com/Liwei1020T/HR_APP
