@@ -4,7 +4,7 @@ React + TypeScript frontend for the HR Management System.
 
 ## 🌐 Live Demo
 
-**Production**: https://hr-app-frontend-tevw.onrender.com
+**Production**: https://hr_app.li-wei.net
 
 ## 🛠️ Tech Stack
 
@@ -62,7 +62,7 @@ npm run preview
 Create `.env.production` for production deployment:
 
 ```env
-VITE_API_BASE_URL=https://hr-app-sofb.onrender.com/api/v1
+VITE_API_BASE_URL=https://hr_api.li-wei.net/api/v1
 ```
 
 For local development, create `.env`:
@@ -198,46 +198,6 @@ The frontend is containerized with nginx for production serving.
 
 See main README for Docker deployment instructions.
 
-## 🚀 Deployment to Render
-
-### Static Site Configuration
-
-**Service Type**: Static Site
-**Build Command**: `npm install && npm run build`
-**Publish Directory**: `dist`
-**Root Directory**: `frontend`
-
-### Environment Variables
-
-Set in Render Dashboard → Environment:
-
-```
-VITE_API_BASE_URL=https://hr-app-sofb.onrender.com/api/v1
-```
-
-### Deploy Steps
-
-1. **Connect Repository**
-   - Link GitHub repository: `Liwei1020T/HR_APP`
-   - Select `frontend` as root directory
-
-2. **Configure Build**
-   - Build command: `npm install && npm run build`
-   - Publish directory: `dist`
-
-3. **Set Environment Variables**
-   - Add `VITE_API_BASE_URL` with production backend URL
-
-4. **Deploy**
-   - Click "Create Static Site"
-   - Wait for build to complete (~2-3 minutes)
-
-### Auto-Deploy
-
-Automatic deployments trigger on:
-- Push to `main` branch
-- Changes in `frontend/` directory
-
 ## 🔧 Development Tips
 
 ### Hot Module Replacement (HMR)
@@ -294,14 +254,11 @@ const mutation = useMutation({
 
 ### CORS Errors
 
-Ensure backend `CORS_ORIGINS` includes your frontend URL:
-```
-CORS_ORIGINS=https://hr-app-frontend-tevw.onrender.com
-```
+Ensure backend `CORS_ORIGINS` includes your frontend URL.
 
 ### API Connection Failed
 
-Check `VITE_API_BASE_URL` in `.env.production` or Render environment variables.
+Check `VITE_API_BASE_URL` in `.env` or `.env.production`.
 
 ### Build Fails
 
@@ -350,10 +307,10 @@ npm run type-check
 
 - **Issues**: Check browser console for errors
 - **API Errors**: Verify backend is running and CORS configured
-- **Build Issues**: Check Render build logs
+- **Build Issues**: Check build logs
 
 ---
 
 **Part of HR Management System**
-**Backend**: https://hr-app-sofb.onrender.com
+**Backend**: https://hr_api.li-wei.net
 **Repository**: https://github.com/Liwei1020T/HR_APP

@@ -4,7 +4,7 @@
 
 ### A Modern, Full-Stack HR Platform Built with Next.js & React
 
-[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?style=for-the-badge)](https://hr-app-frontend-tevw.onrender.com)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?style=for-the-badge)](https://hr_app.li-wei.net)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-18-61dafb?style=for-the-badge&logo=react)](https://react.dev/)
@@ -15,32 +15,25 @@
   <strong>Streamline HR operations with feedback management, team communication, announcements, and birthday celebrations - all in one platform.</strong>
 </p>
 
-[Live Demo](https://hr-app-frontend-tevw.onrender.com) | [API Docs](#-api-documentation) | [Quick Start](#-quick-start)
+[Live Demo](https://hr_app.li-wei.net) | [API Docs](#-api-documentation) | [Quick Start](#-quick-start)
 
 </div>
 
 ---
 
-## Screenshots
+## Live Demo
 
-<table>
-  <tr>
-    <td><strong>Dashboard</strong></td>
-    <td><strong>Feedback System</strong></td>
-  </tr>
-  <tr>
-    <td>Central hub with quick stats and navigation</td>
-    <td>Submit and track employee feedback</td>
-  </tr>
-  <tr>
-    <td><strong>Team Channels</strong></td>
-    <td><strong>Admin Panel</strong></td>
-  </tr>
-  <tr>
-    <td>Real-time messaging and collaboration</td>
-    <td>User management and system metrics</td>
-  </tr>
-</table>
+**Production Deployment:**
+- **Frontend**: https://hr_app.li-wei.net
+- **Backend API**: https://hr_api.li-wei.net/api/v1
+- **Health Check**: https://hr_api.li-wei.net/api/health
+
+**Demo Accounts:**
+| Role | Email | Password |
+|------|-------|----------|
+| Superadmin | sa@demo.local | P@ssw0rd! |
+| Admin | admin@demo.local | P@ssw0rd! |
+| Employee | user@demo.local | P@ssw0rd! |
 
 ---
 
@@ -53,7 +46,7 @@
 | **4-Tier RBAC** | Employee, HR, Admin, Superadmin role hierarchy |
 | **Real-Time Chat** | Channel-based messaging with pin/announcement support |
 | **AI Integration** | Optional Groq AI for feedback analysis and reporting |
-| **Production Ready** | Deployed on Render with PostgreSQL |
+| **Production Ready** | Fully containerized with Docker |
 
 ---
 
@@ -77,7 +70,7 @@ Access the app:
 # Backend
 cd nextjs-backend
 npm install
-npx prisma migrate deploy
+npx prisma db push
 npm run dev
 
 # Frontend (new terminal)
@@ -85,14 +78,6 @@ cd frontend
 npm install
 npm run dev
 ```
-
-### Demo Accounts
-
-| Role | Email | Password |
-|------|-------|----------|
-| Superadmin | sa@demo.local | P@ssw0rd! |
-| Admin | admin@demo.local | P@ssw0rd! |
-| Employee | user@demo.local | P@ssw0rd! |
 
 ---
 
@@ -111,12 +96,14 @@ npm run dev
 - Status workflow (submitted → under review → in progress → resolved)
 - HR assignment and tracking
 - Threaded comments
+- AI-powered priority analysis (optional)
 
 **Team Communication**
 - Public/private channels
 - Real-time messaging
 - Pin important messages
 - Channel announcements
+- Direct messaging
 
 **Company Announcements**
 - Category filtering (news, policy, events, benefits)
@@ -133,6 +120,7 @@ npm run dev
 - System metrics
 - Audit logs
 - Feedback analytics
+- AI-generated reports (optional)
 
 **Vendor Management**
 - Vendor-specific feedback tracking
@@ -214,12 +202,16 @@ HR_APP/
 │   │   ├── contexts/       # React contexts (Auth)
 │   │   ├── lib/            # API client, types, utils
 │   │   └── pages/          # Page components
+│   ├── Dockerfile          # Frontend container
+│   ├── nginx.conf          # nginx config
 │   └── package.json
 │
 ├── nextjs-backend/         # Next.js API
 │   ├── app/api/            # API routes (13 modules)
 │   ├── lib/                # Business logic
 │   ├── prisma/             # Database schema & migrations
+│   ├── Dockerfile          # Backend container
+│   ├── Dockerfile.migrate  # Migration container
 │   └── package.json
 │
 ├── docker-compose.yml      # Docker orchestration
@@ -268,7 +260,7 @@ Key variables:
 
 ## API Documentation
 
-**Base URL**: `http://localhost:8000/api/v1`
+**Base URL**: `http://localhost:8000/api/v1` (local) or `https://hr_api.li-wei.net/api/v1` (production)
 
 ### Endpoints Overview
 
@@ -283,17 +275,18 @@ Key variables:
 | `/files` | 5 | Upload, download, attach |
 | `/birthday` | 6 | Events, invitations, RSVP |
 | `/admin` | 6 | Users, metrics, audit logs |
+| `/vendor` | 3 | Vendor feedback, conversations |
 
 ### Authentication
 
 ```bash
 # Login
-curl -X POST http://localhost:8000/api/v1/auth/login \
+curl -X POST https://hr_api.li-wei.net/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@demo.local","password":"P@ssw0rd!"}'
 
 # Use token
-curl http://localhost:8000/api/v1/users/me \
+curl https://hr_api.li-wei.net/api/v1/users/me \
   -H "Authorization: Bearer <access_token>"
 ```
 
@@ -313,50 +306,29 @@ curl http://localhost:8000/api/v1/users/me \
 ### Core Models
 
 ```prisma
-User           # Authentication, profiles, roles
-Channel        # Team communication spaces
-ChannelMessage # Real-time messages
-Feedback       # Employee submissions
-FeedbackComment# Discussion threads
-Announcement   # Company-wide news
-Notification   # User alerts
-File           # Attachments
-AuditLog       # Activity tracking
-BirthdayEvent  # Celebrations
+User                      # Authentication, profiles, roles
+Channel                   # Team communication spaces
+ChannelMessage            # Real-time messages
+DirectConversation        # 1-on-1 conversations
+DirectMessage             # Private messages
+Feedback                  # Employee submissions
+FeedbackComment           # Discussion threads
+FeedbackVendorLog         # Vendor conversation history
+Announcement              # Company-wide news
+Notification              # User alerts
+File                      # Attachments
+AuditLog                  # Activity tracking
+BirthdayEvent             # Celebrations
+BirthdayRegistration      # Event RSVPs
+Vendor                    # Vendor management
 ```
 
 ### Commands
 
 ```bash
 npx prisma studio      # Visual DB editor
-npx prisma migrate dev # Create migration
 npx prisma db push     # Quick sync (dev)
-```
-
----
-
-## Deployment
-
-### Render.com (Production)
-
-The app is deployed on Render:
-- **Frontend**: Static Site
-- **Backend**: Web Service
-- **Database**: PostgreSQL
-
-### Environment Variables
-
-**Backend**:
-```env
-DATABASE_URL=postgresql://...
-JWT_SECRET=<strong-secret>
-CORS_ORIGINS=https://your-frontend.com
-NODE_ENV=production
-```
-
-**Frontend**:
-```env
-VITE_API_BASE_URL=https://your-backend.com/api/v1
+npx prisma migrate dev # Create migration (production)
 ```
 
 ---
@@ -364,13 +336,14 @@ VITE_API_BASE_URL=https://your-backend.com/api/v1
 ## Security
 
 - JWT tokens with 30-min expiration
-- Refresh token rotation
+- Refresh token rotation (7-day expiry)
 - bcrypt password hashing (cost 10)
 - Role-based API protection
 - Zod input validation
 - Prisma parameterized queries (SQL injection prevention)
 - React XSS protection
 - CORS configured per environment
+- File upload validation (type & size)
 
 ---
 
@@ -389,7 +362,7 @@ VITE_API_BASE_URL=https://your-backend.com/api/v1
 cd nextjs-backend
 npm install
 cp .env.example .env  # Configure DATABASE_URL
-npx prisma migrate dev
+npx prisma db push
 npm run dev
 
 # Frontend
@@ -401,7 +374,7 @@ npm run dev
 ### Adding a New API Module
 
 1. Create Prisma model in `prisma/schema.prisma`
-2. Run `npx prisma migrate dev`
+2. Run `npx prisma db push` or `npx prisma migrate dev`
 3. Add Zod schema in `lib/validators/`
 4. Create route in `app/api/your-module/route.ts`
 5. Add frontend types in `src/lib/types.ts`
@@ -432,6 +405,6 @@ MIT License - feel free to use this project for learning or as a starting point 
 
 **Built with Next.js 14, React 18, and PostgreSQL**
 
-[Live Demo](https://hr-app-frontend-tevw.onrender.com) | [Report Bug](https://github.com/Liwei1020T/HR_APP/issues) | [Request Feature](https://github.com/Liwei1020T/HR_APP/issues)
+[Live Demo](https://hr_app.li-wei.net) | [Report Bug](https://github.com/Liwei1020T/HR_APP/issues) | [Request Feature](https://github.com/Liwei1020T/HR_APP/issues)
 
 </div>

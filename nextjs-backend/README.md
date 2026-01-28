@@ -4,9 +4,9 @@ Complete Next.js API-only backend for the HR Management System. Built with Next.
 
 ## 🌐 Live API
 
-**Production**: https://hr-app-sofb.onrender.com/api/v1  
-**Health Check**: https://hr-app-sofb.onrender.com/api/v1/health  
-**Frontend**: https://hr-app-frontend-tevw.onrender.com
+**Production**: https://hr_api.li-wei.net/api/v1  
+**Health Check**: https://hr_api.li-wei.net/api/v1/health  
+**Frontend**: https://hr_app.li-wei.net
 
 ## 🚀 Tech Stack
 
@@ -201,88 +201,6 @@ curl -X POST http://localhost:8000/api/v1/auth/login \
   -d '{"email":"sa@demo.local","password":"P@ssw0rd!"}'
 ```
 
-### Production Deployment (Render)
-
-#### Service Configuration
-
-**Service Type**: Web Service  
-**Repository**: `Liwei1020T/HR_APP`  
-**Root Directory**: `nextjs-backend`  
-**Build Command**: 
-```
-npm install && npx prisma generate && npx prisma migrate deploy && npm run build
-```
-**Start Command**: 
-```
-npm run start
-```
-**Port**: 8000
-
-#### Environment Variables (Render Dashboard)
-
-```env
-# Database - Use Render PostgreSQL Internal URL
-DATABASE_URL=postgresql://hr_app_db_user:password@dpg-xxx.oregon-postgres.render.com/hr_app_db
-
-# JWT
-JWT_SECRET=<strong-random-secret-minimum-32-chars>
-JWT_ALGORITHM=HS256
-JWT_EXPIRE_MIN=30
-JWT_REFRESH_EXPIRE_DAYS=7
-
-# CORS - Frontend URL (no trailing slash)
-CORS_ORIGINS=https://hr-app-frontend-tevw.onrender.com
-
-# File Upload
-MAX_FILE_SIZE=10485760
-ALLOWED_FILE_TYPES=.pdf,.doc,.docx,.txt,.jpg,.jpeg,.png
-STORAGE_TYPE=local
-STORAGE_PATH=./uploads
-
-# Email
-EMAIL_PROVIDER=console
-SMTP_HOST=
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASS=
-SMTP_FROM=noreply@hrapp.com
-
-# App
-APP_NAME=HR Management System
-NODE_ENV=production
-PORT=8000
-```
-
-#### Database Setup on Render
-
-1. **Create PostgreSQL Service**
-   - Free tier: 256MB RAM, 1GB storage
-   - Note the internal connection URL
-
-2. **Connect to Database**
-   - Use external connection URL for manual SQL execution
-   - Or let migrations run automatically via build command
-
-3. **Seed Data** (Optional)
-   - Connect via psql: `psql <EXTERNAL_DATABASE_URL>`
-   - Run: `\i database_setup.sql`
-
-#### Deploy
-
-1. Push to GitHub `main` branch
-2. Render automatically builds and deploys
-3. Check logs for any errors
-4. Test health endpoint: `https://hr-app-sofb.onrender.com/api/v1/health`
-
-#### Auto-Redeploy
-
-Pushes to `main` branch automatically trigger:
-- `npm install`
-- `npx prisma generate` (generates Prisma client)
-- `npx prisma migrate deploy` (applies migrations)
-- `npm run build` (Next.js production build)
-- `npm run start` (starts server on port 8000)
-
 ## 👥 Demo Accounts
 
 Production system includes these test accounts:
@@ -300,9 +218,9 @@ Production system includes these test accounts:
 
 ## 📚 API Documentation
 
-Base URLs:
+### Base URLs
 - **Local Development**: `http://localhost:8000/api/v1`
-- **Production (Render)**: `https://hr-app-sofb.onrender.com/api/v1`
+- **Production**: `https://hr_api.li-wei.net/api/v1`
 
 ### Authentication Flow
 
@@ -314,7 +232,7 @@ Base URLs:
      -d '{"email":"sa@demo.local","password":"P@ssw0rd!"}'
    
    # Production
-   curl -X POST https://hr-app-sofb.onrender.com/api/v1/auth/login \
+   curl -X POST https://hr_api.li-wei.net/api/v1/auth/login \
      -H "Content-Type: application/json" \
      -d '{"email":"sa@demo.local","password":"P@ssw0rd!"}'
    ```
@@ -354,7 +272,7 @@ curl -X POST http://localhost:8000/api/v1/feedback \
   }'
 
 # Production
-curl -X POST https://hr-app-sofb.onrender.com/api/v1/feedback \
+curl -X POST https://hr_api.li-wei.net/api/v1/feedback \
   -H "Authorization: Bearer <access_token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -372,7 +290,7 @@ curl -X POST https://hr-app-sofb.onrender.com/api/v1/feedback \
 curl http://localhost:8000/api/v1/health
 
 # Production  
-curl https://hr-app-sofb.onrender.com/api/v1/health
+curl https://hr_api.li-wei.net/api/v1/health
 ```
 
 Returns:
@@ -512,11 +430,7 @@ taskkill /PID <PID> /F
 - Verify PostgreSQL is running: `pg_isready`
 - Ensure database exists: `psql -l | grep hr_app_db`
 - Test connection: `psql $DATABASE_URL`
-
-**Production (Render)**:
-- Use **internal** database URL (not external)
-- Format: `postgresql://user:pass@dpg-xxx-a.oregon-postgres.render.com/dbname`
-- Check Render dashboard for connection status
+- For Docker: Check container is running with `docker ps`
 
 #### 3. Prisma Client Not Generated
 **Symptoms**: `@prisma/client did not initialize yet`
@@ -539,8 +453,7 @@ npm install
 - Check `next.config.mjs` webpack aliases
 - Rebuild: `npm run build`
 
-**Production (Render)**:
-- Ensure build command includes `npm install` (not `npm ci`)
+- For production, ensure build command includes `npm install` (not `npm ci`)
 - Use `npm install --include=dev` to get TypeScript types
 
 #### 5. CORS Errors
@@ -549,14 +462,14 @@ npm install
 **Solutions**:
 - Check `CORS_ORIGINS` environment variable
 - Format: No trailing slashes, comma-separated
-- Example: `https://hr-app-frontend-tevw.onrender.com`
-- Redeploy backend after changing env vars on Render
+- Example: `https://hr_app.li-wei.net`
+- Restart backend after changing environment variables
 
 **Debug**:
 ```bash
 # Check CORS headers
-curl -I -X OPTIONS https://hr-app-sofb.onrender.com/api/v1/auth/login \
-  -H "Origin: https://hr-app-frontend-tevw.onrender.com"
+curl -I -X OPTIONS https://hr_api.li-wei.net/api/v1/auth/login \
+  -H "Origin: https://hr_app.li-wei.net"
 ```
 
 #### 6. Migration Failed
@@ -583,28 +496,11 @@ npx prisma migrate status
 - Ensure Authorization header format: `Bearer <token>`
 - Test login endpoint:
   ```bash
-  curl -X POST https://hr-app-sofb.onrender.com/api/v1/auth/login \
+  curl -X POST https://hr_api.li-wei.net/api/v1/auth/login \
     -H "Content-Type: application/json" \
     -d '{"email":"sa@demo.local","password":"P@ssw0rd!"}'
   ```
 
-#### 8. Build Fails on Render
-**Symptoms**: `Build failed` in Render logs
-
-**Common Causes**:
-- Missing dependencies in `package.json`
-- TypeScript errors (run `npm run build` locally first)
-- Prisma schema issues (run `npx prisma validate`)
-- Environment variables not set
-
-**Solutions**:
-1. Check Render build logs for specific error
-2. Verify build command:
-   ```
-   npm install && npx prisma generate && npx prisma migrate deploy && npm run build
-   ```
-3. Ensure `typescript`, `@types/node`, `@types/react` in `devDependencies`
-4. Test locally: `npm run build` should succeed
 
 #### 9. File Upload Errors
 **Symptoms**: `413 Payload Too Large` or upload fails
@@ -613,17 +509,8 @@ npx prisma migrate status
 - Check MAX_FILE_SIZE environment variable (bytes)
 - Verify ALLOWED_FILE_TYPES includes file extension
 - Ensure STORAGE_PATH directory exists and is writable
-- For Render: Use persistent storage or external service (S3)
+- For production: Use persistent storage or external service (S3)
 
-#### 10. Slow API Performance
-**Symptoms**: Requests take >3 seconds
-
-**Solutions**:
-- Check Render service logs for cold starts (free tier spins down)
-- Optimize database queries (add indexes)
-- Use Prisma `select` to limit returned fields
-- Implement pagination for large datasets
-- Upgrade Render plan for always-on service
 
 ### Debug Mode
 
@@ -640,15 +527,15 @@ Check logs:
 # Local
 npm run dev | tee debug.log
 
-# Production (Render)
-# View logs in Render dashboard
+# Production
+# Check application logs
 ```
 
 ### Getting Help
 
-1. Check Render deployment logs
-2. Run health check: `curl https://hr-app-sofb.onrender.com/api/v1/health`
-3. Test database connection in Render shell
+1. Check application logs
+2. Run health check: `curl https://hr_api.li-wei.net/api/v1/health`
+3. Test database connection in production server shell
 4. Review recent commits for breaking changes
 5. Compare working local setup vs production config
 
@@ -666,8 +553,8 @@ MIT
 
 ---
 
-**Built with ❤️ using Next.js 14, Prisma, and PostgreSQL**  
-**Deployed on [Render Cloud Platform](https://render.com)**
+**Built with Next.js 14, Prisma, and PostgreSQL**
+**Containerized with Docker**
 
 ## 📞 Support
 
