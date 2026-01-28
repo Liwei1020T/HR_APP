@@ -6,6 +6,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const nextConfig = {
+  // Enable standalone output for Docker
+  output: 'standalone',
   // API-only mode - no pages
   experimental: {
     serverActions: {

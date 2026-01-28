@@ -1,8 +1,19 @@
 import Groq from 'groq-sdk';
 
-const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY,
-});
+// Lazy initialization to avoid build-time errors when API key is not set
+let groqClient: Groq | null = null;
+
+function getGroqClient(): Groq | null {
+    if (!process.env.GROQ_API_KEY) {
+        return null;
+    }
+    if (!groqClient) {
+        groqClient = new Groq({
+            apiKey: process.env.GROQ_API_KEY,
+        });
+    }
+    return groqClient;
+}
 
 export type FeedbackPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 
@@ -44,6 +55,7 @@ export async function analyzeFeedback(title: string, description: string): Promi
       }
     `;
 
+        const groq = getGroqClient()!;
         const completion = await groq.chat.completions.create({
             messages: [
                 {
@@ -123,6 +135,7 @@ Respond ONLY with JSON:
 {"vendor_related": true|false}
 `;
 
+        const groq = getGroqClient()!;
         const completion = await groq.chat.completions.create({
             messages: [
                 { role: 'system', content: 'You are a classifier. Respond with JSON only.' },
@@ -178,6 +191,7 @@ Respond ONLY with JSON:
 Keep it specific and concise, mention timezone as UTC+8 in the summary.
 `;
 
+        const groq = getGroqClient()!;
         const completion = await groq.chat.completions.create({
             messages: [
                 { role: 'system', content: 'You are an HR analytics assistant. Respond with JSON only.' },
@@ -245,6 +259,7 @@ export async function generateReplySuggestion(
       }
     `;
 
+        const groq = getGroqClient()!;
         const completion = await groq.chat.completions.create({
             messages: [
                 {

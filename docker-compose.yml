@@ -1,0 +1,145 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: hr-app-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hrapp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hrapp123}
+      POSTGRES_DB: ${POSTGRES_DB:-hr_app_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hrapp} -d ${POSTGRES_DB:-hr_app_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hr-app-network
+
+  # Next.js Backend API
+  backend:
+    build:
+      context: ./nextjs-backend
+      dockerfile: Dockerfile
+    container_name: hr-app-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER:-hrapp}:${POSTGRES_PASSWORD:-hrapp123}@postgres:5432/${POSTGRES_DB:-hr_app_db}
+
+      # JWT Settings
+      JWT_SECRET: ${JWT_SECRET:-change-this-secret-in-production}
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRE_MIN: "30"
+      JWT_REFRESH_EXPIRE_DAYS: "7"
+
+      # CORS - allow frontend
+      CORS_ORIGINS: http://localhost,http://localhost:80,http://frontend,${EXTRA_CORS_ORIGINS:-}
+
+      # File Upload
+      MAX_FILE_SIZE: "10485760"
+      ALLOWED_FILE_TYPES: ".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.webp"
+      STORAGE_TYPE: local
+      STORAGE_PATH: /app/uploads
+
+      # Email
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-console}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-noreply@hrapp.com}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+
+      # App
+      APP_NAME: "HR Management System"
+      NODE_ENV: production
+      PORT: "8000"
+
+      # Optional: AI
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+    volumes:
+      - uploads_data:/app/uploads
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - hr-app-network
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000/api/v1}
+    container_name: hr-app-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - hr-app-network
+
+  # Database migrations (run once)
+  migrate:
+    build:
+      context: ./nextjs-backend
+      dockerfile: Dockerfile.migrate
+    container_name: hr-app-migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-hrapp}:${POSTGRES_PASSWORD:-hrapp123}@postgres:5432/${POSTGRES_DB:-hr_app_db}
+    command: npx prisma db push --accept-data-loss
+    networks:
+      - hr-app-network
+    profiles:
+      - migrate
+
+  # Database seeder (run once, optional)
+  seed:
+    build:
+      context: ./nextjs-backend
+      dockerfile: Dockerfile.migrate
+    container_name: hr-app-seed
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-hrapp}:${POSTGRES_PASSWORD:-hrapp123}@postgres:5432/${POSTGRES_DB:-hr_app_db}
+    command: npx prisma db seed
+    networks:
+      - hr-app-network
+    profiles:
+      - seed
+
+networks:
+  hr-app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  uploads_data:
+    driver: local

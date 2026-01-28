@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Build output
+.next
+out
+dist
+build
+
+# Environment files (use docker-compose env instead)
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Tests
+coverage
+.nyc_output
+*.test.ts
+*.spec.ts
+__tests__
+
+# Misc
+README.md
+CHANGELOG.md
+*.md
+!prisma/*.md
+
+# Local storage (will be mounted as volume)
+storage
+uploads

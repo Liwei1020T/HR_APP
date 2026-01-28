@@ -1,0 +1,19 @@
+FROM node:18-alpine
+
+# Install dependencies
+RUN apk add --no-cache libc6-compat openssl
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# Copy prisma files
+COPY prisma ./prisma
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Default command
+CMD ["npx", "prisma", "migrate", "deploy"]
