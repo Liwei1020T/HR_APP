@@ -10,6 +10,7 @@ A production-ready HR management system deployed on Render with React (TypeScrip
 - [How to Use](#-how-to-use)
 - [Architecture](#-architecture)
 - [Tech Stack](#-tech-stack)
+- [Docker Deployment](#-docker-deployment)
 - [Getting Started](#-getting-started)
 - [API Documentation](#-api-documentation)
 - [Database Schema](#-database-schema)
@@ -292,6 +293,105 @@ frontend/
 - **Routing**: React Router DOM 6.20.0
 - **Forms**: React Hook Form 7.48.2
 - **Icons**: Lucide React 0.554.0
+
+## 🐳 Docker Deployment
+
+The easiest way to run the entire application locally is with Docker. No need to install PostgreSQL, Node.js, or any other dependencies.
+
+### Prerequisites
+- [Docker](https://www.docker.com/get-started) installed
+- [Docker Compose](https://docs.docker.com/compose/install/) installed (included with Docker Desktop)
+
+### One-Click Deployment
+
+```bash
+# Clone repository
+git clone https://github.com/Liwei1020T/HR_APP.git
+cd HR_APP
+
+# Run the deployment script
+./deploy.sh
+```
+
+This will automatically:
+1. Pull PostgreSQL 16 image
+2. Build frontend and backend Docker images
+3. Start all services
+4. Run database migrations
+
+### Access Points
+
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:8000/api/v1 |
+| Health Check | http://localhost:8000/api/health |
+| Database | localhost:5433 (user: hrapp, pass: hrapp123) |
+
+### Deploy Commands
+
+```bash
+./deploy.sh              # One-click deploy (build + start + migrate)
+./deploy.sh build        # Build Docker images only
+./deploy.sh start        # Start all services
+./deploy.sh stop         # Stop all services
+./deploy.sh restart      # Restart all services
+./deploy.sh seed         # Create demo data
+./deploy.sh logs         # View logs (add service name: logs backend)
+./deploy.sh status       # Check service status
+./deploy.sh clean        # Remove all containers and data (warning: destructive)
+./deploy.sh help         # Show all commands
+```
+
+### Configuration
+
+Copy and edit the environment file:
+
+```bash
+cp .env.docker.example .env
+```
+
+Key environment variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `BACKEND_PORT` | 8000 | Backend API port |
+| `FRONTEND_PORT` | 5173 | Frontend port |
+| `DB_PORT` | 5433 | PostgreSQL port (external) |
+| `JWT_SECRET` | (change me) | JWT signing secret |
+| `GROQ_API_KEY` | (optional) | AI features API key |
+
+### Demo Accounts
+
+After running `./deploy.sh seed`:
+
+| Role | Email | Password |
+|------|-------|----------|
+| Superadmin | sa@demo.local | P@ssw0rd! |
+| Admin | admin@demo.local | P@ssw0rd! |
+| Employee | user@demo.local | P@ssw0rd! |
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Docker Network                        │
+├─────────────────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │
+│  │  Frontend   │  │   Backend   │  │   PostgreSQL    │  │
+│  │   (nginx)   │  │  (Next.js)  │  │   (postgres)    │  │
+│  │  port:5173  │  │  port:8000  │  │   port:5433     │  │
+│  └─────────────┘  └─────────────┘  └─────────────────┘  │
+│        │                │                   │           │
+│        └────────────────┼───────────────────┘           │
+│                         │                               │
+│              ┌──────────┴──────────┐                    │
+│              │   Docker Volumes    │                    │
+│              │  - postgres_data    │                    │
+│              │  - uploads_data     │                    │
+│              └─────────────────────┘                    │
+└─────────────────────────────────────────────────────────┘
+```
 
 ## 🚀 Getting Started
 
